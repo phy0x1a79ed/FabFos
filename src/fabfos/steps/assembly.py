@@ -15,7 +15,7 @@ def Procedure(args):
     asm_meta = Assembly.Load(asm_mode_save)
     assemblers = asm_meta.modes
     given_contigs = asm_meta.given
-    if _MOCK: C.log.warn("debug mock is active, no assemblers will actually run")
+    if _MOCK: C.log.warning("debug mock is active, no assemblers will actually run")
 
     def _stringify(lst):
         return ','.join(str(p) for p in lst)
@@ -87,7 +87,7 @@ def Procedure(args):
             if r.killed: return
             
         if not expected_out.exists():
-            C.log.warn(f"assembler [{assembler_mode}] failed")
+            C.log.warning(f"assembler [{assembler_mode}] failed")
             continue
         raw_contigs[assembler_mode] = expected_out
         # assembled_contigs.append(assembler_mode)

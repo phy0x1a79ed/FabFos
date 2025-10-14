@@ -31,6 +31,7 @@ def Procedure(args):
     os.chdir(workspace)
 
     def publish_result(estimate, total):
+        os.chdir(original_dir)
         C.log.info(f"estimated pool size: {estimate}")
         pd.DataFrame([(estimate, total)], columns=["estimated_pool_size", "estimated_pool_size_with_singletons"])\
             .to_csv(C.root_workspace.joinpath("pool_size_estimate.csv"), index=False)
@@ -131,8 +132,6 @@ def Procedure(args):
                     size_ones += 1
 
             total = estimate + size_ones
-
-            os.chdir(original_dir)
             publish_result(estimate, total)
 
         finally:

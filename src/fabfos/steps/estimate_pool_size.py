@@ -22,6 +22,10 @@ def Procedure(args):
     backbone = vector.fasta
     workspace = C.out_dir
 
+    # careful, changing dirs
+    fwd = fwd.absolute()
+    rev = rev.absolute()
+    backbone = backbone.absolute()
     os.makedirs(workspace, exist_ok=True)
     original_dir = os.getcwd()
     os.chdir(workspace)

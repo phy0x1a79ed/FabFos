@@ -31,7 +31,7 @@ fabfos --output ./example_out \
 
 ## Overview:
 
-Fabfos is a pipeline for resolving cloned inserts from pooled fosmid libraries using the following steps:
+Fabfos is a pipeline driven by Snakemake [[11](#references)] for resolving cloned inserts from pooled fosmid libraries using the following steps:
 
 1. Read QC
     - Filtering of the host background with BWA [[7](#references)] and Samtools [[4](#references)]
@@ -302,3 +302,4 @@ Please consider citing these along with Fabfos.
 
 10. Rognes, T., Flouri, T., Nichols, B., Quince, C., Mahé, F., 2016. **VSEARCH: a versatile open source tool for metagenomics.** PeerJ 4, e2584. https://doi.org/10.7717/peerj.2584
 
+11. Köster J, Rahmann S. **Snakemake—a scalable bioinformatics workflow engine.** Bioinformatics. 2012;28(19):2520–2. https://doi:10.1093/bioinformatics/bts480 

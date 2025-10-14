@@ -30,6 +30,12 @@ def Procedure(args):
     original_dir = os.getcwd()
     os.chdir(workspace)
 
+    def publish_result(estimate, total):
+        C.log.info(f"estimated pool size: {estimate}")
+        pd.DataFrame([(estimate, total)], columns=["estimated_pool_size", "estimated_pool_size_with_singletons"])\
+            .to_csv(C.root_workspace.joinpath("pool_size_estimate.csv"), index=False)
+        PoolSizeEstimate(size=estimate, size_with_singletons=total).Save(C.expected_output)
+
     def _shell(cmd: str):
         def _log(x: str):
             with open(C.log_file, "a") as f:
@@ -83,7 +89,12 @@ def Procedure(args):
                 trim_seq = new_seq[len(new_seq)-CUT:len(new_seq)]
                 final_recs.append((is_fwd, trim_seq))
                 kept_indicies.append(i)
-        assert len(final_recs)>0, "no hits to vector backbone"
+
+        if len(final_recs)==0:
+            C.log.warning("no hits to vector backbone")
+            publish_result(0, 0)
+            return
+
         with open(f'{BACKBONE}-5-020.fasta', 'w') as f:
             for i, (is_fwd, seq) in enumerate(final_recs):
                 f.write(f">{i}\n{seq}\n")
@@ -122,10 +133,7 @@ def Procedure(args):
             total = estimate + size_ones
 
             os.chdir(original_dir)
-            C.log.info(f"estimated pool size: {estimate}")
-            pd.DataFrame([(estimate, total)], columns=["estimated_pool_size", "estimated_pool_size_with_singletons"])\
-                .to_csv(C.root_workspace.joinpath("pool_size_estimate.csv"), index=False)
-            PoolSizeEstimate(size=estimate, size_with_singletons=total).Save(C.expected_output)
+            publish_result(estimate, total)
 
         finally:
             final_output.close()

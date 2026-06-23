@@ -1,0 +1,36 @@
+package:
+  name: <NAME>
+  version: <VERSION>
+
+source:
+  path: ../
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install ./src/fabfos -v
+  entry_points:
+<ENTRY>
+
+test:
+  imports:
+    - <NAME>
+  commands:
+    - pip check
+    - <NAME> --help
+  requires:
+    - pip
+
+requirements:
+  host:
+    - pip
+<PYTHON>
+
+  run:
+<REQUIREMENTS>
+
+about:
+  home: https://github.com/<USER>/<NAME>
+  summary: <SHORT_SUMMARY>
+  license: 'gpl-v3'
+  license_file: ../LICENSE

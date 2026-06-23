@@ -1,0 +1,9 @@
+name: fabfos
+channels:
+  - hallamlab
+  - bioconda
+  - conda-forge
+dependencies:
+  - python=3.12
+  # the planner/executor; provides the `metasmith`/`msm` CLI and python_api.
+  - metasmith

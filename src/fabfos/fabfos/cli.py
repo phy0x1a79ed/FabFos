@@ -57,6 +57,10 @@ def _build_parser() -> argparse.ArgumentParser:
                      help="max threads per step")
     run.add_argument("--plan-only", action="store_true", default=False,
                      help="resolve and print the workflow DAG without executing")
+    run.add_argument("--provision-only", action="store_true", default=False,
+                     help="create the per-tool mamba envs from the library *.env.yml specs, then exit")
+    run.add_argument("--no-provision", action="store_true", default=False,
+                     help="do not auto-create missing per-tool mamba envs before a MAMBA run")
     p.add_argument("-v", "--version", action="version", version=f"{NAME} {__version__}")
     return p
 
@@ -85,6 +89,13 @@ def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     inp = _inputs_from_args(args)
 
+    if args.provision_only:
+        from .provision import provision_tool_environments
+        from .library import resolve_library_root
+        rep = provision_tool_environments(resolve_library_root())
+        print(f"provision: created={rep.created} skipped={rep.skipped} failed={[n for n,_ in rep.failed]}")
+        return 1 if rep.failed else 0
+
     if args.plan_only:
         inp.output.mkdir(parents=True, exist_ok=True)
         _agent, task = generate_workflow(inp, inp.output / "_fabfos")
@@ -98,7 +109,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  [{i}] {name}")
         return 0
 
-    run_pipeline(inp)
+    run_pipeline(inp, provision=not args.no_provision)
     return 0
 
 

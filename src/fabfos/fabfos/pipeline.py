@@ -1,11 +1,16 @@
 """Drive a FabFos run through metasmith.
 
 Builds typed metasmith input libraries from the CLI arguments, asks the
-planner for a workflow that produces fosmid scaffolds (and, when a vector
-backbone is given, a pool-size estimate), then optionally executes it under
-the chosen runtime. The default runtime is MAMBA so a conda/mamba install of
-FabFos is self-contained — each tool runs via ``mamba run -n <env>`` with no
-container relay.
+planner for a workflow that produces the canonical fosmid output — the
+non-redundant contigs (``sequences::length_filtered_assembly``: the megahit
+assembly, length-filtered and deduplicated) — plus, when the relevant inputs
+are given, a vector pool-size estimate, orthogonal end-sequence tags, and the
+ECSPr metabolic graph. Target lineage pins downstream products to the
+deduplicated contigs (so ORF annotation runs on them, not the raw assembly)
+and forces host filtering when a background genome is supplied. Execution is
+optional and runs under the chosen runtime; the default runtime is MAMBA so a
+conda/mamba install of FabFos is self-contained — each tool runs via
+``mamba run -n <env>`` with no container relay.
 """
 from __future__ import annotations
 
@@ -64,9 +69,9 @@ def _write_read_metadata(staging: Path, parity: str) -> Path:
 
 def _write_ends_table(staging: Path, inp: FabFosInputs) -> Path:
     p = staging / "ends_table.json"
-    # insert ids are discovered downstream; the table primarily carries the
-    # junction orientation flag the scaffold step needs.
-    p.write_text(json.dumps({"insert_ids": [], "ends_facing": inp.ends_facing}, indent=2))
+    # insert ids are derived downstream from the end-fasta headers; the table
+    # only carries the junction orientation flag the tag step needs.
+    p.write_text(json.dumps({"ends_facing": inp.ends_facing}, indent=2))
     return p
 
 
@@ -123,12 +128,30 @@ def build_inputs(inp: FabFosInputs, staging: Path, lib_root: Path):
 
 
 def _targets(inp: FabFosInputs) -> TargetBuilder:
+    """Build the target set, using lineage to shape the resolved DAG.
+
+    - When a host genome is given, ``host_filtered_short_reads`` is requested
+      and every read-derived product is pinned to it, so background filtering
+      is forced rather than silently skipped.
+    - The canonical output is the deduplicated contigs
+      (``length_filtered_assembly``). ORFs / the ECSPr graph are pinned to it
+      via ``parents`` so annotation runs on the dedup'd contigs, not the raw
+      megahit assembly.
+    - End tags are an optional, orthogonal lane requested only when end
+      sequences are supplied; nothing downstream depends on them.
+    """
     targets = TargetBuilder()
-    targets.Add("fosmids::scaffolds")
+    host = inp.background is not None
+    hf = targets.Add("sequences::host_filtered_short_reads") if host else None
+    reads_parent = {hf} if hf is not None else None
+
+    nrc = targets.Add("sequences::length_filtered_assembly", parents=reads_parent)
     if inp.vector is not None:
-        targets.Add("fosmids::pool_size_estimate")
+        targets.Add("fosmids::pool_size_estimate", parents=reads_parent)
+    if inp.end_forward is not None and inp.end_reverse is not None:
+        targets.Add("fosmids::end_tags", parents={nrc})
     if inp.ecspr:
-        targets.Add("metabolic::fosmid_bipartite_graph")
+        targets.Add("metabolic::fosmid_bipartite_graph", parents={nrc})
     return targets
 
 
@@ -138,7 +161,17 @@ def generate_workflow(inp: FabFosInputs, staging: Path):
     samples, res = build_inputs(inp, staging, lib_root)
     resources = [DataInstanceLibrary.Load(lib_root / f"resources/{n}") for n in ("containers", "lib")]
     transforms = [TransformInstanceLibrary.Load(lib_root / f"transforms/{d}") for d in DOMAINS]
-    agent = Agent(home=Source.FromLocal(staging / "agent_home"), runtime=inp.runtime)
+    # Under MAMBA, metasmith itself runs from the active conda env (the
+    # `fabfos` env that ships the planner/executor), so the agent is `native`:
+    # no container wrapper around metasmith, no relay. Tools still launch via
+    # `mamba run -n <env>` (that is decided per-tool from the *.env.yml, not by
+    # the agent's native flag). The container runtimes keep the default
+    # (non-native) container deploy.
+    agent = Agent(
+        home=Source.FromLocal(staging / "agent_home"),
+        runtime=inp.runtime,
+        native=(inp.runtime == Runtime.MAMBA),
+    )
     task = agent.GenerateWorkflow(
         samples=samples.AsSamples("sequences::read_metadata"),
         resources=resources + [res],
@@ -168,7 +201,7 @@ def _wait_for_run(staging: Path, task_key: str, timeout_s: int = 7200) -> Path:
     raise TimeoutError(f"workflow {task_key} did not finish within {timeout_s}s")
 
 
-def run_pipeline(inp: FabFosInputs) -> Path:
+def run_pipeline(inp: FabFosInputs, *, provision: bool = True) -> Path:
     """Plan, stage, execute, and collect results into ``inp.output``."""
     inp.output.mkdir(parents=True, exist_ok=True)
     staging = inp.output / "_fabfos"
@@ -176,6 +209,19 @@ def run_pipeline(inp: FabFosInputs) -> Path:
 
     agent, task = generate_workflow(inp, staging)
     assert task.ok, "FabFos workflow generation failed; see planner hints above"
+
+    # Under MAMBA each tool runs as `mamba run -n <env>`; those envs must exist
+    # before the workflow launches (unlike containers, which materialize on
+    # first `docker run`). Stand up any missing per-tool envs from the library's
+    # *.env.yml specs. Idempotent: existing envs are left untouched.
+    if provision and inp.runtime == Runtime.MAMBA:
+        from .provision import provision_tool_environments
+        rep = provision_tool_environments(resolve_library_root())
+        if rep.failed:
+            raise RuntimeError(
+                f"tool-environment provisioning failed for {[n for n, _ in rep.failed]}; "
+                f"created={rep.created} skipped={rep.skipped}"
+            )
 
     agent.Deploy()
     agent.StageWorkflow(task, on_exist="clear")

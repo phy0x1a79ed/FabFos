@@ -18,8 +18,13 @@ fabfos \
     --output ./example_out
 ```
 
-The pipeline resolves: reads → QC/trim (bbduk) → assembly (megahit) →
-pool-size estimate (minimap2/samtools/vsearch) → end-aware scaffolding (blast).
+The pipeline resolves: reads → QC/trim (bbduk) → optional host filtering
+(minimap2/samtools, forced when `--background` is given) → assembly (megahit) →
+non-redundant contigs (length filter + dedup, blast). When `--endf/--endr` are
+given, an orthogonal blast step tags those contigs with the fosmid end
+mappings; with `--vector`, a pool-size estimate (minimap2/samtools/vsearch) is
+also produced. ORF annotation, when requested, runs on the non-redundant
+contigs rather than the raw assembly.
 
 ## Repository layout
 
@@ -51,9 +56,17 @@ library submodules. `./dev.sh -b` bundles the library into the package
 
 ## Status
 
-Under active refactor. The package plans the full core pipeline under the
-mamba runtime today; running it self-contained additionally requires the
-unified `*.env.yml` tool-environment resources (conda spec + container
-pointer) and the per-tool conda envs to be provisioned. See the legacy
-pipeline in `_old/` for the original Snakemake implementation and full
-argument/output reference.
+The core pipeline runs **end-to-end under the mamba runtime** on the
+`fosmids_test` fixtures: reads → QC → host filter → assembly → non-redundant
+contigs → pool-size estimate + end tags, all seven steps executing via
+`mamba run -n <env>` with no containers, and the metasmith **task cache**
+promoting each step then re-hitting all of them on a second run. The tool
+environments are provisioned from the unified `*.env.yml` resources (conda
+spec + container pointer); FabFos auto-creates any missing ones before a run
+(`--provision-only` to just build them, `--no-provision` to skip). The core
+tools share the `fabfos-bio` env (diamond in `fabfos-annot`).
+
+The `--ecspr` chain (through the per-fosmid bipartite graph) resolves under
+mamba; running it end-to-end additionally needs real ECSPr reference data
+(universe bipartite graphs + reaction DB). See the legacy pipeline in `_old/`
+for the original Snakemake implementation and full argument/output reference.

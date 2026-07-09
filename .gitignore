@@ -1,6 +1,7 @@
 __pycache__
 **/cache
 
+.awm
 .idea/
 *_env/
 *.sif

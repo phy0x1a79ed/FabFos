@@ -153,3 +153,51 @@ fan-out, wall clock ~10-15 min. That is the "batches of 32" shape.
 fir is reachable as user `phyberos` (checked via the ssh domain's status verb,
 NOT by opening a new connection -- never loop-retry connect, never delete the
 ControlMaster socket; a prior run here was halted by a Duo lockout that way).
+
+## T5: the fir run, and four blockers found in front of it
+
+The driver is `examples/benchmark_v3_on_fir.py`. The plan resolves to TWO
+steps -- `solve_benchmark` then `merge_benchmark` -- so the job-array batching
+the plan wanted disabled is moot by construction rather than by configuration.
+`--user` is a required argument and is never auto-resolved; see the module
+docstring on the Duo lockout.
+
+Four things stood between the driver and a run. The first three are fixed and
+committed; the fourth is environmental and is NOT ours.
+
+1. **Unpublished engine version.** The `fabfos` env resolves `metasmith` to a
+   local editable checkout (0.19.0-77dca42) ahead of the submodule pin. The
+   agent image tag is derived from the engine's own version, and that tag was
+   never pushed -- the run died on "manifest unknown" then a cascade about a
+   missing relay binary. `assert_pinned_engine()` now refuses up front.
+
+2. **The tag has a build hash the checkout does not carry.** `CONTAINER_TAG` is
+   `{VERSION}-{BUILD_HASH}` where BUILD_HASH is written AT BUILD TIME, so a
+   source checkout degrades to bare `0.18.8` -- also never pushed; quay carries
+   `0.18.8-60556ca`. `agent_container()` now COMPUTES the hash with the same
+   function the build uses. The vendored tree hashes to 60556ca, so the image is
+   provably built from the source on our PYTHONPATH.
+
+3. **Inputs must live on the far side.** metasmith bind-mounts an item at its
+   OWN path inside the task container -- the same string both sides -- so an
+   item declared at a workstation path is mounted at that path on the cluster
+   node, where it does not exist. The driver now rsyncs the 81 MB tree to
+   `{scratch}/{user}/ecspr_bench_v3_data` and declares the items there.
+
+4. **fir's /scratch silently drops files on write. NOT FIXED, NOT OURS.**
+   The rsync of the benchmark tree lost 5 of 84 files to
+   `mkstemp ... Input/output error (5)`; a second pass converged. The engine's
+   own context transfer then lost files the same way, and that one is silent:
+   of the 11 transform libraries it staged, `prodigal` and `chimera_split`
+   arrived WITHOUT `_metadata/types/transforms.yml`, and every other library was
+   missing some different arbitrary file. Locally all 15 domains carry all 18
+   type files, so this is loss in transit, not a build defect.
+
+   It surfaces as `AssertionError: namespace [transforms] not found`, which
+   names neither the file nor the host -- it reads like a library bug and is
+   not one. `phyberos` sits at ~1.29M files against a 1M inode quota on
+   /scratch (space is fine: 1 GB of 19 TB), which is the likeliest cause; EIO
+   is how Lustre often surfaces an inode limit. Freeing inodes, or moving the
+   agent home to /project, is the fix and it needs a human decision about what
+   is safe to delete -- none of the offending directories are ours (our own
+   run dirs total 435 files).

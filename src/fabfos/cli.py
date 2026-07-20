@@ -57,6 +57,10 @@ def _build_parser() -> argparse.ArgumentParser:
                      help="max threads per step")
     run.add_argument("--plan-only", action="store_true", default=False,
                      help="resolve and print the workflow DAG without executing")
+    run.add_argument("--dag", metavar="PATH", default=None,
+                     help="render the resolved DAG to PATH.svg. The render comes "
+                          "from the SAME planner call the run makes, so it documents "
+                          "what would actually execute, not a hand-drawn idea of it")
     run.add_argument("--provision-only", action="store_true", default=False,
                      help="create the per-tool mamba envs from the library *.env.yml specs, then exit")
     run.add_argument("--no-provision", action="store_true", default=False,
@@ -115,6 +119,28 @@ def _method_query(argv: list[str] | None) -> str | None:
     return None
 
 
+def _render_dag(task, base: Path) -> Path:
+    """Render the resolved plan, refusing to draw an incomplete one.
+
+    A renderer will happily draw a disconnected graph for a plan that never
+    resolved, and the picture looks authoritative either way. If the plan is
+    not ok, that is the thing worth reporting -- not a diagram of it.
+    """
+    if not getattr(task, "ok", False):
+        raise RuntimeError(
+            "refusing to render a DAG for a plan that did not resolve -- "
+            "the drawing would look complete regardless. Fix the plan first."
+        )
+    base = base.resolve()
+    base.parent.mkdir(parents=True, exist_ok=True)
+    stem = base.with_suffix("") if base.suffix else base
+    task.plan.RenderDAG(stem)
+    out = stem.with_suffix(".svg")
+    if not out.exists():
+        raise RuntimeError(f"RenderDAG reported success but {out} is absent")
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     query = _method_query(argv)
     if query is not None:
@@ -167,6 +193,8 @@ def main(argv: list[str] | None = None) -> int:
         for i, step in enumerate(task.plan.steps):
             name = getattr(getattr(step, "transform", None), "name", None) or f"step{i}"
             print(f"  [{i}] {name}")
+        if args.dag:
+            print(f"DAG -> {_render_dag(task, Path(args.dag))}")
         return 0
 
     run_pipeline(inp, provision=not args.no_provision)

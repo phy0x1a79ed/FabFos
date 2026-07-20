@@ -42,7 +42,13 @@ assert torch.version.cuda == '12.8', f'torch CUDA {torch.version.cuda} != 12.8';
 print('ecspr image OK: numpy', numpy.__version__, '| torch', torch.__version__, \
       '| cuda', torch.version.cuda, '| nx', networkx.__version__)"
 
-# Singularity uses tini, but raises warnings because the -s flag is not used
-ADD ./load/tini /tini
-RUN chmod +x /tini
+# Singularity uses tini, but raises warnings because the -s flag is not used.
+# This used to be `ADD ./load/tini /tini` against a vendored binary that is
+# gitignored and absent, so the recipe could not build from a fresh clone at
+# all -- which made the `recipe:` field in provenance/containers/ecspr.yml a
+# false claim. Fetch a pinned release and verify it, so the recipe is
+# self-contained and the bytes are the ones recorded here.
+ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini-static-amd64 /tini
+RUN echo "c5b0666b4cb676901f90dfcb37106783c5fe2077b04590973b885950611b30ee  /tini" | sha256sum -c - \
+    && chmod +x /tini
 ENTRYPOINT ["/tini", "-s", "-g", "--"]

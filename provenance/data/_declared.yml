@@ -370,17 +370,32 @@ items:
       which must agree with the metanetx.reac_prop record.
 
   - id: mnxref.atom_pairs
-    src: ecspr_reference/mnxref-4_5/atom_pairs.parquet
+    src: ecspr_reference/mnxref-4_5/atom_pairs_tier4.parquet
     dest: derived/mnxref-4_5/atom_pairs.parquet
     type: ecspr::atom_pairs
     tier: derived
     kind: derived
-    producer: resources/lib/ecspr_atom_pairs.py
+    producer: resources/lib/ecspr_atom_pairs.py + notes/build_tier4.py (curated increment)
     inputs: [metanetx.reac_prop, metanetx.chem_prop]
     determinism: reproducible
     note: >-
-      The atom-atom mapping table. 56,090 resolved / 2,270 diluted / 25,436
-      refused of 83,796 reactions.
+      The atom-atom mapping table, TIER 4 (sha256 7b3b217f...): 2,455,235 pairs
+      over 63,621 reactions. Tier 3 (the forsaken-tail recovery) plus a strictly
+      additive increment of curated MetaCyc atom maps -- 16,890 expert-assigned
+      reaction maps from atom-mappings-smiles.dat that nothing in this tree had
+      ever read. Added rows carry method=curated, source=metacyc_aam,
+      confidence=1.0 and are the only rows not derived from prediction.
+
+      Licensed by convergence, not by authority: 15,539 of these reactions
+      already existed in tier 3 with pairs derived independently by MCS+RXNMapper,
+      and the two agree at 98.6% molecule-level / 90.8% exact atom-to-atom. That
+      is what justifies trusting the 1,306 reactions where only MetaCyc has an
+      answer.
+
+      WAS tier 1 (atom_pairs.parquet: 56,090 resolved / 2,270 diluted / 25,436
+      refused of 83,796) until 2026-07-20. The dest filename is deliberately
+      unchanged -- consumers address this by type, and the tier is a property of
+      the content, recorded here and by sha256, not encoded in the path.
 
   - id: mnxref.direction
     src: ecspr_reference/mnxref-4_5/direction.parquet
@@ -425,19 +440,45 @@ items:
     determinism: reproducible
 
   - id: mnxref.graph
-    src: ecspr_reference/mnxref-4_5/graph
+    src: ecspr_reference/mnxref-4_5/graph_tier4
     dest: derived/mnxref-4_5/graph
     type: ecspr::mnx_bipartite
     tier: derived
     kind: derived
-    producer: resources/lib/ecspr_atom_graph.py
+    producer: repo/transforms/build/reference/build_tier4_graph.py
     inputs: [mnxref.atom_pairs]
     determinism: reproducible
     note: >-
-      Per-element bipartite graphs mnx_bipartite_{C,N,P,S}.pkl. These are
-      plain networkx graphs of Python floats -- version-coupled to networkx,
-      NOT to numpy (the widely-repeated numpy-1.26 claim is false and was
-      checked).
+      Per-element bipartite graphs mnx_bipartite_{C,N,P,S}.pkl, built from the
+      TIER 4 atom-pair universe. These are plain networkx graphs of Python
+      floats -- version-coupled to networkx, NOT to numpy (the widely-repeated
+      numpy-1.26 claim is false and was checked).
+
+      PRODUCER CORRECTED 2026-07-20. This field previously read
+      `resources/lib/ecspr_atom_graph.py`, which is wrong: that module has no
+      main(), writes no pickle, and is the atom-vs-star measurement harness, a
+      different lane. The real producer has always been
+      fabfos/reference/build_atom_graph.py, retargeted by rebinding
+      reference.ATOM_PAIRS and reference.GRAPH_DIR. The mislabel had a cost --
+      notes/TIER4_FREEZE.md read it, concluded a transform harness was needed to
+      rebuild the graph, and left tier 4 frozen but unread for that reason.
+
+      Topology does not move between tiers: the skeleton is fixed at 126,636
+      nodes / 362,482 edges from reac_prop participation, and pairs that fall off
+      it are dropped, so a tier can never add a reaction. Weights move, and since
+      every consumer drops w_X <= 0, the effective universe moves with them.
+      Live w_X>0 edges here: C 189,846, N 121,027, S 32,738, P 86,833.
+
+      Measured against what this REPLACES, which is the point of the change: the
+      incumbent star graph had C 196,018 / N 128,286 / S 35,207 / P 91,961, and
+      shares only 79-84% of its edges with this one (Jaccard C 0.808, N 0.822,
+      S 0.836, P 0.792 -- 16-21% turnover). The star fabricated transits for
+      structureless stubs and gave atom-transit edges to non-molecules; this is
+      re-weighted from the frozen pair table instead.
+
+      Against tier 3 the change is small and strictly additive, which is the
+      freeze's own gate confirmed at graph level: C +506, N +307, S +137, P +170,
+      and ZERO edges lost in any element (Jaccard 0.996-0.998).
 
   - id: mnxref.solve
     src: ecspr_reference/mnxref-4_5/solve
@@ -783,23 +824,48 @@ items:
       largest connected component and cannot run without these.
 
   - id: benchmark.v3.universe
-    src: /home/tony/agentic_workspace/projects/scadc/metabolic-modelling/main/metabolic-modelling/04_reaction_network/cache
+    src: ecspr_reference/mnxref-4_5/graph_tier4
     dest: validation/benchmark/v3/universe
     type: ecspr::benchmark_universe
     tier: validation
     kind: derived
-    producer: 08_weighted_bipartite_expanded.py
+    producer: repo/transforms/build/reference/build_tier4_graph.py
+    inputs: [mnxref.atom_pairs]
     determinism: reproducible
     select: [mnx_bipartite_C.pkl, mnx_bipartite_N.pkl, mnx_bipartite_S.pkl, mnx_bipartite_P.pkl]
     note: >-
       The atom-mapped MetaNetX universe, per element, from which every base
-      graph above is induced. 14.4 MB each, four elements; mnx_bipartite_Fe.pkl
-      is deliberately NOT selected because the benchmark scores C/N/S/P only.
+      graph above is induced. Four elements; the benchmark scores C/N/S/P only.
       Staged because the GOF arm needs it at SOLVE time, not just at build time:
       `base_plus_reactions` re-reads the universe to find the reactions a
       condition inserts, so a GOF perturbation cannot be applied without it. A
       tree holding base graphs but no universe would build and then fail on the
       first of the 382 gain-of-function conditions.
+
+      REPOINTED TO TIER 4, 2026-07-20. This previously resolved to
+      04_reaction_network/cache -- the incumbent STAR graph, dated 13 June,
+      weighted from aam_unified_expanded.tsv. That is the graph
+      build_atom_graph.py's docstring indicts for fabricating transits for
+      structureless stubs, giving atom-transit edges to non-molecules that carry
+      no atom, and treating pseudo-reactions as chemistry. It was never any tier
+      of the honest reference lane; it predates all four.
+
+      So the benchmark's headline result (specificity AUC 0.83-0.92, recorded in
+      reports/benchmark_v3_result.md) was scored against a universe the method
+      itself had disowned. That report is kept and annotated rather than deleted.
+
+      This is a two-generation jump, not one, and it is the substantive change:
+      16-21% of the edge set turns over per element (Jaccard C 0.808, N 0.822,
+      S 0.836, P 0.792). By comparison tier 3 -> tier 4 moves 0.2-0.4%. Anyone
+      attributing an AUC shift to "adopting tier 4" should read those two numbers
+      together -- this run is far more about abandoning the star.
+
+      CONSEQUENCE: the frozen v3 answer key was derived under the star universe
+      and is re-frozen alongside it, not overwritten. Y itself is NOT circular --
+      21_build_Y_v3.py reads no ECSPr output, enforced by 50_audit_v3.py -- but
+      it is not universe-INVARIANT either: it reads panel_edges.tsv, whose anchors
+      are re-gated live against these graphs. Condition coverage must therefore be
+      compared across universes before any AUC delta is quoted.
 
   - id: benchmark.v3.provenance
     src: repo/transforms/build/benchmark/v3_build

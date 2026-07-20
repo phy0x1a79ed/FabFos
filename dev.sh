@@ -6,10 +6,11 @@
 # data types, container/conda env resources) is the metasmith library bundled
 # into the wheel as `fabfos/_library`.
 set -e
-HERE=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-REPO=$( cd -- "$HERE/../.." &> /dev/null && pwd )
+# this script sits at the repo root; the package is in ./src/fabfos (src-layout)
+REPO=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+HERE="$REPO"
 LIB_SRC="$REPO/src/metasmith_libraries"
-LIB_DST="$HERE/fabfos/_library"
+LIB_DST="$REPO/src/fabfos/_library"
 
 case $1 in
     --ibase) # create the dev conda env
@@ -37,7 +38,7 @@ case $1 in
     ;;
     -r|--run) # run the CLI from source (dev): ./dev.sh -r --plan-only ...
         shift
-        PYTHONPATH="$HERE:$REPO/src/metasmith/src" \
+        PYTHONPATH="$REPO/src:$REPO/src/metasmith/src" \
         FABFOS_LIBRARY="${FABFOS_LIBRARY:-$LIB_SRC}" \
         python -m fabfos "$@"
     ;;

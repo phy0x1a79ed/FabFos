@@ -6,7 +6,8 @@ Resolution order:
 2. A copy bundled inside this package at ``fabfos/_library`` — what a conda
    install ships (populated by ``dev.sh`` at build time).
 3. The dev sibling submodule ``src/metasmith_libraries`` — when running from
-   a source checkout of the FabFos repo.
+   a source checkout of the FabFos repo (this package lives at ``src/fabfos``,
+   so the submodule is a direct sibling).
 
 The library root is the directory that contains ``data_types/``,
 ``resources/`` and ``transforms/``.
@@ -49,8 +50,8 @@ def resolve_library_root() -> Path:
     if _looks_like_library(bundled):
         return bundled
 
-    # src/fabfos/fabfos/library.py -> repo: parents[2] == src/, sibling submodule
-    dev_sibling = _MODULE.parents[1] / "metasmith_libraries"
+    # src/fabfos/library.py -> _MODULE == src/fabfos, _MODULE.parent == src/
+    dev_sibling = _MODULE.parent / "metasmith_libraries"
     if _looks_like_library(dev_sibling):
         return dev_sibling
 

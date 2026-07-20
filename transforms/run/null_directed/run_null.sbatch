@@ -54,13 +54,31 @@ set -e
 SC=/scratch/st-shallam-1/$USER/scadc_dir
 mkdir -p "$SC/logs" "$SC/out"
 
+# Run inside the SAME ecspr image the benchmark solve used, rather than a pip
+# venv. This is not a style preference: the whole sockeye path for this project
+# is apptainer-based (examples/benchmark_v3_on_hpc.py pre-pulls on the login
+# node because compute nodes have no outbound network), and building a venv
+# here would have introduced a second, unpinned dependency surface for the one
+# step whose output feeds every significance call.
+#
 # Sockeye's Lmod needs these as SEPARATE load commands. Combined into one
-# `module load gcc/9.4.0 python/3.12`, the second resolves against the pre-gcc
-# module tree, silently finds nothing, and you get the system python.
+# `module load gcc/9.4.0 apptainer/1.3.1`, the second resolves against the
+# pre-gcc module tree, silently finds nothing, and you get
+# `apptainer: command not found` with no hint a module was skipped.
 module load gcc/9.4.0
-module load python/3.12
+module load apptainer/1.3.1
 
-source "$SC/venv/bin/activate"
+SIF=/scratch/st-shallam-1/$USER/apptainer_cache/docker..quay.io_hallamlab_external_ecspr..2026.07.14.sif
+if [[ ! -f "$SIF" ]]; then
+    echo "FATAL: ecspr image missing at $SIF -- pre-pull it on the LOGIN node" >&2
+    exit 1
+fi
+
+# The image carries networkx 3.6.1 while the base/bipartite pickles were written
+# locally under networkx 3.3, and mnxref.graph's declaration warns these graphs
+# are version-coupled to networkx. That coupling was CHECKED here, not assumed:
+# base_C.pkl and mnx_bipartite_C.pkl both unpickle in this image and report the
+# expected 13,524 nodes / 362,482 skeleton edges. Re-check it if the image moves.
 
 # One BLAS thread per process: the parallelism here is the fork pool over
 # (axis x draw-chunk), and letting BLAS also thread oversubscribes the node
@@ -77,7 +95,7 @@ if [[ -z "$X" || -z "$N" ]]; then
 fi
 echo "shard $SLURM_ARRAY_TASK_ID -> element=$X draw-size=$N on $(hostname)"
 
-python "$SC/null_shard.py" \
+apptainer exec -B /scratch:/scratch "$SIF" python "$SC/null_shard.py" \
     --stage-dir "$SC" \
     --element "$X" \
     --draw-size "$N" \

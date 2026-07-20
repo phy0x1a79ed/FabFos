@@ -94,7 +94,7 @@ package.
 ## Method version
 
 The package version (`src/fabfos/version.txt`) versions the CLI. The **method**
-version (`src/fabfos/method_version.txt`, currently `0.3.0`) versions the
+version (`src/fabfos/method_version.txt`, currently `0.3.1`) versions the
 composition that decides what a number out of this pipeline *means*: canon's
 content and status, the transform library's commit and dirty flag, metasmith's
 own version, every container digest, the sha256 of the data library's index,

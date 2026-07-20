@@ -156,7 +156,32 @@ def agent_container() -> str:
     return f"docker://quay.io/hallamlab/metasmith:{VERSION}-{compute_build_hash()}"
 
 
-def build_inputs(staging: Path) -> DataInstanceLibrary:
+def push_data(host: str, local_root: Path, remote_root: str) -> None:
+    """Copy the frozen benchmark tree to the execution host, once.
+
+    REQUIRED, and not an optimisation. metasmith binds an item's OWN path into
+    the task container -- the same string on both sides -- so an input declared
+    at a workstation path is bind-mounted at that path on the cluster node,
+    where it does not exist. Apptainer then refuses with "mount source ... does
+    not exist" and the run dies as a missing launcher, which names neither the
+    item nor the path. The tree has to BE on the far side, at the path the
+    declaration uses.
+
+    Safe to repeat: the tree is frozen and hash-pinned, so rsync converges and
+    a second run re-transfers nothing. 81 MB over 84 files.
+    """
+    print(f"=== pushing {local_root.name} -> {host}:{remote_root} ===", flush=True)
+    subprocess.run(["ssh", "-o", "BatchMode=yes", host,
+                    f"mkdir -p {remote_root}"], check=True)
+    # --checksum, not the default size+mtime: hardlink placement and rsync can
+    # give a re-staged file a fresh mtime with identical bytes, and re-sending
+    # the 55 MB universe every run for that is waste. Frozen data justifies
+    # paying the read to be sure.
+    subprocess.run(["rsync", "-a", "--checksum", "--delete", "--info=stats1",
+                    f"{local_root}/", f"{host}:{remote_root}/"], check=True)
+
+
+def build_inputs(staging: Path, data_root: Path, remote_root: str | None) -> DataInstanceLibrary:
     xgdb = staging / "inputs.xgdb"
     if xgdb.exists():
         shutil.rmtree(xgdb)
@@ -167,12 +192,18 @@ def build_inputs(staging: Path) -> DataInstanceLibrary:
     missing = []
     for type_name, symbol in STAGED.items():
         p = Path(getattr(canon, symbol))
-        # Checked HERE rather than left to the scheduler. The planner resolves
-        # on types and lineage, not on existence, so a missing tree plans
-        # perfectly and then fails hours later inside a container.
+        # Existence is checked against the LOCAL tree even when the declared
+        # path is remote: the planner resolves on types and lineage, never on
+        # existence, so a missing tree plans perfectly and fails hours later
+        # inside a container. The local copy is what was just pushed, so
+        # checking it is checking the far side.
         if not p.exists():
             missing.append(f"{type_name} -> canon.{symbol} -> {p}")
             continue
+        if remote_root is not None:
+            # Re-root onto the execution host. The item keeps its identity and
+            # type; only where it lives changes.
+            p = Path(remote_root) / p.relative_to(data_root)
         inputs.AddItem(p, type_name)
     if missing:
         raise SystemExit("benchmark tree incomplete:\n  " + "\n  ".join(missing))
@@ -190,6 +221,13 @@ def main() -> int:
     ap.add_argument("--scratch-root", default="/scratch")
     ap.add_argument("--timeout-s", type=float, default=6 * 3600)
     ap.add_argument("--poll-s", type=float, default=60.0)
+    ap.add_argument("--remote-data", default=None,
+                    help="where the benchmark tree lives ON THE HOST. Defaults to "
+                         "{scratch}/{user}/ecspr_bench_v3_data.")
+    ap.add_argument("--no-push", action="store_true",
+                    help="skip the rsync and trust --remote-data is already "
+                         "populated. The tree is frozen, so a repeat push is a "
+                         "no-op; use this only to save the checksum pass.")
     ap.add_argument("--plan-only", action="store_true",
                     help="stage and plan, render the DAG, touch no remote host")
     ap.add_argument("--out", default="transforms/build/benchmark/v3_build/run",
@@ -200,10 +238,19 @@ def main() -> int:
     staging = REPO / ".awm" / "data" / "runs" / f"bench_v3_{ts}"
     staging.mkdir(parents=True, exist_ok=True)
 
+    data_root = Path(canon.BENCH_V3_ROOT)
+    remote_root = None
+    if not a.plan_only:
+        remote_root = a.remote_data or f"{a.scratch_root}/{a.user}/ecspr_bench_v3_data"
+        if not a.no_push:
+            push_data(a.host, data_root, remote_root)
+
     print(f"=== staging {len(STAGED)} benchmark items ===", flush=True)
-    inputs = build_inputs(staging)
+    inputs = build_inputs(staging, data_root, remote_root)
     for t in sorted(STAGED):
         print(f"  lib   {t}")
+    if remote_root:
+        print(f"  (declared under {remote_root})")
 
     resources = [DataInstanceLibrary.Load(LIB / f"resources/{n}")
                  for n in ("containers", "lib")]

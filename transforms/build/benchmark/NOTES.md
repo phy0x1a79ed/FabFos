@@ -81,3 +81,75 @@ are built from X by the `ecsprBenchmark` domain (T4). So the order is
 Base-graph construction is *network construction*, not ECSPr output, so using it
 here does not violate answer-key independence — the audit's forbidden-token list
 already draws that line correctly, and it must stay drawn.
+
+## T3 outcome (built, gated, frozen)
+
+`20_build_panel_v3.py` -> `21_build_Y_v3.py` -> `50_audit_v3.py`, all writing into
+`transforms/build/benchmark/v3_build/` in the REPO and hardlinked into the
+library by the staging script. Never written into the library directly: the
+library is built from declarations, and a file written straight in is one no
+record describes and no hash covers.
+
+- panel: 49 anchors (all live on all 4 facets), 325 products, **3,865 edges**
+  (v1's 175 products carried + 150 v3 adds)
+- key: **974 conditions**, **24,229** sparse expectation cells (0.64% of the
+  full cross; the rest are the declared default role=off_target dir=0)
+- direction: 805 `+` / 169 `-`; 57 GOF observations carry no usable direction
+  and are reported as coverage, never scored as null results
+- one row per (observation, ELEMENT) -- the panel is element-resolved, so a
+  perturbation whose targets carry both C and N is two claims
+
+Four gates pass. Gate 4 is new in v3: **answer-key precedence**, which refuses
+to freeze if solve output already exists in the tree. That is the one ordering
+error no care inside the builders can catch.
+
+### Two defects this found
+
+1. **The LOF join matched 0 of 166.** v3 writes the gene token as `argA:del`;
+   `pheno_edges.tsv` keys on `argA`. Every row fell through to the free-text
+   fallback and ~half resolved by luck -- 88 of 166, which reads exactly like
+   ordinary coverage loss. Gate 3 now asserts the full 166.
+2. **canon resolved against an EMPTY manifest.** The fallback reader asked
+   `index.yml` for a `manifest:` wrapper it does not have, so every symbol
+   failed as "not in the manifest" -- pointing at the declaration instead of at
+   the reader. An empty manifest is now a refusal that names the real fault.
+
+## Base graphs are NOT derivable from X
+
+X withholds the atom mapping deliberately (`X/_provenance.json`: "aam: WITHHELD
+-- the atom mapping is under test"). Both base-graph builders are pure
+inductions of an atom-mapped universe: the edge weight IS the atom-transit
+count, and `load_bipartite` deletes every `w<=0` edge, so the AAM fixes
+connectivity and LCC membership, not just weights. Formulas plus stoichiometry
+are not a substitute.
+
+This is the benchmark working as designed -- X withholds the AAM so an
+independent implementation derives its own; the incumbent's own AAM-derived
+graphs are its answer to that, and are therefore an INPUT to scoring the
+incumbent. Declared as `benchmark.v3.base_graphs` (16 pkl) and
+`benchmark.v3.universe` (4 pkl, 57.6 MB), the latter because
+`base_plus_reactions` re-reads the universe at SOLVE time -- a tree without it
+fails on the first of the 382 GOF conditions.
+
+## T4/T5 sizing (measured, not estimated)
+
+`resources/lib/ecspr_benchmark.py`, subcommands `solve` and `merge`.
+
+- unit of work is a CONDITION: one graph rebuild + one factorization, then a
+  cheap solve per panel edge against that shared factorization
+- emits **signed delta conductance**, not a log ratio: a GOF insertion that
+  creates a route has `g_base = 0`, where a log ratio is undefined and any
+  sentinel is an arbitrary rank injection
+- silent conditions emit ZERO, never dropped -- that is the redundancy signal
+  the essentiality diagnostic reads
+- parallelism is fork PROCESSES with BLAS pinned to 1 before numpy loads;
+  SuperLU is serial so intra-process threading buys nothing
+- **parity gate holds**: 4 workers byte-identical to `--workers 1`
+
+Measured on the worst case (netB / C, 2,508 panel edges): **~40 s per condition
+serial**. So 16 shards (4 facets x 4 elements) x 32 worker processes = 512-way
+fan-out, wall clock ~10-15 min. That is the "batches of 32" shape.
+
+fir is reachable as user `phyberos` (checked via the ssh domain's status verb,
+NOT by opening a new connection -- never loop-retry connect, never delete the
+ControlMaster socket; a prior run here was halted by a Duo lockout that way).

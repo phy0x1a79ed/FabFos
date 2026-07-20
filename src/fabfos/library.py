@@ -26,7 +26,46 @@ DOMAINS = [
     "pangenome",
     "responseSurface",
     "transcriptomics",
+    # ECSPr. The solve lives in two domains on purpose: both
+    # ecsprUndirected/solve.py and ecsprDirected/solve_directed.py produce
+    # ecspr::{reff,ieff}_axes_report, so co-locating them would let the planner
+    # pick a lane by tiebreak. Which lane runs is a deliberate choice made by
+    # the caller, not a planner accident -- see ECSPR_DOMAINS below.
+    "ecspr",
+    "ecsprDirected",
+    "ecsprUndirected",
+    "ecsprNetA",
+    "ecsprNetB",
 ]
+
+# The ECSPr domains that must NOT both be offered to the planner in one run,
+# keyed by the selector that chooses between them. Consumed by pipeline.py.
+ECSPR_SOLVE_DOMAINS = {"directed": "ecsprDirected", "undirected": "ecsprUndirected"}
+ECSPR_NETWORK_DOMAINS = {"A": "ecsprNetA", "B": "ecsprNetB"}
+
+
+def domains_for(solve: str | None = None, network: str | None = None) -> list[str]:
+    """DOMAINS with the unselected ECSPr lanes removed.
+
+    Offering both solve lanes at once makes ``ecspr::reff_axes_report`` have two
+    producers, and the planner would resolve that by tiebreak rather than by
+    intent. The same holds for the two base-graph lanes. Callers that do not ask
+    for ECSPr get the full list minus every ECSPr domain.
+    """
+    drop: set[str] = set()
+    if solve is None:
+        drop |= set(ECSPR_SOLVE_DOMAINS.values()) | {"ecspr"}
+    else:
+        if solve not in ECSPR_SOLVE_DOMAINS:
+            raise ValueError(f"unknown solve lane [{solve}], expected one of {sorted(ECSPR_SOLVE_DOMAINS)}")
+        drop |= {d for k, d in ECSPR_SOLVE_DOMAINS.items() if k != solve}
+    if network is None:
+        drop |= set(ECSPR_NETWORK_DOMAINS.values())
+    else:
+        if network not in ECSPR_NETWORK_DOMAINS:
+            raise ValueError(f"unknown network [{network}], expected one of {sorted(ECSPR_NETWORK_DOMAINS)}")
+        drop |= {d for k, d in ECSPR_NETWORK_DOMAINS.items() if k != network}
+    return [d for d in DOMAINS if d not in drop]
 
 _MODULE = Path(__file__).resolve().parent
 

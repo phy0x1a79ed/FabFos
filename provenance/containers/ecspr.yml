@@ -2,24 +2,19 @@ id: containers.ecspr
 name: ecspr
 kind: container
 reference: quay.io/hallamlab/external_ecspr:2026.07.14
-resolved: false
-blocker: >-
-  NOT ON ANY REGISTRY. The image exists only in this machine's local docker
-  daemon (image id 795f38040040, 12.9 GB). `docker manifest inspect` returns
-  "no such manifest" for both :2026.07.14 and :latest. This is the single
-  hardest blocker to running ECSPr on another machine: the numeric core --
-  the SMW/Woodbury conductance solve, the per-gene ablation, and the
-  full-mixture-SF scorer -- has no obtainable runtime anywhere but here.
-remediation: >-
-  Either (a) `containers/ecspr/dev.sh --push` with quay credentials, which
-  makes the tag resolvable and lets this record carry a digest, or (b)
-  `containers/ecspr/dev.sh --sif` and archive the image to Globus chinook
-  under the library's sif/ tier. (a) is strongly preferred; (b) is a
-  fallback that still requires an out-of-band transfer.
-  Rebuilding from the vendored recipe is NOT equivalent -- the Dockerfile
-  pip-installs torch unpinned from the cu128 index, so a rebuild today
-  yields a different torch than the one the frozen artifacts were produced
-  under.
+resolved: true
+digest: sha256:97f7afad99f55fe66a213851f48f6293f6b328ce7db4fe035a93de6f24f582db
+pinned_reference: quay.io/hallamlab/external_ecspr@sha256:97f7afad99f55fe66a213851f48f6293f6b328ce7db4fe035a93de6f24f582db
+resolved_on: 2026-07-19
+resolution: >-
+  Remediation (a) was taken: the image held in the local daemon was tagged and
+  pushed to quay as-is, NOT rebuilt -- a rebuild would have resolved a
+  different torch off the unpinned cu128 index and so would not be the runtime
+  the frozen artifacts were produced under. The digest above is the amd64
+  Descriptor.digest read back FROM the registry after the push, matching how
+  the other resolved records are pinned; the enclosing OCI index digest is
+  sha256:795f38040040ffe1b4e1726d68d84a8b04b32be1e660bdb36fce543efd431f13,
+  which is also the local image id and is deliberately NOT what is pinned here.
 origin: built-here
 built_by_us: true
 recipe: containers/ecspr/

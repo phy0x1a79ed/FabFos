@@ -78,11 +78,23 @@ def main() -> int:
         print(f"no *.oci under {lib_root}/resources/containers", file=sys.stderr)
         return 1
 
-    resolved, blocked = 0, []
+    resolved, blocked, curated = 0, [], []
     for path in oci_files:
         name = path.stem
         raw = path.read_text()
         ref = parse_ref(raw)
+
+        # This writer emits a MINIMAL record and hardcodes `origin:
+        # public-registry` / `built_by_us: false`. For an image we build
+        # ourselves that would silently drop the hand-authored provenance --
+        # the recipe path, the build assertions, how the tag was resolved --
+        # which is the whole reason those records exist. Refuse to touch them;
+        # a human edits those by hand.
+        existing = out_dir / f"{name}.yml"
+        if existing.exists() and "built_by_us: true" in existing.read_text():
+            curated.append(name)
+            print(f"{name:28s} SKIPPED (hand-authored, built_by_us: true)", flush=True)
+            continue
 
         blocker = classify(ref)
         digest, error = (None, blocker) if blocker else resolve(ref)
@@ -116,9 +128,11 @@ def main() -> int:
         ]
         (out_dir / f"{name}.yml").write_text("\n".join(lines))
 
-    print(f"\nresolved {resolved}/{len(oci_files)}")
+    print(f"\nresolved {resolved}/{len(oci_files) - len(curated)} (of the records this script owns)")
     for name, why in blocked:
         print(f"  BLOCKED {name}: {why}")
+    if curated:
+        print(f"  left alone, hand-authored: {', '.join(curated)}")
     return 0
 
 

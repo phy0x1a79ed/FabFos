@@ -42,6 +42,7 @@ def main() -> int:
     declared = {i["id"]: i for i in decl["items"]}
 
     print("AC3 -- every declared item has a record with a sha256")
+    before = len(failures)
     missing_ok = 0
     for item_id, item in declared.items():
         rec_path = RECORDS / f"{item_id}.yml"
@@ -56,10 +57,12 @@ def main() -> int:
             continue
         if not rec.get("sha256"):
             check(item_id, False, "record carries no sha256")
+    # `not failures` here would let ANY earlier failure mislabel this one line.
     check(f"{len(declared) - missing_ok} present items all hashed",
-          not failures, f"{missing_ok} recorded MISSING with a degradation path")
+          len(failures) == before, f"{missing_ok} recorded MISSING with a degradation path")
 
     print("\nAC4 -- every container record carries a digest or an explicit blocker")
+    before = len(failures)
     unresolved = []
     for rec_path in sorted(CONTAINERS.glob("*.yml")):
         rec = yaml.safe_load(rec_path.open())
@@ -71,8 +74,45 @@ def main() -> int:
                 check(rec_path.stem, False, "unresolved with no blocker stated")
             unresolved.append(rec_path.stem)
     n = len(list(CONTAINERS.glob("*.yml")))
+    # was hardcoded True, so this line printed PASS even when the loop failed.
     check(f"{n - len(unresolved)}/{n} images digest-pinned",
-          True, f"unresolved, each with a blocker: {', '.join(unresolved)}")
+          len(failures) == before,
+          f"unresolved, each with a blocker: {', '.join(unresolved)}" if unresolved
+          else "every image pinned by digest")
+
+    print("\nAC5 -- every declared `type:` exists in the library's type contract")
+    # A namespace binds to exactly one type library, and metasmith matches
+    # endpoints by subset over a property set built from the yaml -- so a
+    # declared type that no longer exists under its namespace does not raise,
+    # it silently fails to join. This is the assertion that would have caught
+    # the four ecspr:: reference types the transforms require but nothing
+    # declared.
+    sys.path.insert(0, str(REPO / "src"))
+    from fabfos.library import resolve_library_root  # noqa: E402
+
+    types_root = resolve_library_root() / "data_types"
+    contract: dict[str, set[str]] = {}
+    for ns in ("ecspr", "ref"):
+        p = types_root / f"{ns}.yml"
+        contract[ns] = set(yaml.safe_load(p.open())["types"]) if p.exists() else set()
+    before = len(failures)
+    seen = set()
+    for item_id, item in declared.items():
+        t = item.get("type", "")
+        if "::" not in t:
+            check(item_id, False, f"type [{t}] is not namespaced")
+            continue
+        ns, name = t.split("::", 1)
+        seen.add(ns)
+        if ns not in contract:
+            notes.append(f"{item_id}: namespace [{ns}] not checked here")
+            continue
+        if name not in contract[ns]:
+            check(item_id, False, f"type [{t}] is not in {types_root/(ns+'.yml')}")
+    check(f"{len(declared)} declared types all resolve",
+          len(failures) == before,
+          f"namespaces used: {', '.join(sorted(seen))}; "
+          f"contract sizes: {', '.join(f'{k}={len(v)}' for k, v in sorted(contract.items()))}")
 
     print("\nno image may float on a mutable :latest without saying so")
     for rec_path in sorted(CONTAINERS.glob("*.yml")):

@@ -299,8 +299,18 @@ def phase_index(decl: dict, lib_path: Path) -> int:
 
     plan, _ = build_plan(decl)
     lib = DataInstanceLibrary(location=lib_path)
+    # A namespace binds to exactly one type library. These used to be read from
+    # a repo-local data_types/, which meant staged items were typed against one
+    # file while the transforms resolved against the library's own -- and since
+    # metasmith matches endpoints by subset over a property set built from the
+    # yaml, two same-named types with different text are different endpoints.
+    # The failure is a wrong join, not an exception. Resolve through the library.
+    sys.path.insert(0, str(REPO / "src"))
+    from fabfos.library import resolve_library_root  # noqa: E402
+
+    types_root = resolve_library_root() / "data_types"
     for ns in ("ecspr", "ref"):
-        lib.AddTypeLibrary(REPO / "data_types" / f"{ns}.yml", namespace=ns)
+        lib.AddTypeLibrary(types_root / f"{ns}.yml", namespace=ns)
 
     by_id = {}
     for item in plan:

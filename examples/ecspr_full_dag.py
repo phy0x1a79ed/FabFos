@@ -164,7 +164,25 @@ def build_inputs(staging: Path) -> tuple[DataInstanceLibrary, list[str], list[st
         via_incumbent.append(type_name)
 
     # The frozen null, curated by canon's EXPLICIT file list -- never a glob.
-    nulls = curated_dir(staging, "frozen_null", [Path(p) for p in canon.FROZEN_NULL_FILES])
+    # canon.FROZEN_NULL_FILES are BARE FILENAMES, not paths -- they are the
+    # curated list of which files, and REFERENCE_NULL_DIR is where. Passing them
+    # to symlink_to() unjoined produced ten links pointing at nothing, and the
+    # planner resolves on TYPES rather than existence, so the plan rendered
+    # perfectly and the breakage only surfaced inside a scoring container.
+    #
+    # Joined here and existence-checked below, because "the null is staged" is
+    # the kind of claim that must be true rather than plausible.
+    null_root = Path(canon.REFERENCE_NULL_DIR)
+    null_files = [null_root / f for f in canon.FROZEN_NULL_FILES]
+    absent = [f for f in null_files if not f.exists()]
+    if absent:
+        raise SystemExit(
+            f"{len(absent)} of {len(null_files)} frozen null files are absent under "
+            f"{null_root}:\n  " + "\n  ".join(f.name for f in absent[:6]) +
+            f"\ncanon addresses the DIRECTED null ({canon.DRAW_SIZES}); a directory "
+            f"holding the undirected stem or a retired draw grid will look like this."
+        )
+    nulls = curated_dir(staging, "frozen_null", null_files)
     inputs.AddItem(nulls, "ecspr::frozen_null")
     via_library.append("ecspr::frozen_null")
 

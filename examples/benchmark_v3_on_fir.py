@@ -1,8 +1,20 @@
 #!/usr/bin/env python3
 """Run the frozen ECSPr X/Y benchmark v3 on an HPC host, then retrieve the result.
 
-    PYTHONPATH=src python examples/benchmark_v3_on_fir.py --user phyberos
-    PYTHONPATH=src python examples/benchmark_v3_on_fir.py --user phyberos --plan-only
+    PYTHONPATH=src/metasmith/src:src python examples/benchmark_v3_on_fir.py --user phyberos
+    PYTHONPATH=src/metasmith/src:src python examples/benchmark_v3_on_fir.py --user phyberos --plan-only
+
+THE ENGINE ON PYTHONPATH MUST BE THE PINNED ONE -- READ THIS BEFORE CHANGING IT
+-------------------------------------------------------------------------------
+Note the `src/metasmith/src` FIRST. The `fabfos` conda env resolves `metasmith`
+to a local editable checkout (~/lib/locals/metasmith) which is ahead of the
+submodule pin. That matters here in a way it does not for a local plan, because
+`Deploy()` pulls the agent container by a tag derived from the engine's OWN
+version: an unpublished dev version asks quay for a manifest that does not
+exist, and the run dies ~40 s in with "manifest unknown" followed by a confusing
+cascade about a missing relay binary. Only released versions have images.
+
+`assert_pinned_engine()` below turns that into an immediate, named refusal.
 
 Deploy -> Generate -> Stage -> Run -> Wait -> Retrieve. The scoring step is
 NOT here: it is a sub-minute local operation on the merged table, and running
@@ -93,6 +105,57 @@ STAGED: dict[str, str] = {
 SETUP_COMMANDS = ["module load apptainer"]
 
 
+def assert_pinned_engine() -> str:
+    """Refuse to deploy an engine version that has no published container.
+
+    `Deploy()` derives the agent image tag from the engine's own version, so an
+    unreleased local checkout asks quay for a manifest that does not exist. The
+    failure surfaces as a registry error and then an assertion about a missing
+    relay binary -- neither of which names the actual cause. Checked here, on
+    the version the interpreter actually imported, so the message arrives before
+    a remote directory is created rather than after.
+
+    Only enforced for a real deploy; --plan-only touches no registry.
+    """
+    import metasmith
+    got = (Path(metasmith.__file__).parent / "version.txt").read_text().strip()
+    # noqa: E501 -- see agent_container() for why the version alone is not the tag
+    want = (REPO / "src/metasmith/src/metasmith/version.txt").read_text().strip()
+    if got != want:
+        raise SystemExit(
+            f"engine version [{got}] is not the pin [{want}].\n"
+            f"  imported from: {Path(metasmith.__file__).parent}\n"
+            f"The agent container tag is derived from this version, and only "
+            f"RELEASED versions have images on quay -- deploying [{got}] would "
+            f"fail with 'manifest unknown' after creating a remote directory.\n"
+            f"Re-run with the pin first on the path:\n"
+            f"  PYTHONPATH=src/metasmith/src:src python {Path(__file__).name} ..."
+        )
+    return got
+
+
+def agent_container() -> str:
+    """The published agent image for the engine we actually imported.
+
+    `Agent.container` defaults to `metasmith:{CONTAINER_TAG}`, and CONTAINER_TAG
+    is `{VERSION}-{BUILD_HASH}` where BUILD_HASH is a content hash of the engine
+    source tree written by `_build_hash.py` AT BUILD TIME. A source checkout --
+    which is what the submodule pin is -- has no `build_hash.txt`, so the tag
+    silently degrades to the bare version, and bare `0.18.8` was never pushed:
+    quay carries `0.18.8-60556ca`. The run then dies on "manifest unknown".
+
+    So the hash is COMPUTED here from the same function the build uses, rather
+    than the tag being hardcoded. That is the difference between "this tag
+    happens to work today" and "this image is provably built from the source on
+    our PYTHONPATH" -- if the pin moves, this follows it, and if the resulting
+    image was never published the pull fails loudly instead of running an engine
+    that does not match the planner that produced the workflow.
+    """
+    from metasmith._build_hash import compute_build_hash
+    from metasmith.constants import VERSION
+    return f"docker://quay.io/hallamlab/metasmith:{VERSION}-{compute_build_hash()}"
+
+
 def build_inputs(staging: Path) -> DataInstanceLibrary:
     xgdb = staging / "inputs.xgdb"
     if xgdb.exists():
@@ -150,10 +213,14 @@ def main() -> int:
         agent = Agent(home=Source.FromLocal(staging / "agent_home"),
                       runtime=ContainerRuntime.APPTAINER)
     else:
+        print(f"=== engine pin: {assert_pinned_engine()} ===", flush=True)
         agent_path = f"{a.scratch_root}/{a.user}/ecspr_bench_v3_{ts}"
         print(f"=== remote: {a.host}:{agent_path} ===", flush=True)
+        container = agent_container()
+        print(f"=== agent image: {container} ===", flush=True)
         agent = Agent(home=SshSource(host=a.host, path=agent_path).AsSource(),
                       runtime=ContainerRuntime.APPTAINER,
+                      container=container,
                       setup_commands=SETUP_COMMANDS)
 
     print("=== planning ===", flush=True)

@@ -36,12 +36,17 @@ DOMAINS = [
     "ecsprUndirected",
     "ecsprNetA",
     "ecsprNetB",
+    # The benchmark is a THIRD producer of ecspr::base_graphs -- it builds them
+    # straight from the frozen benchmark inputs, which already carry the
+    # per-reaction evidence weight, so no annotation lane runs. Co-loading it
+    # with netA/netB would make that a three-way tiebreak.
+    "ecsprBenchmark",
 ]
 
 # The ECSPr domains that must NOT both be offered to the planner in one run,
 # keyed by the selector that chooses between them. Consumed by pipeline.py.
 ECSPR_SOLVE_DOMAINS = {"directed": "ecsprDirected", "undirected": "ecsprUndirected"}
-ECSPR_NETWORK_DOMAINS = {"A": "ecsprNetA", "B": "ecsprNetB"}
+ECSPR_NETWORK_DOMAINS = {"A": "ecsprNetA", "B": "ecsprNetB", "benchmark": "ecsprBenchmark"}
 
 
 def domains_for(solve: str | None = None, network: str | None = None) -> list[str]:

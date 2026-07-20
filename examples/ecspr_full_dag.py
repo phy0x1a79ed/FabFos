@@ -43,7 +43,7 @@ from fabfos import canon  # noqa: E402
 from fabfos.library import resolve_library_root  # noqa: E402
 
 from metasmith.python_api import (  # noqa: E402
-    Agent, DataInstanceLibrary, DataTypeLibrary, Runtime, Source,
+    Agent, ContainerRuntime, DataInstanceLibrary, DataTypeLibrary, Source,
     TargetBuilder, TransformInstanceLibrary,
 )
 
@@ -72,7 +72,12 @@ RN_CACHE = MM / "04_reaction_network" / "cache"
 
 FROM_INCUMBENT: dict[str, Path] = {
     "ecspr::metanetx_chem_prop": INCUMBENT / "references/metanetx/chem_prop.tsv",
-    "ecspr::biomass_axes": RN_CACHE / "biomass_dag_axes_set2cat.json",
+    # canon.AXES_JSON, NOT a hand-written filename. This used to name
+    # `biomass_dag_axes_set2cat.json` directly, and set2cat is listed in
+    # canon.RETIRED_AXIS_SETS -- canon.assert_canonical_axes() rejects it. The
+    # cache dir holds set2, set2cat and set4 side by side, so the wrong one is
+    # one typo away and nothing downstream would have complained.
+    "ecspr::biomass_axes": Path(canon.AXES_JSON),
     "ecspr::direction_ratios": INCUMBENT / "direction/direction_annotation.parquet",
     "functional_annotation::ko_to_mnxr": MM / "_reference_try1/betweenness/cache/ko_to_mnxr.tsv",
     "functional_annotation::metanetx_reac_xref": INCUMBENT / "references/metanetx/reac_xref.tsv",
@@ -184,7 +189,7 @@ def main() -> int:
     resources = [DataInstanceLibrary.Load(LIB / f"resources/{n}") for n in ("containers", "envs", "lib")]
     transforms = [TransformInstanceLibrary.Load(LIB / f"transforms/{d}") for d in DOMAINS]
 
-    agent = Agent(home=Source.FromLocal(staging / "agent_home"), runtime=Runtime.MAMBA, native=True)
+    agent = Agent(home=Source.FromLocal(staging / "agent_home"), runtime=ContainerRuntime.APPTAINER)
 
     print("=== planning ===")
     targets = TargetBuilder()

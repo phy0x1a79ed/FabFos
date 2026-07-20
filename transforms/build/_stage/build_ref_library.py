@@ -103,9 +103,18 @@ def build_plan(decl: dict) -> tuple[list[dict], list[dict]]:
         if item.get("status") == "MISSING" or item.get("src") is None:
             missing.append(item)
             continue
-        src = Path(item["src"])
-        if not src.is_absolute():
-            src = root / src
+        raw_src = str(item["src"])
+        # `repo/...` resolves against the REPO, not the data root. Needed the
+        # moment the repo itself produces a declared item (the benchmark's
+        # target-resolution table is the first). An absolute path would pin the
+        # declaration to one checkout, so it would resolve in the worktree that
+        # wrote it and be MISSING everywhere else -- including after a merge.
+        if raw_src.startswith("repo/"):
+            src = REPO / raw_src[len("repo/"):]
+        else:
+            src = Path(raw_src)
+            if not src.is_absolute():
+                src = root / src
         if not src.exists():
             missing.append({**item, "_reason": f"declared source does not exist: {src}"})
             continue

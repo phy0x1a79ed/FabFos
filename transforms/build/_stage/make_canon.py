@@ -10,7 +10,12 @@ import re
 from pathlib import Path
 
 SRC = Path("/home/tony/agentic_workspace/projects/scadc/fig-model/main/fabfos/canon.py")
-DST = Path("/home/tony/agentic_workspace/projects/fabfos/scadc/src/fabfos/canon.py")
+# Repo-relative, NOT an absolute path to one checkout. This used to name
+# .../projects/fabfos/scadc/src/fabfos/canon.py directly, so running the
+# generator from any other worktree silently regenerated a DIFFERENT checkout's
+# canon and left the current one untouched -- the exact class of drift this
+# script exists to end. make_canon.py lives at transforms/build/_stage/.
+DST = Path(__file__).resolve().parents[3] / "src" / "fabfos" / "canon.py"
 
 text = SRC.read_text()
 
@@ -162,6 +167,23 @@ _PATHS: dict[str, str] = {
     # absolute path while every test still passed.
     "BIPARTITE_DIR":               "derived/mnxref-4_5/graph",
     "SOLVE_BASE_DIR":              "derived/mnxref-4_5/solve",
+    # ---- the X/Y benchmark, v3 ----
+    # One SELF-CONTAINED tree: X, the contract shape, the ground truth the key
+    # is derived from, the baseline and v1's provenance all live inside v3, so
+    # deleting a sibling version cannot break this one. BENCH_V3_Y is the
+    # answer key and is declared MISSING until the v3 key is built and frozen;
+    # touching it before then raises CanonError naming the symbol, which is the
+    # intended refusal -- scoring against an absent key must never quietly
+    # produce an empty result.
+    "BENCH_V3_ROOT":               "validation/benchmark/v3",
+    "BENCH_V3_OBSERVATIONS":       "validation/benchmark/v3/observations",
+    "BENCH_V3_DECISIONS":          "validation/benchmark/v3/decisions",
+    "BENCH_V3_X":                  "validation/benchmark/v3/X",
+    "BENCH_V3_CONTRACT":           "validation/benchmark/v3/contract",
+    "BENCH_V3_GROUND_TRUTH":       "validation/benchmark/v3/ground_truth",
+    "BENCH_V3_BASELINE":           "validation/benchmark/v3/baseline",
+    "BENCH_V3_V1_PROVENANCE":      "validation/benchmark/v3/v1",
+    "BENCH_V3_Y":                  "validation/benchmark/v3/Y",
 }
 
 # Declared, but absent from every machine we have looked at. Named so the

@@ -1,16 +1,16 @@
 """FabFos command line — a thin front end over the metasmith planner.
 
 ``fabfos`` builds a metasmith workflow that resolves fosmid inserts from
-pooled reads and runs it through the chosen runtime (mamba by default, so a
-conda install is self-contained). Use ``--plan-only`` to just resolve and
-print the DAG without executing.
+pooled reads and runs it through the chosen container runtime (apptainer by
+default, which is what the cluster provides). Use ``--plan-only`` to just
+resolve and print the DAG without executing.
 """
 import argparse
 import multiprocessing
 import sys
 from pathlib import Path
 
-from metasmith.python_api import Runtime
+from metasmith.python_api import ContainerRuntime
 
 from . import __version__, NAME, SHORT_SUMMARY
 from .pipeline import FabFosInputs, generate_workflow, run_pipeline
@@ -51,8 +51,15 @@ def _build_parser() -> argparse.ArgumentParser:
                     help="reference dir with reactions.dmnd + bridge.tsv")
 
     run = p.add_argument_group("execution")
-    run.add_argument("--runtime", choices=[r.value for r in Runtime], default=Runtime.MAMBA.value,
-                     help="tool runtime (default: mamba)")
+    run.add_argument("--runtime", choices=[r.value for r in ContainerRuntime],
+                     default=ContainerRuntime.APPTAINER.value,
+                     help="container runtime (default: apptainer)")
+    run.add_argument("--solve-lane", choices=["directed", "undirected"], default=None,
+                     help="which ECSPr solve lane to offer the planner; both produce "
+                          "the same axes report, so leaving this unset offers neither "
+                          "rather than letting the planner pick by tiebreak")
+    run.add_argument("--network-lane", choices=["A", "B", "benchmark"], default=None,
+                     help="which ECSPr base-graph lane to offer the planner")
     run.add_argument("-t", "--threads", type=int, default=multiprocessing.cpu_count(),
                      help="max threads per step")
     run.add_argument("--plan-only", action="store_true", default=False,
@@ -64,7 +71,9 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument("--provision-only", action="store_true", default=False,
                      help="create the per-tool mamba envs from the library *.env.yml specs, then exit")
     run.add_argument("--no-provision", action="store_true", default=False,
-                     help="do not auto-create missing per-tool mamba envs before a MAMBA run")
+                     help="accepted and ignored: no runtime on the pinned engine needs "
+                          "per-tool mamba envs, so nothing is auto-created. Use "
+                          "--provision-only to stand them up explicitly")
     p.add_argument("-v", "--version", action="version", version=f"{NAME} {__version__}")
 
     # The METHOD version, distinct from the package version above. The package
@@ -94,8 +103,10 @@ def _inputs_from_args(a: argparse.Namespace) -> FabFosInputs:
         end_forward=Path(a.endf).resolve() if a.endf else None,
         end_reverse=Path(a.endr).resolve() if a.endr else None,
         ends_facing=a.ends_facing,
-        runtime=Runtime(a.runtime),
+        runtime=ContainerRuntime(a.runtime),
         threads=a.threads,
+        solve_lane=a.solve_lane,
+        network_lane=a.network_lane,
         ecspr=a.ecspr,
         base_graphs=Path(a.base_graphs).resolve() if a.base_graphs else None,
         element_bipartite=Path(a.element_bipartite).resolve() if a.element_bipartite else None,

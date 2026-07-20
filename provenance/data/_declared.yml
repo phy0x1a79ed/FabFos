@@ -481,7 +481,7 @@ items:
       and ZERO edges lost in any element (Jaccard 0.996-0.998).
 
   - id: mnxref.solve
-    src: ecspr_reference/mnxref-4_5/solve
+    src: ecspr_reference/mnxref-4_5/solve_tier4
     dest: derived/mnxref-4_5/solve
     type: ecspr::base_graphs
     tier: derived
@@ -496,7 +496,7 @@ items:
       canonical solve runs on.
 
   - id: mnxref.solve_directed
-    src: ecspr_reference/mnxref-4_5/solve_directed
+    src: ecspr_reference/mnxref-4_5/solve_directed_tier4
     dest: derived/mnxref-4_5/solve_directed
     type: ecspr::base_graphs
     tier: derived
@@ -530,7 +530,7 @@ items:
       to work around this hazard. Verify by sha256; NEVER by regeneration.
 
   - id: mnxref.null_directed
-    src: ecspr_reference/mnxref-4_5/null_directed
+    src: ecspr_reference/mnxref-4_5/null_directed_tier4
     dest: derived/mnxref-4_5/null_directed
     type: ecspr::frozen_null
     tier: derived
@@ -657,7 +657,7 @@ items:
   # ===================================================================
 
   - id: validation.dual_network
-    src: ecspr_validation
+    src: ecspr_benchmark/ecspr_validation
     dest: validation/dual_network
     type: ecspr::validation_set
     tier: validation

@@ -160,9 +160,27 @@ by tiebreak. `library.domains_for()` drops the unselected lane.
   explicit file list — never a glob, because the scorer discovers its draw
   sizes by listing that directory, so a stray retired size would silently widen
   the null basis.
+- **The staged frozen null was built on a superseded universe.** The reference
+  graph and the benchmark universe both moved to tier 4 on 2026-07-20; the null
+  did not, and a null built on different edges than the observed solve is not a
+  valid reference. Significance scoring is therefore **not licensed** until it is
+  regenerated — `canon.assert_canonical_reference()` refuses the pair by design.
+  Note `check_canon.py`'s frozen-null check verifies file PRESENCE, not
+  universe-consistency, so it passes and must not be read as clearance. The
+  benchmark is unaffected: it consumes no null (`potency` reports
+  `undefined:no_null_pool`), which is why it could be re-run first.
 - **The `sif/` tier still does not exist**, despite being named in the tier
   tables. Both images are on quay now, so it is a convenience rather than the
   fallback it was written as.
+- **The ecspr image is pinned to `external_ecspr`, not `ecspr`.** The `external_`
+  prefix is wrong for an image built here, and the rename to
+  `quay.io/hallamlab/ecspr` was made — but quay defaults new repos to private and
+  that one initially was, which made the method unrunnable (anonymous pull → 401).
+  It has since been made public and both names now resolve to the identical digest
+  `sha256:97f7afad…`, so the pin can move to `ecspr` whenever someone re-verifies
+  it end to end. Until then the reachable name is pinned deliberately: an
+  unreachable reference in a provenance record is not a stricter claim, it is a
+  false one.
 - **The licensed BioCyc PGDBs are absent** from the data tree — only the
   MetaCyc flatfiles survive, so the direction ensemble's curated member cannot
   be rebuilt as-is. `provenance/data/biocyc.pgdbs.yml` states what degrades.

@@ -36,7 +36,14 @@ CONTRACT_DIR = Path(canon.BENCH_V3_CONTRACT)
 # The answer key is the thing being BUILT, so it is addressed as a destination
 # rather than resolved through canon -- canon.BENCH_V3_Y deliberately raises
 # until the key exists, which is correct for readers and useless for a writer.
-Y_DIR = ROOT / "Y"
+#
+# It is built INTO THE REPO, not into the library, for the same reason
+# target_resolution.tsv is: the library is built from declarations by the
+# staging script, and a file written into it directly is one that no record
+# describes and no hash covers. Placement then hardlinks this into
+# `validation/benchmark/v3/Y`, where canon.BENCH_V3_Y finds it.
+BUILD_OUT = Path(__file__).resolve().parent / "v3_build"
+Y_DIR = BUILD_OUT / "Y"
 
 ELEMENTS = ["C", "N", "S", "P"]
 FACETS = ["netA_iML1515", "netA_iECDH10B", "netB_iML1515", "netB_iECDH10B"]

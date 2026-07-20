@@ -137,10 +137,27 @@ def _manifest() -> dict:
         if not index.exists():
             raise CanonError(f"library at [{root}] has no _metadata/index.yml")
         raw = yaml.safe_load(index.open()) or {}
-        man = raw.get("manifest", {})
+        # index.yml IS the manifest -- a flat `path: type` mapping written in
+        # YAML's explicit-key form. It has no `manifest:` wrapper, so asking
+        # for one yields {} and every symbol then fails as "not in the
+        # manifest", pointing at the declaration instead of at this reader.
+        # Accept the wrapper if a future writer adds one; otherwise take the
+        # document itself.
+        man = raw.get("manifest", raw) if isinstance(raw, dict) else {}
         _manifest_cache = {
-            k: (v["type"] if isinstance(v, dict) else v) for k, v in man.items()
+            str(k): (v["type"] if isinstance(v, dict) else v)
+            for k, v in man.items()
         }
+    # An EMPTY manifest is a broken read, never a legitimately empty library:
+    # every caller is asking for a path that must exist. Failing here names the
+    # real fault; failing later names an innocent symbol.
+    if not _manifest_cache:
+        raise CanonError(
+            f"library at [{root}] resolved an EMPTY manifest. The library is "
+            f"not built, or _metadata/index.yml is not in the expected "
+            f"`path: type` form. This is a reader/library fault, not a bad "
+            f"symbol -- do not chase the declaration."
+        )
     return _manifest_cache
 
 
@@ -214,6 +231,8 @@ _PATHS: dict[str, str] = {
     "BENCH_V3_GROUND_TRUTH":       "validation/benchmark/v3/ground_truth",
     "BENCH_V3_BASELINE":           "validation/benchmark/v3/baseline",
     "BENCH_V3_V1_PROVENANCE":      "validation/benchmark/v3/v1",
+    "BENCH_V3_BASE_GRAPHS":        "validation/benchmark/v3/base_graphs",
+    "BENCH_V3_UNIVERSE":           "validation/benchmark/v3/universe",
     "BENCH_V3_Y":                  "validation/benchmark/v3/Y",
 }
 

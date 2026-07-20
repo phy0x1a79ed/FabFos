@@ -745,9 +745,84 @@ items:
       quietly drop one. The nesting is what prevents that, not a filing
       preference.
 
+  - id: benchmark.v3.base_graphs
+    src: /home/tony/agentic_workspace/projects/scadc/metabolic-modelling/main/metabolic-modelling/04_reaction_network/cache
+    dest: validation/benchmark/v3/base_graphs
+    type: ecspr::benchmark_base_graphs
+    tier: validation
+    kind: derived
+    producer: 60_build_netA_base.py + 62_build_netB_base.py
+    inputs: [benchmark.v3.universe, benchmark.v3.inputs]
+    determinism: reproducible
+    select:
+      - netA_iML1515/base_*.pkl
+      - netA_iECDH10B/base_*.pkl
+      - netB_iML1515/base_*.pkl
+      - netB_iECDH10B/base_*.pkl
+    note: >-
+      The four facets x four elements of element-resolved bipartite graph that
+      the incumbent actually solves on. networkx.Graph, nodes ("rxn", mnxr) and
+      ("met", mnxm), one float edge attribute w_C / w_N / w_S / w_P. On net A
+      that weight is the raw atom-transit count; on net B it is the transit
+      count times the per-reaction evidence weight E_full.
+      DECLARED RATHER THAN COMPUTED, and this is the important part: these
+      CANNOT be rebuilt from X. X withholds the atom mapping on purpose -- its
+      own _provenance.json says "aam: WITHHELD -- the atom mapping is under
+      test" -- and the transit count is exactly what X does not ship. Formulas
+      and stoichiometry are not a substitute: a formula says which atoms a
+      metabolite CONTAINS, not how many it inherited from that reaction's other
+      participants, and `load_bipartite` deletes every w<=0 edge, so the atom
+      mapping fixes connectivity and LCC membership rather than only weights.
+      That is the benchmark working as designed. X withholds the AAM so an
+      independent implementation derives its OWN; these graphs are the
+      incumbent's answer to that, which is why they are an INPUT to scoring the
+      incumbent and never part of X.
+      They are network construction, not ECSPr output. The independence audit's
+      forbidden-token list already draws that line and it must stay drawn --
+      the panel's anchor liveness gate re-measures every anchor in each facet's
+      largest connected component and cannot run without these.
+
+  - id: benchmark.v3.universe
+    src: /home/tony/agentic_workspace/projects/scadc/metabolic-modelling/main/metabolic-modelling/04_reaction_network/cache
+    dest: validation/benchmark/v3/universe
+    type: ecspr::benchmark_universe
+    tier: validation
+    kind: derived
+    producer: 08_weighted_bipartite_expanded.py
+    determinism: reproducible
+    select: [mnx_bipartite_C.pkl, mnx_bipartite_N.pkl, mnx_bipartite_S.pkl, mnx_bipartite_P.pkl]
+    note: >-
+      The atom-mapped MetaNetX universe, per element, from which every base
+      graph above is induced. 14.4 MB each, four elements; mnx_bipartite_Fe.pkl
+      is deliberately NOT selected because the benchmark scores C/N/S/P only.
+      Staged because the GOF arm needs it at SOLVE time, not just at build time:
+      `base_plus_reactions` re-reads the universe to find the reactions a
+      condition inserts, so a GOF perturbation cannot be applied without it. A
+      tree holding base graphs but no universe would build and then fail on the
+      first of the 382 gain-of-function conditions.
+
+  - id: benchmark.v3.provenance
+    src: repo/transforms/build/benchmark/v3_build
+    dest: validation/benchmark/v3/provenance
+    type: ecspr::benchmark_provenance
+    tier: validation
+    kind: derived
+    producer: transforms/build/benchmark/50_audit_v3.py
+    inputs: [benchmark.v3.answer_key, benchmark.v3.inputs]
+    determinism: reproducible
+    select: [MANIFEST.tsv, _audit.json]
+    note: >-
+      v3's own self-description: a per-file sha256 manifest over X and Y, and
+      the result of the four freeze gates. The FREEZE IS THE REWARD FOR THE
+      GATES PASSING -- 50_audit_v3.py exits nonzero and writes no pass record if
+      any gate fails, so a manifest existing is itself the evidence.
+      Gate 4 is new in v3: answer-key precedence, which refuses to freeze if
+      solve output is already present in the tree. That is the one ordering
+      error no amount of care inside the builders can catch, because a key
+      authored after seeing results looks identical to one authored before.
+
   - id: benchmark.v3.answer_key
-    src: null
-    status: MISSING
+    src: repo/transforms/build/benchmark/v3_build/Y
     dest: validation/benchmark/v3/Y
     type: ecspr::benchmark_answer_key
     tier: validation

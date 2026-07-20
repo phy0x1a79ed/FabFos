@@ -184,6 +184,18 @@ _PATHS: dict[str, str] = {
     # absolute path while every test still passed.
     "BIPARTITE_DIR":               "derived/mnxref-4_5/graph",
     "SOLVE_BASE_DIR":              "derived/mnxref-4_5/solve",
+    # ---- the evidence basis ----
+    # These four were the last inputs on the method path still resolving to
+    # absolute paths in the incumbent tree. EVIDENCE_WEIGHTS is the one that
+    # cost something: with no symbol here, it could not be repointed when the
+    # basis moved to the 199-fosmid CLEAN evidence, so it silently stayed
+    # pre-CLEAN and set the effective host universe. See evidence.weights in
+    # _declared.yml. A symbol that does not exist upstream cannot be rewritten
+    # by this table, which is why canon.py had to name it first.
+    "EVIDENCE_TABLE":              "derived/evidence/evidence_table_clean.parquet",
+    "EVIDENCE_WEIGHTS":            "derived/evidence/evidence_weights.parquet",
+    "ADDITION_WEIGHTS":            "derived/evidence/fosmid_addition_weights.pkl",
+    "AXES_JSON":                   "derived/axes/biomass_dag_axes_set4.json",
     # ---- the X/Y benchmark, v3 ----
     # One SELF-CONTAINED tree: X, the contract shape, the ground truth the key
     # is derived from, the baseline and v1's provenance all live inside v3, so
@@ -255,20 +267,58 @@ shadowed = set(re.findall(r"^(\w+)\s*=", HEADER, re.M)) | set(
 names = set(re.findall(r'^\s*"(\w+)":', HEADER, re.M))
 names |= {"REFERENCE_NULL_DIR", "DIR_METACYC_PGDB", "DIR_ECOCYC_PGDB"}
 
-out_lines, skipping = [], False
+def _delta(s: str) -> int:
+    """Net bracket depth contributed by a line, ignoring brackets in strings.
+
+    Continuation used to be detected as `line.endswith("(")`, which only sees
+    an assignment that opens a bracket and immediately wraps. A wrap in the
+    MIDDLE of the expression -- `X = (DATA / "a" / "b"` then `/ "c.parquet")`,
+    the form every evidence-basis symbol is written in -- ends on a quote, so
+    the opening line got commented out and its continuation was emitted bare,
+    producing an IndentationError in the generated canon. Depth-tracking is the
+    only version that does not depend on how the source happens to be wrapped.
+    """
+    depth, quote, i = 0, None, 0
+    while i < len(s):
+        c = s[i]
+        if quote:
+            if c == "\\":
+                i += 2
+                continue
+            if s.startswith(quote, i):
+                i += len(quote)
+                quote = None
+                continue
+        elif c in "\"'":
+            for q in (c * 3, c):
+                if s.startswith(q, i):
+                    quote = q
+                    i += len(q)
+                    break
+            continue
+        elif c == "#":
+            break
+        elif c in "([{":
+            depth += 1
+        elif c in ")]}":
+            depth -= 1
+        i += 1
+    return depth
+
+
+out_lines, depth = [], 0
 for line in text.split("\n"):
+    if depth > 0:                      # inside a neutralised assignment
+        out_lines.append("# " + line)
+        depth += _delta(line)
+        continue
     m = re.match(r"^([A-Z_][A-Z0-9_]*)\s*=", line)
     if m and m.group(1) in names:
-        indent = "# "
         out_lines.append(f"# [resolved through the library] {line.strip()[:100]}")
-        skipping = line.rstrip().endswith(("(", "["))
-        continue
-    if skipping:
-        out_lines.append("# " + line)
-        if line.rstrip().endswith((")", "]")):
-            skipping = False
+        depth = _delta(line)
         continue
     out_lines.append(line)
+assert depth == 0, f"unbalanced brackets while neutralising canon (depth {depth})"
 text = "\n".join(out_lines)
 
 DST.write_text(text)

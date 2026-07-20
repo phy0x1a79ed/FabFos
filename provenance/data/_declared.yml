@@ -572,6 +572,87 @@ items:
       the per-MNXR forms).
 
   # ===================================================================
+  # derived/ -- the EVIDENCE BASIS the host base graph is induced from
+  # ===================================================================
+  # Declared 2026-07-20, and the reason is a defect rather than tidiness.
+  # evidence_weights.parquet was the ONLY input on the method path with no
+  # canon symbol and no declaration, so when the basis moved to the 199-fosmid
+  # CLEAN evidence nothing repointed it: it kept being hand-passed from
+  # 04_reaction_network/cache. The frozen reference solve was therefore built
+  # from a MISMATCHED pair -- CLEAN evidence naming the reactions, pre-CLEAN
+  # weights setting their conductance -- silently zeroing 4,688 CLEAN-nominated
+  # reactions. An input with no name is an input nothing can repoint, which is
+  # why all four members of the pair are declared together here.
+
+  - id: evidence.table
+    src: fabfos_2026_199/ecspr_clean/evidence_network/evidence_table_clean.parquet
+    dest: derived/evidence/evidence_table_clean.parquet
+    type: functional_annotation::evidence_table
+    tier: derived
+    kind: derived
+    producer: ecspr compile_evidence
+    inputs: [metanetx.reac_prop]
+    determinism: reproducible
+    note: >-
+      The compiled per-(source, orf, mnxr) evidence behind the canonical
+      199-fosmid CLEAN basis. A byte-identical copy sits in the incumbent
+      03_layer2_evidence/cache (md5 e27448a4...); this is the one canon names.
+
+  - id: evidence.weights
+    src: fabfos_2026_199/ecspr_clean/evidence_network/evidence_weights.parquet
+    dest: derived/evidence/evidence_weights.parquet
+    type: ecspr::evidence_weights
+    tier: derived
+    kind: derived
+    producer: resources/lib/ecspr_network.py weights
+    inputs: [evidence.table]
+    determinism: reproducible
+    note: >-
+      The per-(source, mnxr) conductances the HOST base is induced with:
+      40,204 rows over 3 sources, epi300 9,992 reactions. A pure function of
+      evidence.table, carrying its own belief-conservation assertion.
+
+      REGENERATED 2026-07-20 from the CLEAN evidence. The previous canonical
+      file (18,079 rows, epi300 5,499) does NOT reproduce from this evidence
+      table and is not a subset of what does -- it derives from the pre-CLEAN
+      fabfos_2026 evidence. Because build_base_graph gates candidate reactions
+      on this file (`er = e_epi.get(r, 0.0); if er <= 0: continue`), the stale
+      copy was setting the effective host universe, not the evidence table.
+      Fixing it moves the carbon lane to testable 40/40 -- the "one carbon axis
+      lost its LCC endpoint on the honest graph" in MIGRATION.md was this file,
+      not the graph.
+
+  - id: evidence.addition_weights
+    src: fabfos_2026_199/ecspr_clean/evidence_network/fosmid_addition_weights.pkl
+    dest: derived/evidence/fosmid_addition_weights.pkl
+    type: ecspr::addition_weights
+    tier: derived
+    kind: derived
+    producer: resources/lib/ecspr_network.py addition-weights
+    inputs: [evidence.table]
+    determinism: reproducible
+    note: >-
+      The reactions each fosmid injects onto the host base (contig -> mnxr -> E),
+      199 units. Verified to reproduce BIT-IDENTICALLY from evidence.table, which
+      is what localised the mismatch above to the host weights alone.
+
+  - id: axes.set4
+    src: /home/tony/agentic_workspace/projects/scadc/metabolic-modelling/main/metabolic-modelling/04_reaction_network/cache/biomass_dag_axes_set4.json
+    dest: derived/axes/biomass_dag_axes_set4.json
+    type: ecspr::biomass_axes
+    tier: derived
+    kind: derived
+    producer: hand-curated (the set4 axis definitions)
+    determinism: frozen
+    note: >-
+      The 79 biomass source->sink axis DEFINITIONS. Graph-INDEPENDENT: it is
+      set4 itself, so it is the same table regardless of which universe the
+      solve runs on -- assert canonical axes against THIS, never against the
+      testable subset. Absolute src: it still lives in the incumbent tree and
+      has no producer in this repo. One of the 12 absolute-path inputs the
+      README's Known gaps names; this closes four of them.
+
+  # ===================================================================
   # validation/ -- frozen expected outputs; gates read them, nothing writes
   # ===================================================================
 

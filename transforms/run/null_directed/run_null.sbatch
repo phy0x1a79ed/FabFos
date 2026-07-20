@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32
-#SBATCH --mem=180G
+#SBATCH --mem=96G
 #SBATCH --time=24:00:00
 #SBATCH --array=0-19
 #SBATCH --output=/scratch/st-shallam-1/txyliu/scadc_dir/logs/null-%A_%a.out
@@ -19,10 +19,24 @@
 #   cpus/mem     fir asked 192 cores / 256 GB -- a fir full-node shape. Sockeye's
 #                skylake and cascade nodes are 32 and 40 cores at 190 GB, so a
 #                256 GB request NEVER SCHEDULES here; it queues forever rather
-#                than failing, which is the worst way for this to go wrong. 180 G
-#                fits a standard node. If the measured high-water mark exceeds
-#                it, move to `--partition=big_mem` (385 GB) and raise this --
-#                do NOT quietly drop draws to fit.
+#                than failing, which is the worst way for this to go wrong.
+#
+#                96 G is MEASURED, not guessed. Smoke on the worst cell (C/N43,
+#                the largest LCC at n=12,884) at 100 and 300 draws gave a peak
+#                RSS of 548 and 558 MB -- a slope of ~0.05 MB/draw, so the full
+#                4,000-draw `additions` dict adds only ~195 MB and the parent
+#                peaks near 0.75 GB. Workers fork (CoW), so a pessimistic
+#                1.5 GB/worker x 32 is ~48 GB. 96 G is 2x that.
+#
+#                Take the two-point measurement seriously if you re-tune this:
+#                `additions` is built for ALL draws before the pool starts, so
+#                it is the dominant term AND it is exactly what --smoke-draws
+#                truncates. A single small smoke underestimates the real
+#                high-water mark ~20x. Measure a slope, not a point.
+#
+#                If a high-water mark ever does exceed this, move to
+#                `--partition=big_mem` (385 GB) and raise it -- do NOT quietly
+#                drop draws to fit.
 #   time         fir capped at 1 h because fir capped at 1 h. Sockeye allows 7
 #                days on every batch partition, so walltime is essentially free
 #                and there is no reason to run this tight. The coherent base

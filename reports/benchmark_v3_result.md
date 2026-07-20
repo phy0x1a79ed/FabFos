@@ -82,11 +82,13 @@ the pilot's log ratio — the scorer reads order only.
   refused rather than guessed. Every row carries its reason. Unresolved rows
   are coverage misses, never silent drops — but the AUCs above are computed on
   what did resolve, so a review that moves rows moves the numbers.
-- **Image naming is wrong.** The task image is published as
+- **Image naming was wrong, and has since been fixed.** This run used
   `external_ecspr`, but the `external_` prefix denotes third-party images and
-  this one was built in-house (`provenance/containers/ecspr.yml` already records
-  `built_by_us: true`). Renaming the published repo is an outward-facing change
-  and is left for a human decision.
+  this one was built in-house (`provenance/containers/ecspr.yml` records
+  `built_by_us: true`). On 2026-07-20 the image was retagged
+  `quay.io/hallamlab/ecspr:2026.07.14` registry-side from the same manifest
+  index, so the digests this run was pinned against are unchanged and the old
+  reference still resolves. Nothing about the numbers below moves.
 - No local compute was used for the solve. Scoring ran locally: ~15 min per
   mode on one core, not the sub-minute the plan assumed, because the merged
   table is 424 MB.

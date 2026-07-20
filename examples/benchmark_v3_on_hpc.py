@@ -129,7 +129,7 @@ SETUP_COMMANDS = ["module load gcc/9.4.0", "module load apptainer/1.3.1"]
 
 # Every image the workflow's transforms ask for, as they appear in the
 # containers resource library. Both benchmark transforms use only this one.
-REQUIRED_IMAGES = ["docker://quay.io/hallamlab/external_ecspr:2026.07.14"]
+REQUIRED_IMAGES = ["docker://quay.io/hallamlab/ecspr:2026.07.14"]
 
 
 def cached_image_name(image: str) -> str:
@@ -180,16 +180,23 @@ def prepull_images(host: str, cache_dir: str, images: list[str],
         dest = f"{cache_dir}/{cached_image_name(image)}"
         print(f"  {image}", flush=True)
 
-        # external_ecspr is a PRIVATE quay repo, so `apptainer pull` on the
-        # host fails with "unauthorized" no matter which node it runs on. The
-        # fix is deliberately NOT to put registry credentials on a shared
-        # cluster: the login is a personal Docker Desktop credential, and a
-        # secret copied onto a multi-user filesystem cannot be un-copied.
+        # We upload a locally-built .sif instead of pulling on the cluster.
         #
-        # Instead the image is built locally from the same daemon copy the
-        # provenance record pins (`apptainer build ... docker-daemon://...`)
-        # and uploaded once into the persistent store. Uploading bytes we
-        # already hold beats widening credential exposure.
+        # The reason is the compute nodes have NO outbound internet, so a pull
+        # scheduled as part of the task dies with "no route to host" -- and
+        # slurm.nf's errorStrategy='ignore' turns that into a silent green run
+        # with empty outputs. Pre-placing the .sif in the persistent store is
+        # what makes the failure impossible rather than invisible.
+        #
+        # NOTE (2026-07-20): an earlier version of this comment blamed registry
+        # privacy ("PRIVATE repo -> unauthorized"). That was a misdiagnosis:
+        # `quay.io/hallamlab/external_ecspr` is PUBLIC and anonymously
+        # pullable. After the rename, `quay.io/hallamlab/ecspr` is private
+        # (quay defaults new repos to private) -- so on that reference the
+        # auth story is now true, but it was never the reason for this branch.
+        # Either way we do not put registry credentials on a shared cluster:
+        # the login is a personal Docker Desktop credential, and a secret
+        # copied onto a multi-user filesystem cannot be un-copied.
         local = local_sifs.get(image)
         if local is not None:
             if not local.exists():
@@ -346,10 +353,10 @@ def main() -> int:
     ap.add_argument("--scratch-root", default="/scratch/st-shallam-1")
     ap.add_argument("--image-sif", default=None,
                     help="locally-built .sif for the ecspr image, uploaded to "
-                         "the store instead of pulled. Needed because "
-                         "external_ecspr is a PRIVATE quay repo -- build it "
+                         "the store instead of pulled. Needed because the "
+                         "compute nodes have no outbound internet -- build it "
                          "with: apptainer build ecspr.sif "
-                         "docker-daemon://quay.io/hallamlab/external_ecspr:2026.07.14")
+                         "docker-daemon://quay.io/hallamlab/ecspr:2026.07.14")
     ap.add_argument("--apptainer-cache", default=None,
                     help="persistent image store on the host. Defaults to "
                          "{scratch}/{user}/apptainer_cache. Must outlive a "

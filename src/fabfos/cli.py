@@ -62,6 +62,20 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument("--no-provision", action="store_true", default=False,
                      help="do not auto-create missing per-tool mamba envs before a MAMBA run")
     p.add_argument("-v", "--version", action="version", version=f"{NAME} {__version__}")
+
+    # The METHOD version, distinct from the package version above. The package
+    # is the CLI; the method is the composition (canon + library commit +
+    # container digests + type contract + data-library index) that decides what
+    # a number out of this pipeline means. A CLI bugfix is not a new method.
+    meth = p.add_argument_group("method version")
+    meth.add_argument("--method-version", action="store_true", default=False,
+                      help="print the method id (version+hash) and exit")
+    meth.add_argument("--describe-method", action="store_true", default=False,
+                      help="print the full hashed method document and exit; "
+                           "diff two of these to see WHICH component moved")
+    meth.add_argument("--require-method", metavar="ID", default=None,
+                      help="fail unless the live method matches ID "
+                           "(full '0.3.0+abc1234' or bare '0.3.0')")
     return p
 
 
@@ -85,8 +99,54 @@ def _inputs_from_args(a: argparse.Namespace) -> FabFosInputs:
     )
 
 
+def _method_query(argv: list[str] | None) -> str | None:
+    """Answer --method-version / --describe-method BEFORE the main parser.
+
+    The main parser requires --reads and --output. Asking what method this is
+    is a question about the installation, not about a run, so it must not
+    require a runnable set of reads to answer.
+    """
+    import sys as _sys
+
+    args = list(_sys.argv[1:] if argv is None else argv)
+    for flag, key in (("--method-version", "version"), ("--describe-method", "describe")):
+        if flag in args:
+            return key
+    return None
+
+
 def main(argv: list[str] | None = None) -> int:
+    query = _method_query(argv)
+    if query is not None:
+        from .method import describe_method
+
+        desc = describe_method()
+        if query == "version":
+            print(desc.method_id)
+            if desc.unresolved_containers:
+                print(
+                    "  NOT STAMPABLE -- unresolved containers: "
+                    f"{', '.join(sorted(desc.unresolved_containers))}",
+                    file=sys.stderr,
+                )
+                return 1
+            return 0
+        import yaml
+
+        print(yaml.safe_dump(desc.to_dict(), sort_keys=False, default_flow_style=False))
+        return 0
+
     args = _build_parser().parse_args(argv)
+
+    if args.require_method is not None:
+        from .method import MethodError, check_required
+
+        try:
+            check_required(args.require_method)
+        except MethodError as e:
+            print(f"fabfos: {e}", file=sys.stderr)
+            return 1
+
     inp = _inputs_from_args(args)
 
     if args.provision_only:

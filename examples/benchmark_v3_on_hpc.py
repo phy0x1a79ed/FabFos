@@ -1,8 +1,22 @@
 #!/usr/bin/env python3
 """Run the frozen ECSPr X/Y benchmark v3 on an HPC host, then retrieve the result.
 
-    PYTHONPATH=src/metasmith/src:src python examples/benchmark_v3_on_fir.py --user phyberos
-    PYTHONPATH=src/metasmith/src:src python examples/benchmark_v3_on_fir.py --user phyberos --plan-only
+    PYTHONPATH=src/metasmith/src:src python examples/benchmark_v3_on_hpc.py --user txyliu
+    PYTHONPATH=src/metasmith/src:src python examples/benchmark_v3_on_hpc.py --user txyliu --plan-only
+
+The defaults target SOCKEYE. This ran on fir first and moved, for a reason that
+belongs in the record rather than in a commit message: fir's /scratch was
+silently dropping files. A 300-file write probe lost 14 under
+/scratch/phyberos and 0 under /project/rpp-shallam/phyberos, `lfs quota`
+reported "Some devices may be not working or deactivated", and the symptom
+before the probe was a staged transform library arriving with 1-2 of its 18
+files missing -- a DIFFERENT one or two on every run, surfacing as
+`AssertionError: namespace [transforms] not found`. The same probe on
+/scratch/st-shallam-1/txyliu loses 0 of 300.
+
+The lesson generalizes past the host: a run that appears to succeed on a
+filesystem that drops files at random is not a result. Retrying until it
+passes would have produced a number, and the number would have been unsound.
 
 THE ENGINE ON PYTHONPATH MUST BE THE PINNED ONE -- READ THIS BEFORE CHANGING IT
 -------------------------------------------------------------------------------
@@ -102,7 +116,105 @@ STAGED: dict[str, str] = {
     "ecspr::benchmark_inputs":      "BENCH_V3_X",
 }
 
-SETUP_COMMANDS = ["module load apptainer"]
+# Sockeye's Lmod hides apptainer/1.3.1 behind a gcc dependency, and the two
+# loads must be SEPARATE commands: `module load gcc/9.4.0 apptainer/1.3.1` in
+# one call resolves the second name against the module tree as it stood BEFORE
+# gcc was loaded, so it silently finds nothing and the shell later reports
+# `apptainer: command not found` with no hint that a module was skipped.
+#
+# 1.3.1 also sits just under the >=1.4 threshold at which the engine builds a
+# sandbox instead of running the .sif, so that branch stays dormant here -- good,
+# because the plan explicitly forbids sandbox mode as an overlay workaround.
+SETUP_COMMANDS = ["module load gcc/9.4.0", "module load apptainer/1.3.1"]
+
+# Every image the workflow's transforms ask for, as they appear in the
+# containers resource library. Both benchmark transforms use only this one.
+REQUIRED_IMAGES = ["docker://quay.io/hallamlab/external_ecspr:2026.07.14"]
+
+
+def cached_image_name(image: str) -> str:
+    """The filename metasmith looks for in the image store.
+
+    Mirrors `Container._cached_name` in the pinned engine
+    (coms/containers.py). Kept as a copy rather than an import because the
+    driver must be able to place the file BEFORE any engine code runs on the
+    remote -- but it is a mirror, so if that method changes, this must too.
+    """
+    return image.replace("://", "..").replace(":", "..").replace("/", "_") + ".sif"
+
+
+def prepull_images(host: str, cache_dir: str, images: list[str],
+                   local_sifs: dict[str, Path] | None = None) -> None:
+    """Pull task images on the LOGIN node, because compute nodes have no network.
+
+    This is the failure this function exists to prevent, in full, because it
+    does not look like a network problem from the outside: the run reported
+    `status: completed` in 3.6 minutes and produced a results directory. What
+    actually happened is that `solve_benchmark` died pulling its image with
+    "no route to host", and slurm.nf sets `errorStrategy = 'ignore'` after the
+    retry budget -- so Nextflow logged "Error is ignored", the merge step ran
+    on nothing, and the workflow exited zero with `[0] outputs`.
+
+    A green run with an empty result is worse than a red one. The driver now
+    checks the output is non-empty rather than trusting the status.
+
+    Apptainer resolves its store as ${APPTAINER_CACHEDIR:-<agent home>}, and
+    agent home carries a per-run timestamp -- so pointing APPTAINER_CACHEDIR at
+    a stable path is what makes this pull survive to the next run instead of
+    being re-fetched into a directory that is about to be abandoned.
+    """
+    subprocess.run(["ssh", "-o", "BatchMode=yes", host, f"mkdir -p {cache_dir}"],
+                   check=True)
+    setup = "; ".join(SETUP_COMMANDS)
+    local_sifs = local_sifs or {}
+    for image in images:
+        dest = f"{cache_dir}/{cached_image_name(image)}"
+        print(f"  {image}", flush=True)
+
+        # external_ecspr is a PRIVATE quay repo, so `apptainer pull` on the
+        # host fails with "unauthorized" no matter which node it runs on. The
+        # fix is deliberately NOT to put registry credentials on a shared
+        # cluster: the login is a personal Docker Desktop credential, and a
+        # secret copied onto a multi-user filesystem cannot be un-copied.
+        #
+        # Instead the image is built locally from the same daemon copy the
+        # provenance record pins (`apptainer build ... docker-daemon://...`)
+        # and uploaded once into the persistent store. Uploading bytes we
+        # already hold beats widening credential exposure.
+        local = local_sifs.get(image)
+        if local is not None:
+            if not local.exists():
+                raise SystemExit(f"--image-sif given but absent: {local}")
+            probe = subprocess.run(
+                ["ssh", "-o", "BatchMode=yes", host, f"[ -e {dest} ] && echo CACHED"],
+                capture_output=True, text=True)
+            if "CACHED" in probe.stdout:
+                print(f"    cached -> {dest}", flush=True)
+                continue
+            print(f"    uploading {local.stat().st_size / 1e9:.1f} GB -> {dest}",
+                  flush=True)
+            subprocess.run(["rsync", "-a", "--partial", "--info=progress2",
+                            str(local), f"{host}:{dest}"], check=True)
+            print(f"    uploaded -> {dest}", flush=True)
+            continue
+
+        # `[ -e ] || pull` rather than an unconditional pull: the tag is
+        # pinned, so a present file is the right file, and re-pulling costs
+        # several minutes of login-node network per run.
+        r = subprocess.run(
+            ["ssh", "-o", "BatchMode=yes", host,
+             f"{setup}; [ -e {dest} ] && echo CACHED || apptainer pull {dest} {image}"],
+            capture_output=True, text=True,
+        )
+        if r.returncode != 0:
+            raise SystemExit(
+                f"pre-pull failed for {image}:\n{r.stderr.strip()[-2000:]}\n"
+                f"Without a cached image the solve dies on the compute node "
+                f"with 'no route to host', and Nextflow's ignore strategy "
+                f"turns that into a SILENT empty result."
+            )
+        print(f"    {'cached' if 'CACHED' in r.stdout else 'pulled'} -> {dest}",
+              flush=True)
 
 
 def assert_pinned_engine() -> str:
@@ -214,11 +326,28 @@ def build_inputs(staging: Path, data_root: Path, remote_root: str | None) -> Dat
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--host", default="fir")
+    ap.add_argument("--host", default="sockeye")
     ap.add_argument("--user", required=True,
                     help="remote username. REQUIRED and never auto-resolved -- "
                          "see this module's docstring on the lockout.")
-    ap.add_argument("--scratch-root", default="/scratch")
+    # Sockeye has no /scratch/<user>: scratch is allocation-scoped, so the
+    # working root is /scratch/st-shallam-1/<user>. The default below is that
+    # allocation, NOT a bare /scratch -- with /scratch the driver would build a
+    # path that mkdir cannot create and the failure would arrive mid-deploy.
+    ap.add_argument("--scratch-root", default="/scratch/st-shallam-1")
+    ap.add_argument("--image-sif", default=None,
+                    help="locally-built .sif for the ecspr image, uploaded to "
+                         "the store instead of pulled. Needed because "
+                         "external_ecspr is a PRIVATE quay repo -- build it "
+                         "with: apptainer build ecspr.sif "
+                         "docker-daemon://quay.io/hallamlab/external_ecspr:2026.07.14")
+    ap.add_argument("--apptainer-cache", default=None,
+                    help="persistent image store on the host. Defaults to "
+                         "{scratch}/{user}/apptainer_cache. Must outlive a "
+                         "single run -- see prepull_images().")
+    ap.add_argument("--slurm-account", default="st-shallam-1",
+                    help="charged on every sbatch. slurm.nf's default is the "
+                         "placeholder '<slurm_account>', which sbatch rejects.")
     ap.add_argument("--timeout-s", type=float, default=6 * 3600)
     ap.add_argument("--poll-s", type=float, default=60.0)
     ap.add_argument("--remote-data", default=None,
@@ -265,10 +394,22 @@ def main() -> int:
         print(f"=== remote: {a.host}:{agent_path} ===", flush=True)
         container = agent_container()
         print(f"=== agent image: {container} ===", flush=True)
+        # The image store, and it must be exported for BOTH sides: the login
+        # node writes it here (prepull_images) and the compute node reads it
+        # here. If only one side saw the variable they would silently resolve
+        # to different directories -- the read side would find nothing, and the
+        # symptom would be an attempted pull on a node with no route out.
+        cache_dir = a.apptainer_cache or f"{a.scratch_root}/{a.user}/apptainer_cache"
+        print(f"=== image store: {cache_dir} ===", flush=True)
+        print("=== pre-pulling task images on the login node ===", flush=True)
+        local_sifs = {REQUIRED_IMAGES[0]: Path(a.image_sif)} if a.image_sif else None
+        prepull_images(a.host, cache_dir, REQUIRED_IMAGES, local_sifs)
+
         agent = Agent(home=SshSource(host=a.host, path=agent_path).AsSource(),
                       runtime=ContainerRuntime.APPTAINER,
                       container=container,
-                      setup_commands=SETUP_COMMANDS)
+                      setup_commands=SETUP_COMMANDS +
+                                     [f"export APPTAINER_CACHEDIR={cache_dir}"])
 
     print("=== planning ===", flush=True)
     targets = TargetBuilder()
@@ -317,7 +458,34 @@ def main() -> int:
     # timestamp, so it is a fresh directory every run and there is no prior
     # intermediate to destroy. Never carry this flag onto a resubmission.
     agent.StageWorkflow(task, on_exist="clear")
-    agent.RunWorkflow(task)
+
+    # RunWorkflow's config_file DEFAULTS TO THE `local` PRESET, which runs every
+    # process on whatever node the agent is sitting on -- here, the login node.
+    # That is not a slow path, it is the wrong one twice over: it breaks the
+    # "no local compute beyond sub-minute tests" constraint, and it would put a
+    # 32-worker multi-hour solve on a shared interactive host. Selected
+    # explicitly, so a future reader sees the choice rather than a default.
+    nxf_config = agent.GetNxfConfigPresets()["slurm"]
+
+    # slurm.nf ships slurmAccount as the literal placeholder '<slurm_account>',
+    # which sbatch rejects; every submission would fail identically and the
+    # cause would be one line deep in a per-task .command.err. Sockeye needs
+    # --account on every job (st-shallam-1 for CPU; the -gpu sibling is a
+    # different account and is not what this runs on).
+    #
+    # process_array=0 disables Nextflow's job-array batching, per the plan.
+    # Array contention is the condition under which overlay filesystems throw
+    # bus errors. With a 2-step workflow this is belt-and-braces rather than
+    # load-bearing -- but the intent should not quietly depend on the step
+    # count staying at 2.
+    params = {
+        "slurmAccount": a.slurm_account,
+        "process_array": 0,
+        "process_cpus": 32,
+    }
+    print(f"=== executor: slurm, account {a.slurm_account}, arrays disabled ===",
+          flush=True)
+    agent.RunWorkflow(task, config_file=nxf_config, params=params)
 
     print(f"=== waiting (timeout {a.timeout_s / 3600:.1f}h, poll {a.poll_s:.0f}s) ===",
           flush=True)
@@ -329,10 +497,39 @@ def main() -> int:
     if result["status"] != "completed":
         return 2
 
+    # "completed" IS NOT "succeeded". slurm.nf sets errorStrategy to 'ignore'
+    # once a process exhausts its retries, so a task that died every attempt
+    # leaves the workflow green, the merge step running on nothing, and a
+    # results directory that exists and is empty. The first sockeye run failed
+    # exactly this way -- a missing container read as a 3.6-minute success.
+    #
+    # So the status is not trusted on its own: the log is checked for the
+    # swallow, and the retrieved table is checked for rows.
+    swallowed = [ln for ln in result["tail"]
+                 if "Error is ignored" in ln or "terminated with an error" in ln]
+    if swallowed:
+        print("\nA TASK FAILED AND NEXTFLOW IGNORED IT -- this is not a result:",
+              file=sys.stderr)
+        for ln in swallowed:
+            print(f"    {ln}", file=sys.stderr)
+        print("\nThe real error is in the failing task's .command.err under "
+              "<run>/nxf_work/<hash>/. Do not score this output.", file=sys.stderr)
+        return 3
+
     src = agent.GetResultSource(task)
     out = (REPO / a.out).resolve()
     out.mkdir(parents=True, exist_ok=True)
-    print(f"=== result: {src.GetPath()} -> {out} ===", flush=True)
+    print(f"=== retrieving: {src.GetPath()} -> {out} ===", flush=True)
+    subprocess.run(["rsync", "-a", "--info=stats1",
+                    f"{a.host}:{src.GetPath()}/", f"{out}/"], check=True)
+
+    obs = out / "observations.tsv"
+    if not obs.exists():
+        raise SystemExit(f"workflow reported success but {obs} is absent.")
+    n_rows = sum(1 for _ in obs.open()) - 1
+    if n_rows <= 0:
+        raise SystemExit(f"{obs} has no data rows -- an empty table is not a result.")
+    print(f"=== observations.tsv: {n_rows} rows ===", flush=True)
     print(f"\nnext: PYTHONPATH=src python transforms/build/benchmark/30_score_v3.py "
           f"--observations {out}/observations.tsv")
     return 0

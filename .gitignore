@@ -1,6 +1,7 @@
 __pycache__
 **/cache
 
+.awm
 .idea/
 *_env/
 *.sif
@@ -19,3 +20,6 @@ trim_sequences.fasta.*
 /scratch
 /secrets
 /lib/tini
+
+# benchmark solve outputs: multi-GB, reproducible from the pinned run
+transforms/build/benchmark/v3_build/run/

@@ -1,0 +1,228 @@
+#!/usr/bin/env python3
+"""Run the frozen ECSPr X/Y benchmark v3 on an HPC host, then retrieve the result.
+
+    PYTHONPATH=src python examples/benchmark_v3_on_fir.py --user phyberos
+    PYTHONPATH=src python examples/benchmark_v3_on_fir.py --user phyberos --plan-only
+
+Deploy -> Generate -> Stage -> Run -> Wait -> Retrieve. The scoring step is
+NOT here: it is a sub-minute local operation on the merged table, and running
+it beside the solve would put a multi-hour cluster task behind every change to
+how a score is computed.
+
+THE USERNAME IS AN ARGUMENT, AND THAT IS THE POINT
+---------------------------------------------------
+`main/local_mock/smoke_hpc_deploy.py` resolves it by shelling `ssh <host> echo
+$USER`. On this workstation that cannot work and must not be retried: the ssh
+config sets `ControlMaster no` behind a ProxyCommand guard, so a bare `ssh fir`
+cannot open a fresh authenticated session -- it can only ride an existing
+multiplexed one. A loop around that call is a Duo push per iteration, and a
+prior ECSPr run in this project was halted by an account lockout caused exactly
+that way.
+
+So: `--user` is required, exactly one session is opened, and on failure this
+exits telling the human to connect once by hand. Never delete the
+ControlMaster socket and never retry the connect in a loop.
+
+WHY THERE IS NO ARRAY, AND SO NOTHING TO DISABLE
+-------------------------------------------------
+The plan called for disabling the engine's job-array batching, because array
+contention is the exact condition under which fir's overlay filesystem throws
+bus errors (recorded in the engine's own source). That turns out to be moot by
+construction rather than by configuration: this workflow is TWO tasks, a solve
+and a merge. `solve_benchmark.py` loops over the 16 (facet, element) shards
+in-process -- see its docstring for why the fan-out is not real yet -- so there
+is no array to contend. Concurrency comes from 32 worker PROCESSES inside the
+one task, which is the shape that actually scales here: the solver factorizes
+with SuperLU, which is serial, so the engine pins OMP/OPENBLAS/MKL/NUMEXPR to 1
+before numpy loads and forks instead. Oversubscribing measured >10x slower.
+
+If the shards are ever split into 16 real instances, revisit this: at that
+point there IS an array, and the batching should be disabled in favour of
+queue-size concurrency.
+
+WHAT IS STAGED, AND WHAT IS DELIBERATELY NOT
+---------------------------------------------
+Five items, all from the frozen benchmark tree, all addressed through canon so
+no absolute path appears here. Note what is absent: no annotation lane, no
+evidence chain, no recovery experiment. That whole chain is upstream of the
+freeze. A benchmark score has to measure the SOLVER, and anything that could
+re-derive X would make it measure the annotation instead.
+
+`benchmark_universe` is 57.6 MB and is staged even though it looks like a
+build-time artifact, because `base_plus_reactions` re-reads it at SOLVE time to
+find the atom-transit weights of an inserted reaction. X withholds the atom
+mapping on purpose, so without the universe the run does not fail fast -- it
+fails on the first gain-of-function condition, deep into the job.
+"""
+from __future__ import annotations
+
+import argparse
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO / "src"))
+
+from fabfos import canon  # noqa: E402
+from fabfos.library import domains_for, resolve_library_root  # noqa: E402
+
+from metasmith.python_api import (  # noqa: E402
+    Agent, ContainerRuntime, DataInstanceLibrary, DataTypeLibrary, Source,
+    SshSource, TargetBuilder, TransformInstanceLibrary,
+)
+
+LIB = resolve_library_root()
+
+# The benchmark lane. `domains_for` drops ecsprNetA/ecsprNetB, which is not
+# tidiness: on the benchmark, the annotation chain that feeds ecspr::base_graphs
+# is upstream of the freeze and must not appear in the plan at all.
+DOMAINS = domains_for(network="benchmark")
+
+# type name -> canon symbol. All five live in the v3 tree.
+STAGED: dict[str, str] = {
+    "ecspr::benchmark_answer_key":  "BENCH_V3_Y",
+    "ecspr::benchmark_base_graphs": "BENCH_V3_BASE_GRAPHS",
+    "ecspr::benchmark_universe":    "BENCH_V3_UNIVERSE",
+    "ecspr::benchmark_observations": "BENCH_V3_OBSERVATIONS",
+    "ecspr::benchmark_inputs":      "BENCH_V3_X",
+}
+
+SETUP_COMMANDS = ["module load apptainer"]
+
+
+def build_inputs(staging: Path) -> DataInstanceLibrary:
+    xgdb = staging / "inputs.xgdb"
+    if xgdb.exists():
+        shutil.rmtree(xgdb)
+    inputs = DataInstanceLibrary(xgdb)
+    inputs.AddTypeLibrary(namespace="ecspr",
+                          lib=DataTypeLibrary.Load(LIB / "data_types/ecspr.yml"))
+
+    missing = []
+    for type_name, symbol in STAGED.items():
+        p = Path(getattr(canon, symbol))
+        # Checked HERE rather than left to the scheduler. The planner resolves
+        # on types and lineage, not on existence, so a missing tree plans
+        # perfectly and then fails hours later inside a container.
+        if not p.exists():
+            missing.append(f"{type_name} -> canon.{symbol} -> {p}")
+            continue
+        inputs.AddItem(p, type_name)
+    if missing:
+        raise SystemExit("benchmark tree incomplete:\n  " + "\n  ".join(missing))
+
+    inputs.Save()
+    return inputs
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--host", default="fir")
+    ap.add_argument("--user", required=True,
+                    help="remote username. REQUIRED and never auto-resolved -- "
+                         "see this module's docstring on the lockout.")
+    ap.add_argument("--scratch-root", default="/scratch")
+    ap.add_argument("--timeout-s", type=float, default=6 * 3600)
+    ap.add_argument("--poll-s", type=float, default=60.0)
+    ap.add_argument("--plan-only", action="store_true",
+                    help="stage and plan, render the DAG, touch no remote host")
+    ap.add_argument("--out", default="transforms/build/benchmark/v3_build/run",
+                    help="local directory to retrieve the merged result into")
+    a = ap.parse_args()
+
+    ts = int(time.time())
+    staging = REPO / ".awm" / "data" / "runs" / f"bench_v3_{ts}"
+    staging.mkdir(parents=True, exist_ok=True)
+
+    print(f"=== staging {len(STAGED)} benchmark items ===", flush=True)
+    inputs = build_inputs(staging)
+    for t in sorted(STAGED):
+        print(f"  lib   {t}")
+
+    resources = [DataInstanceLibrary.Load(LIB / f"resources/{n}")
+                 for n in ("containers", "lib")]
+    transforms = [TransformInstanceLibrary.Load(LIB / f"transforms/{d}") for d in DOMAINS]
+
+    if a.plan_only:
+        agent = Agent(home=Source.FromLocal(staging / "agent_home"),
+                      runtime=ContainerRuntime.APPTAINER)
+    else:
+        agent_path = f"{a.scratch_root}/{a.user}/ecspr_bench_v3_{ts}"
+        print(f"=== remote: {a.host}:{agent_path} ===", flush=True)
+        agent = Agent(home=SshSource(host=a.host, path=agent_path).AsSource(),
+                      runtime=ContainerRuntime.APPTAINER,
+                      setup_commands=SETUP_COMMANDS)
+
+    print("=== planning ===", flush=True)
+    targets = TargetBuilder()
+    # The MERGED table only. Targeting the shards as well would let the planner
+    # satisfy the merge from a separately-planned solve; one target, one chain.
+    targets.Add("ecspr::benchmark_result")
+    task = agent.GenerateWorkflow(
+        samples=[inputs],
+        resources=resources + [inputs],
+        transforms=transforms,
+        targets=targets,
+    )
+    if not task.ok:
+        print("\nPLAN DID NOT RESOLVE. Planner hints:", file=sys.stderr)
+        print(getattr(task.plan, "hints", task), file=sys.stderr)
+        return 3
+
+    print(f"resolved workflow: {len(task.plan.steps)} steps", flush=True)
+    for i, step in enumerate(task.plan.steps):
+        name = getattr(getattr(step, "transform", None), "name", None) or f"step{i}"
+        print(f"  [{i}] {name}")
+
+    dag = (REPO / "reports/dag/benchmark_v3").resolve()
+    dag.parent.mkdir(parents=True, exist_ok=True)
+    task.plan.RenderDAG(dag)
+    print(f"DAG -> {dag.with_suffix('.svg')}", flush=True)
+
+    if a.plan_only:
+        print("\n--plan-only: nothing deployed, nothing run.")
+        return 0
+
+    print("=== Deploy() ===", flush=True)
+    try:
+        agent.Deploy()
+    except subprocess.CalledProcessError as e:
+        # One session, one failure, one message. NOT a retry loop -- each
+        # attempt is a Duo push and a prior run here was halted by a lockout.
+        print(f"\ndeploy failed ({e}). The connection is multiplexed: open ONE "
+              f"session by hand (`ssh {a.host}`), leave it open, and re-run. "
+              f"Do NOT delete the ControlMaster socket and do NOT retry in a "
+              f"loop -- that is what causes an account lockout.", file=sys.stderr)
+        return 4
+
+    print(f"=== task key: {task.GetKey()} ===", flush=True)
+    # on_exist="clear" is safe HERE and only here: agent_path carries a
+    # timestamp, so it is a fresh directory every run and there is no prior
+    # intermediate to destroy. Never carry this flag onto a resubmission.
+    agent.StageWorkflow(task, on_exist="clear")
+    agent.RunWorkflow(task)
+
+    print(f"=== waiting (timeout {a.timeout_s / 3600:.1f}h, poll {a.poll_s:.0f}s) ===",
+          flush=True)
+    result = agent.WaitForWorkflow(task, timeout_s=a.timeout_s, poll_s=a.poll_s)
+    print(f"=== status: {result['status']} after {result['elapsed_s'] / 60:.1f} min ===",
+          flush=True)
+    for line in result["tail"]:
+        print(f"    {line}")
+    if result["status"] != "completed":
+        return 2
+
+    src = agent.GetResultSource(task)
+    out = (REPO / a.out).resolve()
+    out.mkdir(parents=True, exist_ok=True)
+    print(f"=== result: {src.GetPath()} -> {out} ===", flush=True)
+    print(f"\nnext: PYTHONPATH=src python transforms/build/benchmark/30_score_v3.py "
+          f"--observations {out}/observations.tsv")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -165,7 +165,16 @@ def prepull_images(host: str, cache_dir: str, images: list[str],
     """
     subprocess.run(["ssh", "-o", "BatchMode=yes", host, f"mkdir -p {cache_dir}"],
                    check=True)
-    setup = "; ".join(SETUP_COMMANDS)
+    # APPTAINER_CACHEDIR governs the .sif destination; APPTAINER_TMPDIR and the
+    # blob cache are separate and default to $HOME/.apptainer. On a cluster with
+    # a quota'd home that silently accreted ~23 GB of layer blobs during a run
+    # whose .sif was correctly written to scratch -- the destination being an
+    # absolute path masked it. Pin the staging dirs to scratch alongside it.
+    setup = "; ".join(SETUP_COMMANDS + [
+        f"export APPTAINER_CACHEDIR={cache_dir}",
+        f"export APPTAINER_TMPDIR={cache_dir}/tmp",
+        f"mkdir -p {cache_dir}/tmp",
+    ])
     local_sifs = local_sifs or {}
     for image in images:
         dest = f"{cache_dir}/{cached_image_name(image)}"
@@ -523,15 +532,25 @@ def main() -> int:
     subprocess.run(["rsync", "-a", "--info=stats1",
                     f"{a.host}:{src.GetPath()}/", f"{out}/"], check=True)
 
+    # The merge transform's output is keyed by content hash, not by a stable
+    # name -- `results/ecspr-benchmark_result/<key>.tsv`. Globbing the result
+    # directory and normalising to observations.tsv is what makes the scorer
+    # invocation below reproducible across runs.
+    result_dir = out / "ecspr-benchmark_result"
+    hits = sorted(result_dir.glob("*.tsv")) if result_dir.is_dir() else []
+    if len(hits) != 1:
+        raise SystemExit(
+            f"workflow reported success but {result_dir} holds {len(hits)} "
+            f"tsv(s); expected exactly the merged result.")
     obs = out / "observations.tsv"
-    if not obs.exists():
-        raise SystemExit(f"workflow reported success but {obs} is absent.")
+    shutil.copyfile(hits[0], obs)
+
     n_rows = sum(1 for _ in obs.open()) - 1
     if n_rows <= 0:
         raise SystemExit(f"{obs} has no data rows -- an empty table is not a result.")
-    print(f"=== observations.tsv: {n_rows} rows ===", flush=True)
+    print(f"=== observations.tsv: {n_rows} rows (from {hits[0].name}) ===", flush=True)
     print(f"\nnext: PYTHONPATH=src python transforms/build/benchmark/30_score_v3.py "
-          f"--observations {out}/observations.tsv")
+          f"--obs {obs} --mode signed --out {out}/score_signed.tsv")
     return 0
 
 

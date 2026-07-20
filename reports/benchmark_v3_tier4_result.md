@@ -164,10 +164,15 @@ frozen null was regenerated — it consumes no null.
 
 - **The frozen null is currently mismatched with this universe.** It was built on the
   old graph. The benchmark does not consume it, so this run is unaffected, but
-  significance scoring is not licensed until the null is regenerated on tier 4 —
-  `canon.assert_canonical_reference()` refuses the pair by design. `check_canon`'s
-  frozen-null check verifies PRESENCE, not universe-consistency, so it passes and
-  should not be read as clearance.
+  significance scoring is not licensed until the null is regenerated on tier 4.
+  **No gate refuses this pair.** This caveat previously said
+  `canon.assert_canonical_reference()` "refuses the pair by design" — corrected
+  2026-07-20, it does not. That function pins `reac_prop.tsv` and
+  `direction.parquet` by sha256, and a tier move changes neither (it moves
+  `atom_pairs.parquet` and the graph weights), so a tier-4 solve scored against
+  an old-graph null passes it. `check_canon`'s frozen-null check is PRESENCE-only.
+  Solve/null agreement holds only **by construction** — both built from the same
+  base graphs — and has to be checked by hand.
 - **The 341-row target-resolution table still has no human review**, unchanged from
   the previous run. 124 component rows resolved to a metabolite, 217 carry no target
   cell, 5 ambiguous strings were refused rather than guessed. A review that moves rows

@@ -164,9 +164,18 @@ by tiebreak. `library.domains_for()` drops the unselected lane.
   graph and the benchmark universe both moved to tier 4 on 2026-07-20; the null
   did not, and a null built on different edges than the observed solve is not a
   valid reference. Significance scoring is therefore **not licensed** until it is
-  regenerated — `canon.assert_canonical_reference()` refuses the pair by design.
-  Note `check_canon.py`'s frozen-null check verifies file PRESENCE, not
-  universe-consistency, so it passes and must not be read as clearance. The
+  regenerated.
+  **Nothing refuses this pair mechanically — do not wait to be stopped.** An
+  earlier version of this note claimed `canon.assert_canonical_reference()`
+  "refuses the pair by design"; that is false, and the way it is false is
+  instructive. That function pins the *reference* inputs — `reac_prop.tsv` and
+  `direction.parquet` — by sha256, and a tier move changes neither: the tier
+  changes `atom_pairs.parquet` and hence the graph WEIGHTS, while reac_prop and
+  the direction ratios are untouched. So a tier-4 observed solve scored against
+  an old-graph null passes it cleanly. `check_canon.py`'s frozen-null check is
+  likewise PRESENCE-only. Solve/null universe agreement is guaranteed only **by
+  construction** — both regenerated from the same base graphs in one pass — and
+  must be verified by whoever runs it. The
   benchmark is unaffected: it consumes no null (`potency` reports
   `undefined:no_null_pool`), which is why it could be re-run first.
 - **The `sif/` tier still does not exist**, despite being named in the tier

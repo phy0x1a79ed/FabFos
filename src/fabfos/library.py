@@ -36,10 +36,17 @@ DOMAINS = [
     "ecsprUndirected",
     "ecsprNetA",
     "ecsprNetB",
-    # The benchmark is a THIRD producer of ecspr::base_graphs -- it builds them
-    # straight from the frozen benchmark inputs, which already carry the
-    # per-reaction evidence weight, so no annotation lane runs. Co-loading it
-    # with netA/netB would make that a three-way tiebreak.
+    # The benchmark lane PRODUCES no base graphs -- it CONSUMES
+    # `ecspr::benchmark_base_graphs`, a staged item of the frozen benchmark
+    # tree. (An earlier reading had it building them from X; X withholds the
+    # atom mapping on purpose, and the atom-transit count is both the edge
+    # weight and, via the w<=0 drop, the connectivity, so they are not
+    # derivable from X. See transforms/build/benchmark/NOTES.md.)
+    #
+    # It is still mutually exclusive with netA/netB, for the opposite reason:
+    # selecting it must DROP them, because on the benchmark the annotation
+    # chain that feeds `ecspr::base_graphs` is upstream of the freeze and must
+    # not be planned at all. A score has to measure the solver, not the lanes.
     "ecsprBenchmark",
 ]
 

@@ -1,0 +1,569 @@
+# The declaration table: every data dependency of reads -> ECSPr results.
+#
+# This file is hand-edited and is the single source of truth. Per-item records
+# under provenance/data/*.yml are GENERATED from it by
+# transforms/build/_stage/build_ref_library.py, which also fills in `bytes` and
+# `sha256` by measuring the real file. Do not hand-edit the generated records.
+#
+# `src` is where the bytes live TODAY. `dest` is the tiered path inside
+# .awm/data/ref/. `type` is a metasmith data type; see data_types/ in the
+# library, extended by ref.yml for the cross-domain types.
+#
+# `select` narrows a directory source. Without it a directory is taken whole.
+# `exclude` drops paths under it. Both are glob patterns relative to `src`.
+
+version: 1
+library: .awm/data/ref
+
+defaults:
+  data_root: /home/tony/agentic_workspace/data/scadc
+
+items:
+
+  # ===================================================================
+  # external/ -- someone else made it; we fetched it
+  # ===================================================================
+
+  - id: metanetx.reac_prop
+    src: references/metanetx/reac_prop.tsv
+    dest: external/metanetx/4.5/reac_prop.tsv
+    type: ecspr::metanetx_reac_prop
+    tier: external
+    kind: external
+    url: https://www.metanetx.org/ftp/4.5/reac_prop.tsv
+    version: "4.5"
+    release_date: "2025-08-13"
+    license: CC-BY 4.0
+    note: >-
+      The reaction universe (~83,796 rows) the whole ECSPr graph is built on.
+      Its sha256 is ALSO pinned in mnxref-4_5/MANIFEST.json (reac_prop_sha256)
+      and in canon; this record is the single source and the other two are
+      checked against it.
+
+  - id: metanetx.chem_prop
+    src: references/metanetx/chem_prop.tsv
+    dest: external/metanetx/4.5/chem_prop.tsv
+    type: ecspr::metanetx_chem_prop
+    tier: external
+    kind: external
+    url: https://www.metanetx.org/ftp/4.5/chem_prop.tsv
+    version: "4.5"
+    release_date: "2025-08-13"
+    license: CC-BY 4.0
+
+  - id: metanetx.chem_xref
+    src: references/metanetx/chem_xref.tsv
+    dest: external/metanetx/4.5/chem_xref.tsv
+    type: ref::metanetx_chem_xref
+    tier: external
+    kind: external
+    url: https://www.metanetx.org/ftp/4.5/chem_xref.tsv
+    version: "4.5"
+    release_date: "2025-08-13"
+    license: CC-BY 4.0
+
+  - id: metanetx.reac_xref
+    src: references/metanetx/reac_xref.tsv
+    dest: external/metanetx/4.5/reac_xref.tsv
+    type: ecspr::metanetx_reac_xref
+    tier: external
+    kind: external
+    url: https://www.metanetx.org/ftp/4.5/reac_xref.tsv
+    version: "4.5"
+    release_date: "2025-08-13"
+    license: CC-BY 4.0
+    note: the lane -> MNXR crosswalk
+
+  - id: uniref50.fasta
+    src: references/uniref50/uniref50.fasta.gz
+    dest: external/uniref50/uniref50.fasta.gz
+    type: ref::protein_fasta_gz
+    tier: external
+    kind: external
+    url: https://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/uniref50.fasta.gz
+    license: CC-BY 4.0
+    note: >-
+      12 GB. The single largest external fetch and the long pole on a fresh
+      machine.
+
+  - id: kofam.ko_list
+    src: references/kofam/ko_list
+    dest: external/kofam/ko_list
+    type: ref::kofam_release
+    tier: external
+    kind: external
+    url: https://www.genome.jp/ftp/db/kofam/ko_list.gz
+    license: CC-BY-SA 4.0
+
+  - id: kofam.profiles
+    src: references/kofam/profiles.tar.gz
+    dest: external/kofam/profiles.tar.gz
+    type: ref::kofam_release
+    tier: external
+    kind: external
+    url: https://www.genome.jp/ftp/db/kofam/profiles.tar.gz
+    license: CC-BY-SA 4.0
+    note: >-
+      The 7.2 GB untarred `profiles/` directory beside this tarball is NOT
+      migrated -- it is a plain untar of these bytes. Untar to scratch at run
+      time. Migrating both would cost 7.2 GB to store the same information
+      twice.
+
+  - id: esmc.weights
+    src: cache/esmc_weights/esmc_600m.tgz
+    dest: external/esmc/esmc_600m.tgz
+    type: ref::model_weights_archive
+    tier: external
+    kind: external
+    url: https://huggingface.co/EvolutionaryScale/esmc-600m-2024-12
+    version: 600m-2024-12
+    license: EvolutionaryScale Cambrian Open License
+    note: >-
+      Model weights as a loose archive. Contrast CLEAN, whose weights are baked
+      into its image and therefore share that image's tier and its blocker.
+
+  - id: rhea
+    src: references/rhea
+    dest: external/rhea
+    type: ref::reference_database
+    tier: external
+    kind: external
+    url: https://ftp.expasy.org/databases/rhea/
+    license: CC-BY 4.0
+    exclude: ["embeddings/**", "rxn/**"]
+    note: >-
+      Two exclusions, for two different reasons. embeddings/ (718 MB) is a
+      computed product of the Rhea reaction SMILES, not an upstream download;
+      it belongs in derived/ behind a build transform that does not exist yet.
+      rxn/ (459 MB, 36,678 tiny files) is a plain untar of rhea-rxn.tar.gz,
+      which IS migrating -- the same redundancy as kofam's profiles/. Untar to
+      scratch at run time; carrying it would put 36k files in the manifest to
+      store bytes we already have.
+
+  - id: chebi
+    src: references/chebi
+    dest: external/chebi
+    type: ref::reference_database
+    tier: external
+    kind: external
+    url: https://ftp.ebi.ac.uk/pub/databases/chebi/
+    license: CC-BY 4.0
+
+  - id: modelseed
+    src: references/modelseed
+    dest: external/modelseed
+    type: ref::reference_database
+    tier: external
+    kind: external
+    url: https://github.com/ModelSEED/ModelSEEDDatabase
+    license: Apache-2.0
+
+  - id: bigg
+    src: references/bigg
+    dest: external/bigg
+    type: ref::reference_database
+    tier: external
+    kind: external
+    url: http://bigg.ucsd.edu/data_access
+    license: >-
+      BiGG academic-use terms; free for academic use, commercial use requires
+      permission.
+
+  - id: pathways_2026
+    src: references/pathways_2026
+    dest: external/pathways_2026
+    type: ref::reference_database
+    tier: external
+    kind: external
+    url: unrecorded
+    note: >-
+      PROVENANCE GAP: no fetch URL was recorded for this 245 MB tree. Resolve
+      before it is treated as reacquirable.
+
+  - id: interproscan
+    src: references/interproscan
+    dest: external/interproscan
+    type: ref::reference_database
+    tier: external
+    kind: external
+    url: https://ftp.ebi.ac.uk/pub/software/unix/iprscan/5/
+    license: Apache-2.0
+
+  - id: keio
+    src: references/keio
+    dest: external/keio
+    type: ref::reference_database
+    tier: external
+    kind: external
+    url: https://shigen.nig.ac.jp/ecoli/strain/resource/keioCollection
+    note: the Keio single-gene knockout phenotype set; the LOF validation arm
+
+  - id: laser
+    src: references/laser
+    dest: external/laser
+    type: ref::reference_database
+    tier: external
+    kind: external
+    url: https://laser.jbei.org/
+    note: the LASER engineering-outcome set; the GOF validation arm
+
+  - id: genome.e_coli_epi300
+    src: references/escherichia_coli_epi300
+    dest: external/genomes/e_coli_epi300
+    type: ref::genome_bundle
+    tier: external
+    kind: external
+    url: https://www.ncbi.nlm.nih.gov/datasets/
+    note: the fosmid host strain
+
+  - id: genome.e_coli_k12
+    src: references/escherichia_coli_k12
+    dest: external/genomes/e_coli_k12
+    type: ref::genome_bundle
+    tier: external
+    kind: external
+    url: https://www.ncbi.nlm.nih.gov/datasets/
+
+  - id: genome.e_coli_dh10b
+    src: references/escherichia_coli_dh10b
+    dest: external/genomes/e_coli_dh10b
+    type: ref::genome_bundle
+    tier: external
+    kind: external
+    url: https://www.ncbi.nlm.nih.gov/datasets/
+
+  - id: genome.p_putida_dot_t1e
+    src: references/pseudomonas_putida_dot-t1e
+    dest: external/genomes/p_putida_dot_t1e
+    type: ref::genome_bundle
+    tier: external
+    kind: external
+    url: https://www.ncbi.nlm.nih.gov/datasets/
+    note: the toluene-tolerance comparator
+
+  - id: pcc1.vector
+    src: references/epi300_pcc1.fna
+    dest: external/vector/epi300_pcc1.fna
+    type: ref::nucleotide_fasta
+    tier: external
+    kind: external
+    url: derived-from-genbank
+    note: >-
+      The pCC1FOS vector backbone, excised during insert recovery. Small but
+      load-bearing: the clone dot-plot and the 91%/~100% recovery figures
+      depend on this exact sequence.
+
+  - id: gem.iecdh10b
+    src: metabolic_modelling/networks/iECDH10B_1368.json
+    dest: external/gem/iECDH10B_1368.json
+    type: ecspr::curated_gem
+    tier: external
+    kind: external
+    url: http://bigg.ucsd.edu/models/iECDH10B_1368
+    note: net A of the dual-network validation -- the curated GEM arm
+
+  # ===================================================================
+  # external/licensed/ -- fetched, NEVER redistributed
+  # ===================================================================
+
+  - id: metacyc26.flatfiles
+    src: references/metacyc26_flatfiles
+    dest: external/licensed/metacyc26_flatfiles
+    type: ref::biocyc_flatfiles
+    tier: external/licensed
+    kind: licensed
+    redistributable: false
+    acquisition: >-
+      Requires a BioCyc subscription (https://biocyc.org/download.shtml).
+      Download the MetaCyc 26.x flatfile distribution and unpack it here.
+      It CANNOT be included in a Globus bundle or any shared archive.
+    degraded_mode: >-
+      Without it the direction ensemble loses its curated member. The annotator
+      is a 3-member ratio (eQuilibrator + dGbyG + BioCyc), combined as a ratio
+      rather than a gate, so it still produces a direction for every reaction --
+      but the curated member is the only one carrying human-checked
+      irreversibility, so reactions whose thermodynamics are ambiguous lose
+      their tie-break and fall toward ratio 1.0 (reversible). The directed solve
+      then approaches the undirected one on exactly those edges.
+
+  # ===================================================================
+  # MISSING -- declared so the gap is visible rather than discovered later
+  # ===================================================================
+
+  - id: kegg.requests_db
+    src: references/kegg/kegg_requests.db
+    dest: external/licensed/kegg/kegg_requests.db
+    type: ref::kegg_snapshot
+    tier: external/licensed
+    kind: licensed
+    status: MISSING
+    redistributable: false
+    acquisition: >-
+      A cached snapshot of KEGG REST responses. KEGG requires a paid academic
+      FTP subscription for bulk access; the REST API is free for individual
+      interactive queries only.
+    degraded_mode: >-
+      The KofamScan lane still runs (its HMM profiles are a separate free
+      download), but KO -> pathway/module rollups and the BRITE hierarchy are
+      unavailable, so KEGG-keyed enrichment cannot be reproduced.
+    note: >-
+      references/kegg/ EXISTS BUT IS EMPTY on this machine. Whatever produced
+      the KEGG-keyed results is not on disk. This is a real reproducibility
+      hole, not a packaging detail.
+
+  - id: biocyc.pgdbs
+    src: null
+    dest: external/licensed/pgdb/
+    type: ref::biocyc_pgdb
+    tier: external/licensed
+    kind: licensed
+    status: MISSING
+    redistributable: false
+    acquisition: >-
+      metacyc26.pgdb and ecocyc26.pgdb are the Pathway Tools binary PGDB form
+      of the BioCyc databases, obtained with a BioCyc subscription and
+      installed into a Pathway Tools ptools-local tree.
+    degraded_mode: same as metacyc26.flatfiles
+    note: >-
+      A prior survey placed these under projects/self-improvement staging at
+      ~265 MB. A full search of the data tree finds NEITHER, at any path. Only
+      the flatfiles (73 MB) survive. The direction ensemble's curated member
+      must therefore be reproduced from the flatfiles, or the PGDBs
+      reacquired. canon.DIR_METACYC_PGDB / DIR_ECOCYC_PGDB are dangling
+      pointers today.
+
+  # ===================================================================
+  # derived/ -- a transforms/build/ transform is the only legitimate producer
+  # ===================================================================
+
+  - id: uniref50.dmnd
+    src: references/uniref50/uniref50.dmnd
+    dest: derived/uniref50/uniref50.dmnd
+    type: ref::diamond_db
+    tier: derived
+    kind: derived
+    producer: transforms/build/annotation/make_diamond_db.py   # NOT YET WRITTEN
+    inputs: [uniref50.fasta, containers.diamond]
+    parameters: {command: "diamond makedb"}
+    determinism: reproducible
+    note: >-
+      24 GB, and version-coupled to the DIAMOND binary that built it -- which
+      is why it is derived rather than external even though its input is an
+      upstream download. A DIAMOND major-version bump invalidates it.
+
+  - id: mnxref.manifest
+    src: ecspr_reference/mnxref-4_5/MANIFEST.json
+    dest: derived/mnxref-4_5/MANIFEST.json
+    type: ecspr::reference_manifest
+    tier: derived
+    kind: derived
+    producer: main/fabfos/reference/reference.py
+    determinism: reproducible
+    note: >-
+      Records n_pending 0 -- the pre-bake closed. Carries reac_prop_sha256,
+      which must agree with the metanetx.reac_prop record.
+
+  - id: mnxref.atom_pairs
+    src: ecspr_reference/mnxref-4_5/atom_pairs.parquet
+    dest: derived/mnxref-4_5/atom_pairs.parquet
+    type: ecspr::atom_pairs
+    tier: derived
+    kind: derived
+    producer: resources/lib/ecspr_atom_pairs.py
+    inputs: [metanetx.reac_prop, metanetx.chem_prop]
+    determinism: reproducible
+    note: >-
+      The atom-atom mapping table. 56,090 resolved / 2,270 diluted / 25,436
+      refused of 83,796 reactions.
+
+  - id: mnxref.direction
+    src: ecspr_reference/mnxref-4_5/direction.parquet
+    dest: derived/mnxref-4_5/direction.parquet
+    type: ecspr::direction_ratios
+    tier: derived
+    kind: derived
+    producer: fabfos-directionality
+    inputs: [direction.annotation]
+    determinism: reproducible
+    note: >-
+      The per-reaction direction ratios exp(dG'/RT) the directed solve
+      rectifies each edge with. Hash-checked by
+      canon.assert_canonical_reference() so a silent regenerate cannot change
+      the canonical answer.
+
+  - id: mnxref.closure_ledger
+    src: ecspr_reference/mnxref-4_5/closure_ledger.parquet
+    dest: derived/mnxref-4_5/closure_ledger.parquet
+    type: ecspr::closure_ledger
+    tier: derived
+    kind: derived
+    producer: main/fabfos/reference/reference.py
+    determinism: reproducible
+
+  - id: mnxref.worklist
+    src: ecspr_reference/mnxref-4_5/worklist.tsv
+    dest: derived/mnxref-4_5/worklist.tsv
+    type: ecspr::worklist
+    tier: derived
+    kind: derived
+    producer: main/fabfos/reference/reference.py
+    determinism: reproducible
+
+  - id: mnxref.worklist_aam
+    src: ecspr_reference/mnxref-4_5/worklist_aam.tsv
+    dest: derived/mnxref-4_5/worklist_aam.tsv
+    type: ecspr::worklist
+    tier: derived
+    kind: derived
+    producer: resources/lib/ecspr_aam_rescue.py
+    determinism: reproducible
+
+  - id: mnxref.graph
+    src: ecspr_reference/mnxref-4_5/graph
+    dest: derived/mnxref-4_5/graph
+    type: ecspr::mnx_bipartite
+    tier: derived
+    kind: derived
+    producer: resources/lib/ecspr_atom_graph.py
+    inputs: [mnxref.atom_pairs]
+    determinism: reproducible
+    note: >-
+      Per-element bipartite graphs mnx_bipartite_{C,N,P,S}.pkl. These are
+      plain networkx graphs of Python floats -- version-coupled to networkx,
+      NOT to numpy (the widely-repeated numpy-1.26 claim is false and was
+      checked).
+
+  - id: mnxref.solve
+    src: ecspr_reference/mnxref-4_5/solve
+    dest: derived/mnxref-4_5/solve
+    type: ecspr::base_graphs
+    tier: derived
+    kind: derived
+    producer: ecspr solve (undirected)
+    inputs: [mnxref.graph]
+    determinism: reproducible
+    note: >-
+      base_{C,N,P,S}.pkl + axes_testable.json + the UNDIRECTED
+      {ieff,reff}_axes_report.tsv. Retained as the frozen symmetric-limit
+      referent the parity gates join against -- no longer the graph the
+      canonical solve runs on.
+
+  - id: mnxref.solve_directed
+    src: ecspr_reference/mnxref-4_5/solve_directed
+    dest: derived/mnxref-4_5/solve_directed
+    type: ecspr::base_graphs
+    tier: derived
+    kind: derived
+    producer: ecspr solve (directed, softplus diode)
+    inputs: [mnxref.graph, mnxref.direction]
+    determinism: reproducible
+    exclude: ["sockeye/**"]
+    note: >-
+      The CANONICAL observed reports since 2026-07-18. sockeye/ is excluded:
+      it holds a cluster-side re-run (*_axes_report_S.tsv), not the canonical
+      output.
+
+  - id: mnxref.null_undirected
+    src: ecspr_reference/mnxref-4_5/null
+    dest: derived/mnxref-4_5/null
+    type: ecspr::frozen_null
+    tier: derived
+    kind: derived
+    producer: build_null.py
+    determinism: seeded
+    select:
+      - "ieff_null_canonical_N{14,28,34,42,51}.tsv"
+      - "reff_null_canonical_N{14,28,34,42,51}.tsv"
+    note: >-
+      EXPLICIT FILE LIST, not a glob of the directory. The scorer derives its
+      draw-size grid from directory CONTENTS, so a raw cache that has
+      accumulated retired sizes silently changes the answer. _curated/ and
+      _work/ (154 MB of intermediates) are both dropped: the enumeration above
+      replaces the hand-built _curated/ symlink dir, which existed precisely
+      to work around this hazard. Verify by sha256; NEVER by regeneration.
+
+  - id: mnxref.null_directed
+    src: ecspr_reference/mnxref-4_5/null_directed
+    dest: derived/mnxref-4_5/null_directed
+    type: ecspr::frozen_null
+    tier: derived
+    kind: derived
+    producer: build_directed_null.py
+    determinism: seeded
+    select:
+      - "ieff_null_directed_N{14,25,30,35,43}.tsv"
+      - "reff_null_directed_N{14,25,30,35,43}.tsv"
+    note: >-
+      The CANONICAL null. Draw sizes are the p10/p30/p50/p70/p90 ORF
+      percentiles of orfs_199.faa (median 30 ORFs, 0.96 ORF/kb) -- NOT the
+      retired (21,28,34,42,51,56) grid. _curated/ is dropped; it additionally
+      held *_null_canonical_N{14,25,30,35,43}.tsv, i.e. undirected-named files
+      at directed sizes, which is exactly the collision hazard the explicit
+      list removes.
+
+  - id: direction.annotation
+    src: direction
+    dest: derived/direction
+    type: ecspr::direction_ratios
+    tier: derived
+    kind: derived
+    producer: fabfos-directionality
+    inputs: [metacyc26.flatfiles, metanetx.reac_prop]
+    parameters: {SIGMA_0: 9.505, members: [eQuilibrator, dGbyG, BioCyc]}
+    determinism: reproducible
+    select:
+      - direction_annotation.parquet
+      - calibration.parquet
+      - curated_per_mnxr.parquet
+      - member_eq_base.parquet
+      - member_dgbyg_base.parquet
+      - netA_gem_direction.parquet
+    note: >-
+      The 3-member direction ensemble. Excluded from the selection:
+      *_universe.parquet and shards/ (build scratch), member_dgbyg_EMPTY
+      (a negative control), calib_points/curated_per_reaction (superseded by
+      the per-MNXR forms).
+
+  # ===================================================================
+  # validation/ -- frozen expected outputs; gates read them, nothing writes
+  # ===================================================================
+
+  - id: validation.dual_network
+    src: ecspr_validation
+    dest: validation/dual_network
+    type: ecspr::validation_set
+    tier: validation
+    kind: derived
+    producer: external (fig-model)   # SLOT: ours at handover
+    determinism: seeded
+    exclude: ["_archive/**", "logs/**"]
+    note: >-
+      THE VALIDATION DATASET. It has landed (49 MB, gathered 2026-07-14) and
+      ships its own MANIFEST.tsv with per-file sha256 -- so it arrives with
+      provenance already attached; we adopt those hashes rather than
+      re-deriving them.
+      STATUS PER ITS OWN README: the significance columns are PROVISIONAL.
+      The tables use a full-pool empirical CCDF p=(1+#{null>=obs})/(1+K) at
+      K=10,000, while the deployed scorer (05r_significance_mix.py, bfde554)
+      uses a log-normal-mixture survival conditional on delta>0, which is
+      degenerate here: a single-reaction insert gives pi0=1 and therefore p=1
+      for the STRONGEST evidence. Affects 30/83 cells on net A and 12/99 on
+      net B. gof_null_draws.npz carries the raw K=10,000 draws, so re-scoring
+      needs no GPU.
+      Known stale, do not quote: ground_truth/validation_summary.md and
+      validation_summary_gof.tsv.
+
+  - id: validation.significance
+    src: ecspr_reference/mnxref-4_5/significance
+    dest: validation/significance
+    type: ecspr::significance_table
+    tier: validation
+    kind: derived
+    producer: 05r_significance_mix.py
+    inputs: [mnxref.solve_directed, mnxref.null_directed]
+    determinism: reproducible
+    select: [sig_mix_ieff.tsv, sig_mix_reff.tsv]
+    note: >-
+      The canonical full-mixture-SF scorer output. The *_undirected.bak files
+      beside these are dropped -- they are the pre-flip outputs, superseded
+      when directed became canonical.

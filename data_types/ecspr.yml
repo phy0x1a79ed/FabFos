@@ -1,0 +1,80 @@
+# ECSPr reference types: the frozen MetaNetX-4.5 pre-bake and the artifacts
+# the conductance solve, the null, and the scorer read.
+#
+# These extend, and do not replace, `metabolic.yml` in the metasmith library.
+# metabolic:: names the things a RUN produces per fosmid set; ecspr:: names the
+# reference universe those runs are scored against, which is built once by
+# transforms/build/ and then frozen.
+types:
+  metanetx_reac_prop:
+    properties:
+      _: MetaNetX reaction universe (~83,796 rows); the basis of every graph
+      Format: TSV
+      ext: tsv
+  metanetx_chem_prop:
+    properties:
+      _: MetaNetX per-metabolite name/formula/SMILES
+      Format: TSV
+      ext: tsv
+  metanetx_reac_xref:
+    properties:
+      _: MetaNetX lane -> MNXR crosswalk
+      Format: TSV
+      ext: tsv
+  curated_gem:
+    properties:
+      _: a curated genome-scale model (COBRA JSON); net A of the validation
+      Format: JSON
+      ext: json
+  reference_manifest:
+    properties:
+      _: pre-bake MANIFEST.json -- pins, content hashes, verdict counts
+      Format: JSON
+      ext: json
+  atom_pairs:
+    properties:
+      _: atom-atom mapping table, MNXR-keyed (substrate/product atom transits)
+      Format: PARQUET
+      ext: parquet
+  direction_ratios:
+    properties:
+      _: per-reaction direction ratio exp(dG'/RT), MNXR-keyed; 1.0 == reversible
+      Format: PARQUET
+      ext: parquet
+  closure_ledger:
+    properties:
+      _: per-reaction closure ledger (resolved / diluted / refused + reason)
+      Format: PARQUET
+      ext: parquet
+  worklist:
+    properties:
+      _: pre-bake worklist of reactions pending resolution
+      Format: TSV
+      ext: tsv
+  mnx_bipartite:
+    properties:
+      _: MetaNetX universe element bipartite graphs (C/N/P/S)
+      Data: networkx pickles
+      content: directory of mnx_bipartite_{C,N,P,S}.pkl
+  base_graphs:
+    properties:
+      _: solved base graphs + axes report for one orientation
+      content: directory of base_{C,N,P,S}.pkl, axes_testable.json, *_axes_report.tsv
+  frozen_null:
+    properties:
+      _: >-
+        frozen Monte Carlo null draws, one TSV per (lane, draw size).
+        SEEDED, not reproducible -- bit-identical only under the same
+        BitGenerator and thread count. Verify by sha256, NEVER by regeneration.
+        The DIRECTORY is the item: the scorer derives its draw-size grid from
+        directory contents, so an extra retired size silently changes answers.
+      content: directory of {ieff,reff}_null_{stem}_N*.tsv
+  significance_table:
+    properties:
+      _: full-mixture-SF significance scorer output, one row per axis/clone cell
+      Format: TSV
+      ext: tsv
+  validation_set:
+    properties:
+      _: frozen expected outputs for the dual-network validation; gates only
+      content: directory with MANIFEST.tsv + netA/ netB/ lanes/ ground_truth/

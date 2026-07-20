@@ -1,5 +1,24 @@
 # ECSPr against benchmark V3 — first validation result
 
+> **SUPERSEDED 2026-07-20, and the reason matters more than the numbers.**
+>
+> This run was scored against the **incumbent star graph** (`04_reaction_network/cache`,
+> dated 13 June, weighted from `aam_unified_expanded.tsv`) — the graph
+> `build_atom_graph.py` indicts for fabricating transits for structureless stubs and
+> giving atom-transit edges to non-molecules that carry no atom. `BENCH_V3_UNIVERSE`
+> pointed there, and nobody had checked; it was never any tier of the honest reference
+> lane. So this is a measurement on a universe the method itself had disowned.
+>
+> It is kept, not deleted, because the re-run on the tier-4 universe found the AUCs
+> **statistically unchanged** — 40 of 40 slices inside these confidence intervals,
+> mean shift 0.20x the CI half-width, despite 19% of the carbon edge set turning over.
+> That makes this report a valid record rather than a wrong one, and the pair of them
+> together is the actual finding: the benchmark cannot discriminate the two graphs.
+>
+> See `benchmark_v3_tier4_result.md`. Numbers below stand as measured — note they were
+> produced by the pre-optimisation scorer, which the tier-4 report proves byte-identical
+> to the current one.
+
 Run: sockeye job `12317266` (solve) + `12317276` (merge), 2026-07-20.
 Agent home `/scratch/st-shallam-1/txyliu/ecspr_bench_v3_1784532632`, run key `cPieN6LE`.
 Engine pinned at metasmith 0.18.8; task image

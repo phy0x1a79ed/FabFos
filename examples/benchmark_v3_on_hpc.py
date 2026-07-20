@@ -129,7 +129,22 @@ SETUP_COMMANDS = ["module load gcc/9.4.0", "module load apptainer/1.3.1"]
 
 # Every image the workflow's transforms ask for, as they appear in the
 # containers resource library. Both benchmark transforms use only this one.
-REQUIRED_IMAGES = ["docker://quay.io/hallamlab/ecspr:2026.07.14"]
+# The PUBLIC reference, deliberately. `quay.io/hallamlab/ecspr:2026.07.14` is the
+# name the 2026-07-20 rename moved to, but quay defaults new repos to PRIVATE and
+# that one was never opened up -- an anonymous manifest GET returns 401, so the
+# pre-pull cannot resolve it and the run refuses before it starts.
+#
+# `external_ecspr:2026.07.14` is public (is_public: true) and resolves to
+# sha256:97f7afad99f55fe66a213851f48f6293f6b328ce7db4fe035a93de6f24f582db --
+# byte-identical to the digest provenance/containers/ecspr.yml pins, verified
+# against the registry rather than assumed. So this is a reachability fix, not a
+# change of image: the bits the solve runs on are the same bits.
+#
+# Pinned by TAG rather than by digest on purpose: the persistent .sif store keys
+# its filenames off the reference string, and the tag form already has a 4.4 GB
+# cached sif on sockeye from the previous run. A digest reference would miss that
+# cache and force a fresh pull for no gain, since the digest is verified anyway.
+REQUIRED_IMAGES = ["docker://quay.io/hallamlab/external_ecspr:2026.07.14"]
 
 
 def cached_image_name(image: str) -> str:

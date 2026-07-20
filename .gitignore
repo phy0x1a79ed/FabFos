@@ -23,3 +23,8 @@ trim_sequences.fasta.*
 
 # benchmark solve outputs: multi-GB, reproducible from the pinned run
 transforms/build/benchmark/v3_build/run/
+
+# Retrieved HPC results and archived baselines: 400 MB+ TSVs, reproducible from
+# the recorded sockeye run key. The SCORE tables are small and ARE tracked.
+transforms/build/benchmark/v3_build/run/
+transforms/build/benchmark/v3_build/run_star_universe_baseline/

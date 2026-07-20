@@ -1,10 +1,10 @@
 id: containers.ecspr
 name: ecspr
 kind: container
-reference: quay.io/hallamlab/ecspr:2026.07.14
+reference: quay.io/hallamlab/external_ecspr:2026.07.14
 resolved: true
 digest: sha256:97f7afad99f55fe66a213851f48f6293f6b328ce7db4fe035a93de6f24f582db
-pinned_reference: quay.io/hallamlab/ecspr@sha256:97f7afad99f55fe66a213851f48f6293f6b328ce7db4fe035a93de6f24f582db
+pinned_reference: quay.io/hallamlab/external_ecspr@sha256:97f7afad99f55fe66a213851f48f6293f6b328ce7db4fe035a93de6f24f582db
 resolved_on: 2026-07-19
 renamed_on: 2026-07-20
 resolution: >-
@@ -26,6 +26,27 @@ resolution: >-
   unchanged. `external_ecspr:2026.07.14` is left in place as an alias -- runs
   already recorded against it stay resolvable, and the benchmark V3 result was
   produced under that name.
+
+  REVERTED TO THE `external_ecspr` REFERENCE 2026-07-20, same day, because the
+  rename left the method unrunnable. The claim above -- that both references
+  resolve -- is true only for an authenticated client. Quay defaults new repos
+  to PRIVATE, `hallamlab/ecspr` was never opened up, and an anonymous manifest
+  GET returns 401. The tier-4 benchmark run refused at pre-pull on exactly that,
+  which is the pre-pull guard working as designed: the alternative is a pull
+  scheduled on a compute node with no outbound internet, which slurm.nf's
+  errorStrategy='ignore' would have turned into a silent green run with empty
+  outputs.
+
+  Verified against the registry rather than assumed: `external_ecspr:2026.07.14`
+  reports is_public: true, and under an OCI image-manifest Accept header returns
+  docker-content-digest sha256:97f7afad... -- identical to the digest pinned
+  above. So the digests, the recipe and the runtime are untouched; only the name
+  the client resolves has moved back to the one that is reachable.
+
+  The rename is not abandoned, it is BLOCKED on making `hallamlab/ecspr` public
+  on quay, which needs org admin rights this pipeline does not and should not
+  have. Until then the reachable name is the correct one to pin: an unreachable
+  reference in a provenance record is not a stricter claim, it is a false one.
 origin: built-here
 built_by_us: true
 recipe: containers/ecspr/

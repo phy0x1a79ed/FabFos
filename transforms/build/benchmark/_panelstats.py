@@ -172,13 +172,40 @@ def cluster_bootstrap(strata_by_condition: dict, n_boot: int = 2000,
     """
     rng = np.random.default_rng(seed)
     conds = sorted(strata_by_condition)
-    out = np.empty(n_boot)
-    for b in range(n_boot):
-        pick = rng.integers(0, len(conds), size=len(conds))
-        strata = []
-        for i in pick:
-            strata.extend(strata_by_condition[conds[i]])
-        out[b] = stratified_auc(strata)
+    n = len(conds)
+
+    # AUC_S is a RATIO OF SUMS over strata: Σ U_j / Σ |P_j||N_j|. The bootstrap
+    # resamples which CONDITIONS are included -- it never alters the data inside a
+    # stratum -- so U_j and |P_j||N_j| are invariant across all n_boot iterations.
+    # The original recomputed them every time: 2000 iterations x ~900 conditions
+    # x a sort-based mannwhitney_u each, then again for each of the 20
+    # (facet, element) slices, which is ~36M U-computations per mode and was
+    # essentially the entire ~15 min runtime of a score.
+    #
+    # Precomputing (u_j, d_j) once per condition makes each iteration a pair of
+    # sums. This is EXACT, not an approximation: identical arithmetic, just not
+    # repeated. Strata with an empty side are dropped here for the same reason
+    # stratified_auc skips them -- no comparisons exist, so they contribute to
+    # neither numerator nor denominator.
+    u = np.zeros(n)
+    d = np.zeros(n)
+    for j, c in enumerate(conds):
+        for pos, neg in strata_by_condition[c]:
+            pos, neg = np.asarray(pos), np.asarray(neg)
+            if pos.size == 0 or neg.size == 0:
+                continue
+            u[j] += mannwhitney_u(pos, neg)
+            d[j] += pos.size * neg.size
+
+    # One draw of shape (n_boot, n) consumes the SAME underlying stream in the
+    # same C-order as n_boot successive draws of size n, so the resamples are
+    # identical to the loop's and the reported interval reproduces exactly rather
+    # than merely agreeing to within Monte-Carlo noise.
+    picks = rng.integers(0, n, size=(n_boot, n))
+    num = u[picks].sum(axis=1)
+    den = d[picks].sum(axis=1)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        out = np.where(den > 0, num / den, np.nan)
     out = out[np.isfinite(out)]
     if out.size == 0:
         return float("nan"), float("nan")

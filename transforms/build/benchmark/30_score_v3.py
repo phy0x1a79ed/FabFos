@@ -132,14 +132,25 @@ def load_Y(key_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
 
 def expectation_lookup(exp: pd.DataFrame) -> dict:
-    """{(condition_id, edge_id): (role, dir)}. Absent pairs default via `resolve`."""
-    return {(r.condition_id, r.edge_id): (r.role, r["dir"])
-            for _, r in exp.iterrows()}
+    """{(condition_id, edge_id): (role, dir)}. Absent pairs default via `resolve`.
+
+    `zip` over the columns rather than `iterrows()`: iterrows materialises a Series
+    per row, which on 24k expectations is ~50x the cost for an identical result.
+    """
+    return {(c, e): (r, d) for c, e, r, d
+            in zip(exp["condition_id"], exp["edge_id"], exp["role"], exp["dir"])}
+
+
+# The declared default for an absent (condition, edge) pair, in ONE place. Both
+# the scalar `resolve()` and the vectorised fillna in `directional_specificity`
+# read it, so the rule cannot drift between the two.
+DEFAULT_ROLE = "off_target"
+DEFAULT_DIR = "0"
 
 
 def resolve(lookup: dict, cid: str, eid: str) -> tuple[str, str]:
     """The declared default rule: absent (condition, edge) is off_target / 0."""
-    return lookup.get((cid, eid), ("off_target", "0"))
+    return lookup.get((cid, eid), (DEFAULT_ROLE, DEFAULT_DIR))
 
 
 # ---------------------------------------------------------------------------
@@ -167,17 +178,47 @@ def directional_specificity(obs: pd.DataFrame, cond: pd.DataFrame, panel: pd.Dat
         o = o[o.edge_id.isin(edges)]
     cond_dir = dict(zip(cond.condition_id, cond.expected_dir))
 
-    # Group by condition ONCE — scanning all cells per condition is O(N*conds).
+    # VECTORISED. This used to be a per-CELL Python loop calling `resolve()` once
+    # per (condition, edge) -- ~5.7M dict lookups, re-run for each of the 20
+    # (facet, element) slices, which is why a score took ~15 minutes on a 423 MB
+    # merged table. The file already carried two warnings about exactly this shape
+    # ("scanning all cells per condition is O(N*conds)", and the null's
+    # "catastrophic on a 20M-row null"); the inner loop had simply never had the
+    # same treatment applied to it.
+    #
+    # The semantics are preserved EXACTLY, not approximately:
+    #   * role comes from a left merge on (condition_id, edge_id), and an absent
+    #     pair fills to "off_target" -- the same declared default `resolve()`
+    #     returns, kept in one place below so the rule cannot drift between the
+    #     two code paths.
+    #   * `dir` is deliberately still ignored here, as before: only `role` selects
+    #     the arm, and the sign comes from the CONDITION's expected_dir.
+    #   * projection is the same expression, applied columnwise.
+    #   * within-condition row ORDER is preserved (a left merge does not reorder
+    #     the left frame, and groupby preserves within-group order), and the
+    #     strata dict is built in sorted-cid order to match the previous
+    #     `groupby` default -- so `cluster_bootstrap`'s resampling sees an
+    #     identical structure and the CIs reproduce, not merely the point AUCs.
+    o = o.assign(_v=o["effect"].astype(float))
+    exp_roles = pd.DataFrame(
+        [(c, e, r) for (c, e), (r, _d) in lookup.items()],
+        columns=["condition_id", "edge_id", "_role"],
+    )
+    o = o.merge(exp_roles, on=["condition_id", "edge_id"], how="left")
+    o["_role"] = o["_role"].fillna(DEFAULT_ROLE)
+    if mode == "unsigned":
+        o["_proj"] = o["_v"].abs()
+    else:
+        s = o["condition_id"].map(cond_dir).map(DIR_SIGN).fillna(0.0)
+        o["_proj"] = s * o["_v"]
+
+    is_target = o["_role"].eq("target")
+    pos_by = {c: g.to_numpy() for c, g in o.loc[is_target].groupby("condition_id")["_proj"]}
+    neg_by = {c: g.to_numpy() for c, g in o.loc[~is_target].groupby("condition_id")["_proj"]}
+
     strata_by_cond: dict[str, list] = {}
-    for cid, grp in o.groupby("condition_id"):
-        s_c = DIR_SIGN.get(cond_dir.get(cid, "0"), 0.0)   # the condition's own axis
-        pos, neg = [], []
-        for eid, v in zip(grp.edge_id, grp.effect.astype(float)):
-            role, _d = resolve(lookup, cid, eid)
-            proj = abs(v) if mode == "unsigned" else s_c * v
-            (pos if role == "target" else neg).append(proj)
-        if pos and neg:
-            strata_by_cond[cid] = [(np.array(pos), np.array(neg))]
+    for cid in sorted(set(pos_by) & set(neg_by)):
+        strata_by_cond[cid] = [(pos_by[cid], neg_by[cid])]
 
     if not strata_by_cond:
         return float("nan"), float("nan"), float("nan"), 0, {}

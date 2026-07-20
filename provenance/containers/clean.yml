@@ -1,0 +1,18 @@
+id: containers.clean
+name: clean
+kind: container
+reference: quay.io/hallamlab/external_clean:2026.06.14
+resolved: false
+blocker: >-
+  NOT ON ANY REGISTRY. Exists only in this machine's local docker daemon
+  (image id ac9bf1a3e51b, 25.8 GB). Supplies the CLEAN EC-annotation lane,
+  whose weights are baked into the image rather than shipped as a separate
+  artifact -- so the weights are unobtainable too.
+remediation: >-
+  Push to quay, or build a .sif and archive to Globus chinook under the
+  library's sif/ tier. The recipe lives in container_builds/main/clean, which
+  is SHARED with metasmith-libraries/deep-learning and
+  scadc/functional-analysis -- do not vendor it here; pin it.
+origin: built-elsewhere
+built_by_us: true
+recipe: container_builds/main/clean   # shared; not vendored into this repo

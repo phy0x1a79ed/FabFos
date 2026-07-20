@@ -1,0 +1,36 @@
+id: containers.ecspr
+name: ecspr
+kind: container
+reference: quay.io/hallamlab/external_ecspr:2026.07.14
+resolved: false
+blocker: >-
+  NOT ON ANY REGISTRY. The image exists only in this machine's local docker
+  daemon (image id 795f38040040, 12.9 GB). `docker manifest inspect` returns
+  "no such manifest" for both :2026.07.14 and :latest. This is the single
+  hardest blocker to running ECSPr on another machine: the numeric core --
+  the SMW/Woodbury conductance solve, the per-gene ablation, and the
+  full-mixture-SF scorer -- has no obtainable runtime anywhere but here.
+remediation: >-
+  Either (a) `containers/ecspr/dev.sh --push` with quay credentials, which
+  makes the tag resolvable and lets this record carry a digest, or (b)
+  `containers/ecspr/dev.sh --sif` and archive the image to Globus chinook
+  under the library's sif/ tier. (a) is strongly preferred; (b) is a
+  fallback that still requires an out-of-band transfer.
+  Rebuilding from the vendored recipe is NOT equivalent -- the Dockerfile
+  pip-installs torch unpinned from the cu128 index, so a rebuild today
+  yields a different torch than the one the frozen artifacts were produced
+  under.
+origin: built-here
+built_by_us: true
+recipe: containers/ecspr/
+recipe_files:
+  - containers/ecspr/Dockerfile
+  - containers/ecspr/dev.sh
+  - containers/ecspr/load/env.yml
+build_assertions: >-
+  The Dockerfile fails the build (not a queued GPU job six hours later) unless
+  numpy >= 2 and torch.version.cuda == '12.8'. The cu128 pin is load-bearing:
+  the default CUDA build breaks the V100 driver on the target cluster, and the
+  solve and ablation are CPU-intractable on the dense maps. The miniforge base
+  is pinned by tag because sibling recipes tracking :latest rotted when mamba
+  2.x dropped --no-default-packages. Preserve both verbatim.

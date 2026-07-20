@@ -145,7 +145,7 @@ C__OAA__MNXM6097	C	OAA	MNXM46	primary	False	MNXM6097	3-oxopropane-1-sulfonate	v1
 C__OAA__MNXM617	C	OAA	MNXM46	primary	False	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__OAA__MNXM622	C	OAA	MNXM46	primary	False	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__OAA__MNXM6396	C	OAA	MNXM46	primary	False	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__OAA__MNXM645	C	OAA	MNXM46	primary	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__OAA__MNXM645	C	OAA	MNXM46	primary	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__OAA__MNXM66	C	OAA	MNXM46	primary	False	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__OAA__MNXM664	C	OAA	MNXM46	primary	False	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__OAA__MNXM704	C	OAA	MNXM46	primary	False	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -166,7 +166,7 @@ C__OAA__MNXM731537	C	OAA	MNXM46	primary	False	MNXM731537	(4S)-perillyl alcohol	v
 C__OAA__MNXM731760	C	OAA	MNXM46	primary	False	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__OAA__MNXM731939	C	OAA	MNXM46	primary	False	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__OAA__MNXM732166	C	OAA	MNXM46	primary	False	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__OAA__MNXM732273	C	OAA	MNXM46	primary	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__OAA__MNXM732273	C	OAA	MNXM46	primary	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__OAA__MNXM732487	C	OAA	MNXM46	primary	False	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__OAA__MNXM733114	C	OAA	MNXM46	primary	False	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__OAA__MNXM733515	C	OAA	MNXM46	primary	False	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -354,7 +354,7 @@ C__pyruvate__MNXM6097	C	pyruvate	MNXM23	primary	False	MNXM6097	3-oxopropane-1-su
 C__pyruvate__MNXM617	C	pyruvate	MNXM23	primary	False	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__pyruvate__MNXM622	C	pyruvate	MNXM23	primary	False	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__pyruvate__MNXM6396	C	pyruvate	MNXM23	primary	False	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__pyruvate__MNXM645	C	pyruvate	MNXM23	primary	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__pyruvate__MNXM645	C	pyruvate	MNXM23	primary	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__pyruvate__MNXM66	C	pyruvate	MNXM23	primary	False	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__pyruvate__MNXM664	C	pyruvate	MNXM23	primary	False	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__pyruvate__MNXM704	C	pyruvate	MNXM23	primary	False	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -375,7 +375,7 @@ C__pyruvate__MNXM731537	C	pyruvate	MNXM23	primary	False	MNXM731537	(4S)-perillyl
 C__pyruvate__MNXM731760	C	pyruvate	MNXM23	primary	False	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__pyruvate__MNXM731939	C	pyruvate	MNXM23	primary	False	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__pyruvate__MNXM732166	C	pyruvate	MNXM23	primary	False	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__pyruvate__MNXM732273	C	pyruvate	MNXM23	primary	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__pyruvate__MNXM732273	C	pyruvate	MNXM23	primary	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__pyruvate__MNXM732487	C	pyruvate	MNXM23	primary	False	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__pyruvate__MNXM733114	C	pyruvate	MNXM23	primary	False	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__pyruvate__MNXM733515	C	pyruvate	MNXM23	primary	False	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -563,7 +563,7 @@ C__AcCoA__MNXM6097	C	AcCoA	MNXM1104266	carrier	True	MNXM6097	3-oxopropane-1-sulf
 C__AcCoA__MNXM617	C	AcCoA	MNXM1104266	carrier	True	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__AcCoA__MNXM622	C	AcCoA	MNXM1104266	carrier	True	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__AcCoA__MNXM6396	C	AcCoA	MNXM1104266	carrier	True	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__AcCoA__MNXM645	C	AcCoA	MNXM1104266	carrier	True	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__AcCoA__MNXM645	C	AcCoA	MNXM1104266	carrier	True	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__AcCoA__MNXM66	C	AcCoA	MNXM1104266	carrier	True	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__AcCoA__MNXM664	C	AcCoA	MNXM1104266	carrier	True	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__AcCoA__MNXM704	C	AcCoA	MNXM1104266	carrier	True	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -584,7 +584,7 @@ C__AcCoA__MNXM731537	C	AcCoA	MNXM1104266	carrier	True	MNXM731537	(4S)-perillyl a
 C__AcCoA__MNXM731760	C	AcCoA	MNXM1104266	carrier	True	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__AcCoA__MNXM731939	C	AcCoA	MNXM1104266	carrier	True	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__AcCoA__MNXM732166	C	AcCoA	MNXM1104266	carrier	True	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__AcCoA__MNXM732273	C	AcCoA	MNXM1104266	carrier	True	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__AcCoA__MNXM732273	C	AcCoA	MNXM1104266	carrier	True	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__AcCoA__MNXM732487	C	AcCoA	MNXM1104266	carrier	True	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__AcCoA__MNXM733114	C	AcCoA	MNXM1104266	carrier	True	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__AcCoA__MNXM733515	C	AcCoA	MNXM1104266	carrier	True	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -772,7 +772,7 @@ C__succCoA__MNXM6097	C	succCoA	MNXM1104774	carrier	True	MNXM6097	3-oxopropane-1-
 C__succCoA__MNXM617	C	succCoA	MNXM1104774	carrier	True	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__succCoA__MNXM622	C	succCoA	MNXM1104774	carrier	True	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__succCoA__MNXM6396	C	succCoA	MNXM1104774	carrier	True	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__succCoA__MNXM645	C	succCoA	MNXM1104774	carrier	True	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__succCoA__MNXM645	C	succCoA	MNXM1104774	carrier	True	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__succCoA__MNXM66	C	succCoA	MNXM1104774	carrier	True	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__succCoA__MNXM664	C	succCoA	MNXM1104774	carrier	True	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__succCoA__MNXM704	C	succCoA	MNXM1104774	carrier	True	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -793,7 +793,7 @@ C__succCoA__MNXM731537	C	succCoA	MNXM1104774	carrier	True	MNXM731537	(4S)-perill
 C__succCoA__MNXM731760	C	succCoA	MNXM1104774	carrier	True	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__succCoA__MNXM731939	C	succCoA	MNXM1104774	carrier	True	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__succCoA__MNXM732166	C	succCoA	MNXM1104774	carrier	True	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__succCoA__MNXM732273	C	succCoA	MNXM1104774	carrier	True	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__succCoA__MNXM732273	C	succCoA	MNXM1104774	carrier	True	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__succCoA__MNXM732487	C	succCoA	MNXM1104774	carrier	True	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__succCoA__MNXM733114	C	succCoA	MNXM1104774	carrier	True	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__succCoA__MNXM733515	C	succCoA	MNXM1104774	carrier	True	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -981,7 +981,7 @@ C__2OG__MNXM6097	C	2OG	MNXM1368744	gradient	False	MNXM6097	3-oxopropane-1-sulfon
 C__2OG__MNXM617	C	2OG	MNXM1368744	gradient	False	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__2OG__MNXM622	C	2OG	MNXM1368744	gradient	False	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__2OG__MNXM6396	C	2OG	MNXM1368744	gradient	False	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__2OG__MNXM645	C	2OG	MNXM1368744	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__2OG__MNXM645	C	2OG	MNXM1368744	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__2OG__MNXM66	C	2OG	MNXM1368744	gradient	False	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__2OG__MNXM664	C	2OG	MNXM1368744	gradient	False	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__2OG__MNXM704	C	2OG	MNXM1368744	gradient	False	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -1002,7 +1002,7 @@ C__2OG__MNXM731537	C	2OG	MNXM1368744	gradient	False	MNXM731537	(4S)-perillyl alc
 C__2OG__MNXM731760	C	2OG	MNXM1368744	gradient	False	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__2OG__MNXM731939	C	2OG	MNXM1368744	gradient	False	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__2OG__MNXM732166	C	2OG	MNXM1368744	gradient	False	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__2OG__MNXM732273	C	2OG	MNXM1368744	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__2OG__MNXM732273	C	2OG	MNXM1368744	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__2OG__MNXM732487	C	2OG	MNXM1368744	gradient	False	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__2OG__MNXM733114	C	2OG	MNXM1368744	gradient	False	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__2OG__MNXM733515	C	2OG	MNXM1368744	gradient	False	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -1191,7 +1191,7 @@ C__PEP__MNXM6097	C	PEP	MNXM73	gradient	False	MNXM6097	3-oxopropane-1-sulfonate	v
 C__PEP__MNXM617	C	PEP	MNXM73	gradient	False	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__PEP__MNXM622	C	PEP	MNXM73	gradient	False	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__PEP__MNXM6396	C	PEP	MNXM73	gradient	False	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__PEP__MNXM645	C	PEP	MNXM73	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__PEP__MNXM645	C	PEP	MNXM73	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__PEP__MNXM66	C	PEP	MNXM73	gradient	False	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__PEP__MNXM664	C	PEP	MNXM73	gradient	False	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__PEP__MNXM704	C	PEP	MNXM73	gradient	False	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -1211,7 +1211,7 @@ C__PEP__MNXM731537	C	PEP	MNXM73	gradient	False	MNXM731537	(4S)-perillyl alcohol	
 C__PEP__MNXM731760	C	PEP	MNXM73	gradient	False	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__PEP__MNXM731939	C	PEP	MNXM73	gradient	False	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__PEP__MNXM732166	C	PEP	MNXM73	gradient	False	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__PEP__MNXM732273	C	PEP	MNXM73	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__PEP__MNXM732273	C	PEP	MNXM73	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__PEP__MNXM732487	C	PEP	MNXM73	gradient	False	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__PEP__MNXM733114	C	PEP	MNXM73	gradient	False	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__PEP__MNXM733515	C	PEP	MNXM73	gradient	False	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -1399,7 +1399,7 @@ C__F6P__MNXM6097	C	F6P	MNXM1107898	gradient	False	MNXM6097	3-oxopropane-1-sulfon
 C__F6P__MNXM617	C	F6P	MNXM1107898	gradient	False	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__F6P__MNXM622	C	F6P	MNXM1107898	gradient	False	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__F6P__MNXM6396	C	F6P	MNXM1107898	gradient	False	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__F6P__MNXM645	C	F6P	MNXM1107898	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__F6P__MNXM645	C	F6P	MNXM1107898	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__F6P__MNXM66	C	F6P	MNXM1107898	gradient	False	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__F6P__MNXM664	C	F6P	MNXM1107898	gradient	False	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__F6P__MNXM704	C	F6P	MNXM1107898	gradient	False	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -1420,7 +1420,7 @@ C__F6P__MNXM731537	C	F6P	MNXM1107898	gradient	False	MNXM731537	(4S)-perillyl alc
 C__F6P__MNXM731760	C	F6P	MNXM1107898	gradient	False	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__F6P__MNXM731939	C	F6P	MNXM1107898	gradient	False	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__F6P__MNXM732166	C	F6P	MNXM1107898	gradient	False	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__F6P__MNXM732273	C	F6P	MNXM1107898	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__F6P__MNXM732273	C	F6P	MNXM1107898	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__F6P__MNXM732487	C	F6P	MNXM1107898	gradient	False	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__F6P__MNXM733114	C	F6P	MNXM1107898	gradient	False	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__F6P__MNXM733515	C	F6P	MNXM1107898	gradient	False	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -1608,7 +1608,7 @@ C__E4P__MNXM6097	C	E4P	MNXM258	gradient	False	MNXM6097	3-oxopropane-1-sulfonate	
 C__E4P__MNXM617	C	E4P	MNXM258	gradient	False	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__E4P__MNXM622	C	E4P	MNXM258	gradient	False	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__E4P__MNXM6396	C	E4P	MNXM258	gradient	False	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__E4P__MNXM645	C	E4P	MNXM258	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__E4P__MNXM645	C	E4P	MNXM258	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__E4P__MNXM66	C	E4P	MNXM258	gradient	False	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__E4P__MNXM664	C	E4P	MNXM258	gradient	False	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__E4P__MNXM704	C	E4P	MNXM258	gradient	False	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -1629,7 +1629,7 @@ C__E4P__MNXM731537	C	E4P	MNXM258	gradient	False	MNXM731537	(4S)-perillyl alcohol
 C__E4P__MNXM731760	C	E4P	MNXM258	gradient	False	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__E4P__MNXM731939	C	E4P	MNXM258	gradient	False	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__E4P__MNXM732166	C	E4P	MNXM258	gradient	False	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__E4P__MNXM732273	C	E4P	MNXM258	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__E4P__MNXM732273	C	E4P	MNXM258	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__E4P__MNXM732487	C	E4P	MNXM258	gradient	False	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__E4P__MNXM733114	C	E4P	MNXM258	gradient	False	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__E4P__MNXM733515	C	E4P	MNXM258	gradient	False	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -1817,7 +1817,7 @@ C__R5P__MNXM6097	C	R5P	MNXM1363910	gradient	False	MNXM6097	3-oxopropane-1-sulfon
 C__R5P__MNXM617	C	R5P	MNXM1363910	gradient	False	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__R5P__MNXM622	C	R5P	MNXM1363910	gradient	False	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__R5P__MNXM6396	C	R5P	MNXM1363910	gradient	False	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__R5P__MNXM645	C	R5P	MNXM1363910	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__R5P__MNXM645	C	R5P	MNXM1363910	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__R5P__MNXM66	C	R5P	MNXM1363910	gradient	False	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__R5P__MNXM664	C	R5P	MNXM1363910	gradient	False	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__R5P__MNXM704	C	R5P	MNXM1363910	gradient	False	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -1838,7 +1838,7 @@ C__R5P__MNXM731537	C	R5P	MNXM1363910	gradient	False	MNXM731537	(4S)-perillyl alc
 C__R5P__MNXM731760	C	R5P	MNXM1363910	gradient	False	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__R5P__MNXM731939	C	R5P	MNXM1363910	gradient	False	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__R5P__MNXM732166	C	R5P	MNXM1363910	gradient	False	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__R5P__MNXM732273	C	R5P	MNXM1363910	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__R5P__MNXM732273	C	R5P	MNXM1363910	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__R5P__MNXM732487	C	R5P	MNXM1363910	gradient	False	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__R5P__MNXM733114	C	R5P	MNXM1363910	gradient	False	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__R5P__MNXM733515	C	R5P	MNXM1363910	gradient	False	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -2027,7 +2027,7 @@ C__3PG__MNXM6097	C	3PG	MNXM727604	gradient	False	MNXM6097	3-oxopropane-1-sulfona
 C__3PG__MNXM617	C	3PG	MNXM727604	gradient	False	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__3PG__MNXM622	C	3PG	MNXM727604	gradient	False	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__3PG__MNXM6396	C	3PG	MNXM727604	gradient	False	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__3PG__MNXM645	C	3PG	MNXM727604	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__3PG__MNXM645	C	3PG	MNXM727604	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__3PG__MNXM66	C	3PG	MNXM727604	gradient	False	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__3PG__MNXM664	C	3PG	MNXM727604	gradient	False	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__3PG__MNXM704	C	3PG	MNXM727604	gradient	False	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -2047,7 +2047,7 @@ C__3PG__MNXM731537	C	3PG	MNXM727604	gradient	False	MNXM731537	(4S)-perillyl alco
 C__3PG__MNXM731760	C	3PG	MNXM727604	gradient	False	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__3PG__MNXM731939	C	3PG	MNXM727604	gradient	False	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__3PG__MNXM732166	C	3PG	MNXM727604	gradient	False	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__3PG__MNXM732273	C	3PG	MNXM727604	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__3PG__MNXM732273	C	3PG	MNXM727604	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__3PG__MNXM732487	C	3PG	MNXM727604	gradient	False	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__3PG__MNXM733114	C	3PG	MNXM727604	gradient	False	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__3PG__MNXM733515	C	3PG	MNXM727604	gradient	False	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -2235,7 +2235,7 @@ C__G6P__MNXM6097	C	G6P	MNXM1364111	gradient	False	MNXM6097	3-oxopropane-1-sulfon
 C__G6P__MNXM617	C	G6P	MNXM1364111	gradient	False	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__G6P__MNXM622	C	G6P	MNXM1364111	gradient	False	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__G6P__MNXM6396	C	G6P	MNXM1364111	gradient	False	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__G6P__MNXM645	C	G6P	MNXM1364111	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__G6P__MNXM645	C	G6P	MNXM1364111	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__G6P__MNXM66	C	G6P	MNXM1364111	gradient	False	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__G6P__MNXM664	C	G6P	MNXM1364111	gradient	False	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__G6P__MNXM704	C	G6P	MNXM1364111	gradient	False	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -2256,7 +2256,7 @@ C__G6P__MNXM731537	C	G6P	MNXM1364111	gradient	False	MNXM731537	(4S)-perillyl alc
 C__G6P__MNXM731760	C	G6P	MNXM1364111	gradient	False	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__G6P__MNXM731939	C	G6P	MNXM1364111	gradient	False	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__G6P__MNXM732166	C	G6P	MNXM1364111	gradient	False	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__G6P__MNXM732273	C	G6P	MNXM1364111	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__G6P__MNXM732273	C	G6P	MNXM1364111	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__G6P__MNXM732487	C	G6P	MNXM1364111	gradient	False	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__G6P__MNXM733114	C	G6P	MNXM1364111	gradient	False	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__G6P__MNXM733515	C	G6P	MNXM1364111	gradient	False	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -2444,7 +2444,7 @@ C__G3P__MNXM6097	C	G3P	MNXM1372044	gradient	False	MNXM6097	3-oxopropane-1-sulfon
 C__G3P__MNXM617	C	G3P	MNXM1372044	gradient	False	MNXM617	folate	v3_lof_target	exact_name_in_X	False	False	True	True
 C__G3P__MNXM622	C	G3P	MNXM1372044	gradient	False	MNXM622	1-deoxy-D-xylulose 5-phosphate	v1_panel	carried	True	True	True	True
 C__G3P__MNXM6396	C	G3P	MNXM1372044	gradient	False	MNXM6396	1-propanol	v3_gof_target	exact_name_in_X	False	False	True	True
-C__G3P__MNXM645	C	G3P	MNXM1372044	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	True	True	True	True
+C__G3P__MNXM645	C	G3P	MNXM1372044	gradient	False	MNXM645	3,4-dihydroxyphenylacetate	v1_panel	carried	False	True	True	True
 C__G3P__MNXM66	C	G3P	MNXM1372044	gradient	False	MNXM66	sn-glycerol 3-phosphate	v1_panel	carried	True	True	True	True
 C__G3P__MNXM664	C	G3P	MNXM1372044	gradient	False	MNXM664	(R)-acetoin	v1_panel,v3_gof_near,v3_gof_target	carried,exact_name_in_X,inserted_reaction_product	False	False	True	True
 C__G3P__MNXM704	C	G3P	MNXM1372044	gradient	False	MNXM704	2'-deoxycytidine	v3_gof_target	metanetx_xref	True	True	True	True
@@ -2465,7 +2465,7 @@ C__G3P__MNXM731537	C	G3P	MNXM1372044	gradient	False	MNXM731537	(4S)-perillyl alc
 C__G3P__MNXM731760	C	G3P	MNXM1372044	gradient	False	MNXM731760	lipid IVA (E. coli)	v1_panel	carried	True	True	True	True
 C__G3P__MNXM731939	C	G3P	MNXM1372044	gradient	False	MNXM731939	a malonyl-[acp]	v1_panel	carried	False	False	True	True
 C__G3P__MNXM732166	C	G3P	MNXM1372044	gradient	False	MNXM732166	UDP-N-acetyl-alpha-D-muramoyl-L-alanyl-gamma-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine	v1_panel	carried	True	True	True	True
-C__G3P__MNXM732273	C	G3P	MNXM1372044	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	False	False
+C__G3P__MNXM732273	C	G3P	MNXM1372044	gradient	False	MNXM732273	a ubiquinol	v1_panel	carried	False	False	True	True
 C__G3P__MNXM732487	C	G3P	MNXM1372044	gradient	False	MNXM732487	hypoxanthine	v3_lof_target	normalized_name_in_X	True	True	True	True
 C__G3P__MNXM733114	C	G3P	MNXM1372044	gradient	False	MNXM733114	guanine	v3_lof_target	exact_name_in_X	True	True	True	True
 C__G3P__MNXM733515	C	G3P	MNXM1372044	gradient	False	MNXM733515	1,4-alpha-D-glucan	v3_gof_near	inserted_reaction_product	True	True	False	False
@@ -3267,7 +3267,7 @@ S__cysteine__MNXM1365590	S	cysteine	MNXM738068	primary	False	MNXM1365590	molybdo
 S__cysteine__MNXM1371179	S	cysteine	MNXM738068	primary	False	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__cysteine__MNXM1812	S	cysteine	MNXM738068	primary	False	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__cysteine__MNXM256	S	cysteine	MNXM738068	primary	False	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__cysteine__MNXM304	S	cysteine	MNXM738068	primary	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__cysteine__MNXM304	S	cysteine	MNXM738068	primary	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__cysteine__MNXM727276	S	cysteine	MNXM738068	primary	False	MNXM727276	CoA	v1_panel	carried	True	True	True	True
 S__cysteine__MNXM730135	S	cysteine	MNXM738068	primary	False	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__cysteine__MNXM738804	S	cysteine	MNXM738068	primary	False	MNXM738804	L-methionine	v1_panel,v3_gof_target,v3_lof_target	carried,exact_name_in_X,normalized_name_in_X	True	True	True	True
@@ -3281,7 +3281,7 @@ S__sulfate__MNXM1365590	S	sulfate	MNXM58	gradient	False	MNXM1365590	molybdopteri
 S__sulfate__MNXM1371179	S	sulfate	MNXM58	gradient	False	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__sulfate__MNXM1812	S	sulfate	MNXM58	gradient	False	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__sulfate__MNXM256	S	sulfate	MNXM58	gradient	False	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__sulfate__MNXM304	S	sulfate	MNXM58	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__sulfate__MNXM304	S	sulfate	MNXM58	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__sulfate__MNXM727276	S	sulfate	MNXM58	gradient	False	MNXM727276	CoA	v1_panel	carried	True	True	True	True
 S__sulfate__MNXM730135	S	sulfate	MNXM58	gradient	False	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__sulfate__MNXM738068	S	sulfate	MNXM58	gradient	False	MNXM738068	L-cysteine	v1_panel,v3_gof_near,v3_lof_target	carried,exact_name_in_X,inserted_reaction_product	True	True	True	True
@@ -3296,7 +3296,7 @@ S__APS__MNXM1365590	S	APS	MNXM1103086	gradient	False	MNXM1365590	molybdopterin	v
 S__APS__MNXM1371179	S	APS	MNXM1103086	gradient	False	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__APS__MNXM1812	S	APS	MNXM1103086	gradient	False	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__APS__MNXM256	S	APS	MNXM1103086	gradient	False	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__APS__MNXM304	S	APS	MNXM1103086	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__APS__MNXM304	S	APS	MNXM1103086	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__APS__MNXM727276	S	APS	MNXM1103086	gradient	False	MNXM727276	CoA	v1_panel	carried	True	True	True	True
 S__APS__MNXM730135	S	APS	MNXM1103086	gradient	False	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__APS__MNXM738068	S	APS	MNXM1103086	gradient	False	MNXM738068	L-cysteine	v1_panel,v3_gof_near,v3_lof_target	carried,exact_name_in_X,inserted_reaction_product	True	True	True	True
@@ -3311,7 +3311,7 @@ S__PAPS__MNXM1365590	S	PAPS	MNXM1104555	gradient	False	MNXM1365590	molybdopterin
 S__PAPS__MNXM1371179	S	PAPS	MNXM1104555	gradient	False	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__PAPS__MNXM1812	S	PAPS	MNXM1104555	gradient	False	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__PAPS__MNXM256	S	PAPS	MNXM1104555	gradient	False	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__PAPS__MNXM304	S	PAPS	MNXM1104555	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__PAPS__MNXM304	S	PAPS	MNXM1104555	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__PAPS__MNXM727276	S	PAPS	MNXM1104555	gradient	False	MNXM727276	CoA	v1_panel	carried	True	True	True	True
 S__PAPS__MNXM730135	S	PAPS	MNXM1104555	gradient	False	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__PAPS__MNXM738068	S	PAPS	MNXM1104555	gradient	False	MNXM738068	L-cysteine	v1_panel,v3_gof_near,v3_lof_target	carried,exact_name_in_X,inserted_reaction_product	True	True	True	True
@@ -3326,7 +3326,7 @@ S__sulfite__MNXM1365590	S	sulfite	MNXM726339	gradient	False	MNXM1365590	molybdop
 S__sulfite__MNXM1371179	S	sulfite	MNXM726339	gradient	False	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__sulfite__MNXM1812	S	sulfite	MNXM726339	gradient	False	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__sulfite__MNXM256	S	sulfite	MNXM726339	gradient	False	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__sulfite__MNXM304	S	sulfite	MNXM726339	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__sulfite__MNXM304	S	sulfite	MNXM726339	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__sulfite__MNXM727276	S	sulfite	MNXM726339	gradient	False	MNXM727276	CoA	v1_panel	carried	True	True	True	True
 S__sulfite__MNXM730135	S	sulfite	MNXM726339	gradient	False	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__sulfite__MNXM738068	S	sulfite	MNXM726339	gradient	False	MNXM738068	L-cysteine	v1_panel,v3_gof_near,v3_lof_target	carried,exact_name_in_X,inserted_reaction_product	True	True	True	True
@@ -3341,7 +3341,7 @@ S__sulfide__MNXM1365590	S	sulfide	MNXM1366460	gradient	False	MNXM1365590	molybdo
 S__sulfide__MNXM1371179	S	sulfide	MNXM1366460	gradient	False	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__sulfide__MNXM1812	S	sulfide	MNXM1366460	gradient	False	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__sulfide__MNXM256	S	sulfide	MNXM1366460	gradient	False	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__sulfide__MNXM304	S	sulfide	MNXM1366460	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__sulfide__MNXM304	S	sulfide	MNXM1366460	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__sulfide__MNXM727276	S	sulfide	MNXM1366460	gradient	False	MNXM727276	CoA	v1_panel	carried	True	True	True	True
 S__sulfide__MNXM730135	S	sulfide	MNXM1366460	gradient	False	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__sulfide__MNXM738068	S	sulfide	MNXM1366460	gradient	False	MNXM738068	L-cysteine	v1_panel,v3_gof_near,v3_lof_target	carried,exact_name_in_X,inserted_reaction_product	True	True	True	True
@@ -3356,7 +3356,7 @@ S__homocysteine__MNXM1365590	S	homocysteine	MNXM123	gradient	False	MNXM1365590	m
 S__homocysteine__MNXM1371179	S	homocysteine	MNXM123	gradient	False	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__homocysteine__MNXM1812	S	homocysteine	MNXM123	gradient	False	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__homocysteine__MNXM256	S	homocysteine	MNXM123	gradient	False	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__homocysteine__MNXM304	S	homocysteine	MNXM123	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__homocysteine__MNXM304	S	homocysteine	MNXM123	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__homocysteine__MNXM727276	S	homocysteine	MNXM123	gradient	False	MNXM727276	CoA	v1_panel	carried	True	True	True	True
 S__homocysteine__MNXM730135	S	homocysteine	MNXM123	gradient	False	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__homocysteine__MNXM738068	S	homocysteine	MNXM123	gradient	False	MNXM738068	L-cysteine	v1_panel,v3_gof_near,v3_lof_target	carried,exact_name_in_X,inserted_reaction_product	True	True	True	True
@@ -3371,7 +3371,7 @@ S__methionine__MNXM1365590	S	methionine	MNXM738804	gradient	False	MNXM1365590	mo
 S__methionine__MNXM1371179	S	methionine	MNXM738804	gradient	False	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__methionine__MNXM1812	S	methionine	MNXM738804	gradient	False	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__methionine__MNXM256	S	methionine	MNXM738804	gradient	False	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__methionine__MNXM304	S	methionine	MNXM738804	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__methionine__MNXM304	S	methionine	MNXM738804	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__methionine__MNXM727276	S	methionine	MNXM738804	gradient	False	MNXM727276	CoA	v1_panel	carried	True	True	True	True
 S__methionine__MNXM730135	S	methionine	MNXM738804	gradient	False	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__methionine__MNXM738068	S	methionine	MNXM738804	gradient	False	MNXM738068	L-cysteine	v1_panel,v3_gof_near,v3_lof_target	carried,exact_name_in_X,inserted_reaction_product	True	True	True	True
@@ -3385,7 +3385,7 @@ S__glutathione__MNXM1365590	S	glutathione	MNXM490899	gradient	False	MNXM1365590	
 S__glutathione__MNXM1371179	S	glutathione	MNXM490899	gradient	False	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__glutathione__MNXM1812	S	glutathione	MNXM490899	gradient	False	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__glutathione__MNXM256	S	glutathione	MNXM490899	gradient	False	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__glutathione__MNXM304	S	glutathione	MNXM490899	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__glutathione__MNXM304	S	glutathione	MNXM490899	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__glutathione__MNXM727276	S	glutathione	MNXM490899	gradient	False	MNXM727276	CoA	v1_panel	carried	True	True	True	True
 S__glutathione__MNXM730135	S	glutathione	MNXM490899	gradient	False	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__glutathione__MNXM738068	S	glutathione	MNXM490899	gradient	False	MNXM738068	L-cysteine	v1_panel,v3_gof_near,v3_lof_target	carried,exact_name_in_X,inserted_reaction_product	True	True	True	True
@@ -3400,7 +3400,7 @@ S__SAM__MNXM1365590	S	SAM	MNXM1363767	gradient	False	MNXM1365590	molybdopterin	v
 S__SAM__MNXM1371179	S	SAM	MNXM1363767	gradient	False	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__SAM__MNXM1812	S	SAM	MNXM1363767	gradient	False	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__SAM__MNXM256	S	SAM	MNXM1363767	gradient	False	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__SAM__MNXM304	S	SAM	MNXM1363767	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__SAM__MNXM304	S	SAM	MNXM1363767	gradient	False	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__SAM__MNXM727276	S	SAM	MNXM1363767	gradient	False	MNXM727276	CoA	v1_panel	carried	True	True	True	True
 S__SAM__MNXM730135	S	SAM	MNXM1363767	gradient	False	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__SAM__MNXM738068	S	SAM	MNXM1363767	gradient	False	MNXM738068	L-cysteine	v1_panel,v3_gof_near,v3_lof_target	carried,exact_name_in_X,inserted_reaction_product	True	True	True	True
@@ -3414,7 +3414,7 @@ S__AcCoA__MNXM1365590	S	AcCoA	MNXM1104266	carrier	True	MNXM1365590	molybdopterin
 S__AcCoA__MNXM1371179	S	AcCoA	MNXM1104266	carrier	True	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__AcCoA__MNXM1812	S	AcCoA	MNXM1104266	carrier	True	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__AcCoA__MNXM256	S	AcCoA	MNXM1104266	carrier	True	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__AcCoA__MNXM304	S	AcCoA	MNXM1104266	carrier	True	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__AcCoA__MNXM304	S	AcCoA	MNXM1104266	carrier	True	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__AcCoA__MNXM727276	S	AcCoA	MNXM1104266	carrier	True	MNXM727276	CoA	v1_panel	carried	True	True	True	True
 S__AcCoA__MNXM730135	S	AcCoA	MNXM1104266	carrier	True	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__AcCoA__MNXM738068	S	AcCoA	MNXM1104266	carrier	True	MNXM738068	L-cysteine	v1_panel,v3_gof_near,v3_lof_target	carried,exact_name_in_X,inserted_reaction_product	True	True	True	True
@@ -3429,7 +3429,7 @@ S__CoA__MNXM1365590	S	CoA	MNXM727276	carrier	True	MNXM1365590	molybdopterin	v3_g
 S__CoA__MNXM1371179	S	CoA	MNXM727276	carrier	True	MNXM1371179	(R)-lipoate	v1_panel	carried	False	False	True	True
 S__CoA__MNXM1812	S	CoA	MNXM727276	carrier	True	MNXM1812	penicillin G	v3_gof_target	exact_name_in_X	False	False	False	False
 S__CoA__MNXM256	S	CoA	MNXM727276	carrier	True	MNXM256	thiamine diphosphate	v1_panel	carried	False	True	True	True
-S__CoA__MNXM304	S	CoA	MNXM727276	carrier	True	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	False	False	True	True
+S__CoA__MNXM304	S	CoA	MNXM727276	carrier	True	MNXM304	biotin	v1_panel,v3_lof_target	carried,exact_name_in_X	True	True	True	True
 S__CoA__MNXM730135	S	CoA	MNXM727276	carrier	True	MNXM730135	thiamine	v3_lof_target	exact_name_in_X	False	True	True	True
 S__CoA__MNXM738068	S	CoA	MNXM727276	carrier	True	MNXM738068	L-cysteine	v1_panel,v3_gof_near,v3_lof_target	carried,exact_name_in_X,inserted_reaction_product	True	True	True	True
 S__CoA__MNXM738804	S	CoA	MNXM727276	carrier	True	MNXM738804	L-methionine	v1_panel,v3_gof_target,v3_lof_target	carried,exact_name_in_X,normalized_name_in_X	True	True	True	True

@@ -22,8 +22,8 @@ note: 'v3''s own self-description: a per-file sha256 manifest over X and Y, and 
   inside the builders can catch, because a key authored after seeing results looks identical
   to one authored before.'
 bytes: 1495
-sha256: tree-9d01b5c11acda7c9940fa026b8398d1c22f8d6781fca0bf5f6ec4c4b7603d5d2
+sha256: tree-1839260d6b891c5144492b3cc8f8845c796c5532e482b111964ef66af8e0b66b
 n_files: 2
 files:
-  MANIFEST.tsv: 5ab97195dfa2788cf17f25a56b7d8a4268aaa004b9be466feec02372a2664b53
+  MANIFEST.tsv: 4e92e300db0a97222331837f0827e132ca2c281ca7b29e833a995a06ec49f10d
   _audit.json: 5a317c364965e9fbcee584747da5c599c6bd9c028411ccf5f444ecd8215b572d

@@ -787,12 +787,12 @@ items:
       preference.
 
   - id: benchmark.v3.base_graphs
-    src: /home/tony/agentic_workspace/projects/scadc/metabolic-modelling/main/metabolic-modelling/04_reaction_network/cache
+    src: ecspr_reference/mnxref-4_5/benchmark_tier4
     dest: validation/benchmark/v3/base_graphs
     type: ecspr::benchmark_base_graphs
     tier: validation
     kind: derived
-    producer: 60_build_netA_base.py + 62_build_netB_base.py
+    producer: repo/transforms/build/reference/build_tier4_base_graphs.py (drives 60_build_netA_base.py + 62_build_netB_base.py)
     inputs: [benchmark.v3.universe, benchmark.v3.inputs]
     determinism: reproducible
     select:

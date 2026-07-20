@@ -102,10 +102,18 @@ the type contract, and the planner's domain list. A CLI bugfix is not a new
 method; repinning the engine library is one even if no fabfos source changed.
 
 ```bash
-fabfos --method-version      # 0.3.0+434c471
+fabfos --method-version      # 0.3.1+37a1d54
 fabfos --describe-method     # the full hashed document -- diff two to see WHICH part moved
-fabfos --require-method 0.3.0+434c471   # fail unless the live method matches
+fabfos --require-method 0.3.1+37a1d54   # fail unless the live method matches
 ```
+
+The `+hash` suffix moves whenever any hashed component does, and **staging counts**:
+the data library's index is one of the seven, so re-staging an artifact changes the
+method id even when no source file was touched. The id above is a snapshot at the
+tier-4 benchmark run, not a fixture — a pinned id in a document goes stale on the
+next `build_ref_library.py --place`, which is exactly what happened to the
+`0.3.0+434c471` this line used to carry (the live id had already drifted to
+`0.3.0+60b2513` before anyone looked).
 
 Stamping refuses while a container **on the method path** is unresolved. It is
 scoped to the path rather than all 44 records, because refusing over `stringtie`

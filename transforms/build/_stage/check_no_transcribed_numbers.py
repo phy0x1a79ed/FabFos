@@ -74,6 +74,11 @@ CANONICAL = [
     ("axis set (canon.AXIS_SET)", r"\bset4\b"),
     ("scorer name (canon.SCORER)", r"\bsig_mix\b"),
     ("CLEAN floor (canon.CLEAN_FLOOR)", r"(?<![\d.])0\.01(?![\d])"),
+    # CORRECTED 2026-07-20 (was the RETIRED grid 14,28,34,42,51). Listing the retired
+    # grid here INVERTED the gate: it flagged files transcribing the OLD values as
+    # canonical transcriptions, and never detected a transcription of the LIVE grid -- so
+    # a file hardcoding the real draw sizes passed silently, which is precisely what this
+    # checker exists to catch. The old pattern moved to RETIRED, where it belongs.
     ("draw sizes (canon.DRAW_SIZES)", r"14\s*,\s*25\s*,\s*30\s*,\s*35\s*,\s*43"),
     ("axis split (canon.AXES_PER_ELEMENT)", r"\b40\s*/\s*23\s*/\s*[79]\s*/\s*[79]\b"),
 ]
@@ -84,6 +89,9 @@ RETIRED = [
     ("retired scorer (canon.RETIRED_SCORERS)", r"\bsig_emp\b"),
     ("retired scorer (canon.RETIRED_SCORERS)", r"\bsig_negbin\b"),
     ("retired draw sizes (canon.RETIRED_DRAW_SIZES)", r"\{?\s*21\s*,\s*34\s*,\s*56\s*\}?"),
+    # Moved down from CANONICAL 2026-07-20. The pre-2026-07-18 grid; fir's committed
+    # manifest.txt and the pre-T1 e2e mirror still enumerate it, so it is worth detecting
+    # as a RETIRED transcription.
     ("retired draw sizes (canon.RETIRED_DRAW_SIZES)", r"14\s*,\s*28\s*,\s*34\s*,\s*42\s*,\s*51"),
     ("retired column (canon.SIG_STALE_COLUMNS)", r"\bmatched_N\b"),
 ]

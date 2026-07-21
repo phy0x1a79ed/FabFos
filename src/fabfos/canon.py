@@ -104,10 +104,23 @@ INCUMBENT_ROOT = Path(_os.environ.get(
     "/main/metabolic-modelling/04_reaction_network",
 ))
 INCUMBENT_CACHE = INCUMBENT_ROOT / "cache"
-# The hand-made byte-copy backup. The live cache carries retired draw sizes and
-# an un-suffixed draws file left by the overwrite incident, so the live cache is
-# never a safe source; this directory is. It is still not safe to GLOB -- it also
-# holds retired sizes. Curate by explicit list (see FROZEN_NULL_FILES).
+# The hand-made byte-copy backup.
+#
+# CORRECTED 2026-07-20 -- this used to read "the live cache is never a safe source; this
+# directory is." For the CURRENT draw grid that is stale AND inverted, and following it
+# silently narrows the null basis:
+#
+#   * K1000 holds ONLY retired sizes, every one stamped 2026-07-14. It has NONE of the
+#     live grid.
+#   * The live cache holds the whole live grid, written in one coherent run on 2026-07-18.
+#
+# So for DRAW_SIZES the live cache is both the only source and the internally consistent
+# one, and build_directed_null.py reading it is correct rather than the defect it looks
+# like. The one divergence, cache/N14 vs K1000/N14, is 1,000 of 4,000 rows confined
+# ENTIRELY to null style E (A/B/D byte-identical): old-E vs new-E, not corruption.
+#
+# NEITHER directory is safe to GLOB -- both mix live and retired sizes. Curate by explicit
+# list (see FROZEN_NULL_FILES) and read the grid from DRAW_SIZES.
 INCUMBENT_K1000 = INCUMBENT_CACHE / "K1000"
 ENGINE_LIB = Path(_os.environ.get(
     "FABFOS_ENGINE_LIB",
@@ -494,6 +507,27 @@ INSERTS_FNA = DATA / "fabfos_2026" / "putative_inserts.fna"
 # differ ONLY in the base and the comparison between them is about the host.
 ADDITION_WEIGHTS = (DATA / "fabfos_2026_199" / "ecspr_clean" / "evidence_network"
                     / "fosmid_addition_weights.pkl")
+
+# The per-(source, mnxr) conductances the HOST base is induced with -- the other half of
+# the pair above. It had no name here until 2026-07-20, and that absence was not
+# cosmetic: every other input moved to the 199-fosmid CLEAN basis while the weights kept
+# being hand-passed from the incumbent 04_reaction_network cache, because there was no
+# symbol to repoint. The frozen reference solve was therefore built from a MISMATCHED
+# pair -- CLEAN evidence naming the reactions, pre-CLEAN weights setting their
+# conductance -- which silently zeroed 4,688 CLEAN-nominated reactions and admitted 195
+# weight keys the evidence does not contain.
+#
+# The visible symptom was a carbon axis that appeared to lose its LCC endpoint "on the
+# honest graph", and it was misattributed to the graph twice -- first to the reference
+# promotion, then to the tier-4 promotion. It was neither. Rebuilding the base from
+# weights coherent with EVIDENCE_TABLE restores the axis on BOTH universes (C 40/40).
+# The atom-pair tier cannot do this: it revises edge WEIGHTS and leaves topology
+# identical, and reachability is topology.
+#
+# Regenerate with `ecspr_network.py weights --evidence <EVIDENCE_TABLE>`; it is a pure
+# function of the evidence table and carries its own conservation assertion.
+EVIDENCE_WEIGHTS = (DATA / "fabfos_2026_199" / "ecspr_clean" / "evidence_network"
+                    / "evidence_weights.parquet")
 
 # =====================================================================
 # Network A -- the curated-GEM host

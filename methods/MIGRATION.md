@@ -1,6 +1,6 @@
 # Migration — what is retired, and what replaced it
 
-The tombstone. This is the one file under `main/fabfos/` allowed to write a
+The tombstone. This is the one file in the method tree allowed to write a
 retired value as a literal, because a tombstone has to name its dead and a dead
 value cannot drift. Live basis values still may not appear here — import them
 from `canon.py` (see `README.md`).
@@ -66,10 +66,37 @@ frozen incumbent outputs (a check of the mixture-SF port, independent of which g
 is canonical), so that gate never went red.
 
 **Testability, not the axis set, shrank.** The axis *set* is unchanged (assert against
-`canon.AXES_JSON`, the graph-independent definition). On the honest graph one carbon
-axis (a phospholipid endpoint the star reached only through a fabricated transit) is no
-longer in the LCC, so `AXES_TESTABLE_JSON` is now a strict subset of the set — asserted
-by count against `AXES_JSON`, never against the testable subset.
+`canon.AXES_JSON`, the graph-independent definition). `AXES_TESTABLE_JSON` may be a
+strict subset of the set, so assert by count against `AXES_JSON`, never against the
+testable subset.
+
+> **RETRACTED 2026-07-20 — the attribution below was wrong, twice.** This paragraph used
+> to read: "On the honest graph one carbon axis (a phospholipid endpoint the star reached
+> only through a fabricated transit) is no longer in the LCC." That axis was **not** lost
+> to the honest graph. It was lost to a **stale `evidence_weights.parquet`**.
+>
+> `evidence_weights.parquet` was the only input on the method path with no canon symbol
+> and no library declaration, so when the basis moved to the CLEAN evidence table
+> nothing repointed it and it stayed pre-CLEAN. `build_base_graph` gates candidate
+> reactions on that file (`er = e_epi.get(r, 0.0); if er <= 0: continue`), so the stale
+> copy — not the evidence table — was setting the effective host universe: 5,499 epi300
+> reactions instead of 9,992, silently zeroing 4,688 CLEAN-nominated reactions.
+>
+> Rebuilding the host base from weights coherent with `EVIDENCE_TABLE` restores the axis
+> on **both** the old and the tier-4 universe: every carbon axis becomes testable, and
+> the testable total equals the full declared set (`canon.AXES_N`, split
+> `canon.AXES_PER_ELEMENT`).
+>
+> **The same axis was then misattributed a SECOND time**, to the tier-4 promotion, on the
+> strength of the frozen tier-3 solve reaching one fewer testable axis than the tier-4 one.
+> That inference is unsound: the two solves differ in *two* ways, and the tier is the
+> smaller one. The tier revises edge WEIGHTS and leaves topology identical (carbon
+> universe: 126,636 nodes / 362,482 edges on both tiers), while the host base was
+> rebuilt at the same time and roughly doubled in carbon nodes and edges.
+> Reachability is topology, so the tier cannot restore an axis. Now named as
+> `canon.EVIDENCE_WEIGHTS` precisely so an input can never again drift for want of a
+> name to repoint — and so the next person to see the testable count move has somewhere
+> to look first.
 
 **Gates that proved the move (all green before the commit):**
 

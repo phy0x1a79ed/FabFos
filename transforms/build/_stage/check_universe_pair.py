@@ -17,16 +17,25 @@ solve against a tier3 null and reported it as the tier4 result -- silently, beca
 
 WHAT IT CHECKS, in increasing order of sharpness:
 
-  1. Axis-id sets are identical between the observed report and every null file. This
-     is the coarse check, and on its own it is weak: tier3 and tier4 differ by exactly
-     ONE axis (tier4 restores a carbon axis whose endpoint tier3's graph could not
-     reach), so a future tier that happens to preserve the axis count would slip past.
-  2. Cell count is FOSMID_BASIS x n_axes exactly -- no dropped or duplicated cells.
+  1. Axis-id sets are identical between the observed report and every null file. Coarse,
+     and weak on its own: the frozen tier3 and tier4 solves differ by exactly ONE axis,
+     so a mismatched pair that happens to agree on axis count slips past.
+  2. The fosmid basis and the testable axis split are the declared ones.
   3. `g_base` agreement per axis. THIS is the real discriminator. `g_base` is the
      conductance of the HOST BASE GRAPH along an axis, before any fosmid addition or
-     null draw, so it is a pure function of the universe. The observed solver and the
-     null generator compute it by independent code paths, which is what makes agreement
-     informative rather than tautological.
+     null draw, so it is a pure function of the graph the run was built on. The observed
+     solver and the null generator compute it by independent code paths, which is what
+     makes agreement informative rather than tautological.
+
+WHAT "SAME UNIVERSE" MEANS HERE -- broader than the name suggests. The base graph is a
+function of BOTH the atom-pair universe and the host evidence weights, and this gate
+cannot separate them; it fails a pair that disagrees on either. That is the right
+behaviour (a solve and null must match on both) but do not read a failure as "wrong
+tier". Concretely, the frozen tier3 and tier4 solves differ in two ways at once: the tier
+(edge WEIGHTS only -- the carbon universe graph has identical topology, 126,636 nodes /
+362,482 edges on both) and a host-base rebuild from corrected evidence weights (carbon
+base roughly doubles in nodes and edges). The second dominates, and it is what moved the
+axis count. See reports/tier3_to_tier4_movement.md.
 
 THE THRESHOLD, and why it is honest. Measured, ieff, median relative deviation in
 `g_base` per axis:
@@ -121,11 +130,13 @@ def compare(lane: str) -> None:
     check(f"{lane}: covers canon.FOSMID_BASIS fosmids", n_fos == canon.FOSMID_BASIS,
           f"got {n_fos}, expected {canon.FOSMID_BASIS}")
 
-    # The testable axis split. Tier 4 restores the one carbon axis tier 3's graph could
-    # not reach, so the testable set is now EXACTLY the declared set -- which makes this
-    # equality a live tier discriminator, not a tautology. A tier 3 pair fails it on C
-    # (39 vs 40). If a future universe legitimately drops an axis again this check is the
-    # thing that must be consciously relaxed, and the failure will say which axis.
+    # The testable axis split. On the current canonical solve this is EXACTLY the declared
+    # set; the frozen tier-3 solve reached only 39 of 40 carbon axes, so this equality
+    # discriminates the two. Note what it does NOT tell you: the missing axis was lost to
+    # stale host evidence weights, not to the atom-pair tier (the tier does not change
+    # topology, and reachability is topology). If a future base legitimately cannot reach
+    # an axis, this is the check that must be consciously relaxed -- and the failure names
+    # which axis, which is the information needed to decide.
     per_el = obs_df.groupby("element")["axis_id"].nunique().to_dict()
     check(f"{lane}: testable axes == canon.AXES_PER_ELEMENT", per_el == canon.AXES_PER_ELEMENT,
           f"got {per_el}, expected {canon.AXES_PER_ELEMENT}")

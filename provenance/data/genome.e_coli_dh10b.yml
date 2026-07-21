@@ -7,10 +7,11 @@ type: ref::genome_bundle
 tier: external
 kind: external
 url: https://www.ncbi.nlm.nih.gov/datasets/
-bytes: 45818357
-sha256: tree-fd7287fd072bdd3fd2094c47be6d39ebeed2e39b8e3820f55da0f420e9cf50bf
-n_files: 11
+bytes: 46262735
+sha256: tree-e82f61511d7a8a9cff12f98e933db2a7cf3399424a4d68110c5647fa9e73d4a5
+n_files: 12
 files:
+  GCF_000019425.1_ASM1942v1_genomic.gff.gz: ac3a273e110a11e852243067fbbebd3f638b8737b632b2f50f4f0d29d271ef85
   annotations/dh10b.clean.tsv: 5bd684f8d35daf0eb80dbfc7d2f23fef19a50fac879ed141e3f71f0263398438
   annotations/dh10b.deepec.tsv: f02e2a1598672cb26c1479ff11395a6b6e1193cd81c43e72a384d369d49e6c61
   annotations/dh10b.ecpred.parquet: cdba560ca010d653e19dfd3e684bc69bcf814b5c1db86e671f38ea1cc0aefaf1

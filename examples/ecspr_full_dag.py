@@ -46,7 +46,7 @@ from fabfos import canon  # noqa: E402
 from fabfos.library import resolve_library_root  # noqa: E402
 
 from metasmith.python_api import (  # noqa: E402
-    Agent, DataInstanceLibrary, DataTypeLibrary, Runtime, Source,
+    Agent, ContainerRuntime, DataInstanceLibrary, DataTypeLibrary, Source,
     TargetBuilder, TransformInstanceLibrary,
 )
 
@@ -77,7 +77,15 @@ RN_CACHE = MM / "04_reaction_network" / "cache"
 
 FROM_INCUMBENT: dict[str, Path] = {
     "ecspr::metanetx_chem_prop": INCUMBENT / "references/metanetx/chem_prop.tsv",
-    "ecspr::biomass_axes": RN_CACHE / "biomass_dag_axes_set4.json",
+    # canon.AXES_JSON, NOT a hand-written filename. This used to name a retired
+    # axis set directly -- one that canon.RETIRED_AXIS_SETS lists and
+    # canon.assert_canonical_axes() rejects. The cache dir holds the canonical
+    # set and the retired ones side by side, so the wrong one is one typo away
+    # and nothing downstream would have complained.
+    "ecspr::biomass_axes": Path(canon.AXES_JSON),
+    # NOT `ecspr::direction_ratios` -- the benchmark-v3 side added it here as an
+    # incumbent absolute path, but it is already staged through the library above
+    # as REFERENCE_DIRECTION, which is the copy canon pins by sha256.
     "functional_annotation::ko_to_mnxr": MM / "_reference_try1/betweenness/cache/ko_to_mnxr.tsv",
     "functional_annotation::metanetx_reac_xref": INCUMBENT / "references/metanetx/reac_xref.tsv",
     "functional_annotation::rhea2uniprot": INCUMBENT / "references/rhea/rhea2uniprot.tsv",
@@ -166,9 +174,21 @@ def build_inputs(staging: Path) -> tuple[DataInstanceLibrary, list[str], list[st
     # scorer derives its draw sizes by listing this directory, so the list IS the
     # basis. Unlike the retired ecspr::frozen_null, this type HAS a producer
     # (ecsprGround/null.py) -- that missing producer was a named Known gap.
+    #
+    # NOT existence-checked here, unlike the frozen null this replaces: the ground
+    # null has a producer but has not been produced, so a check would hard-fail the
+    # example for everyone. The experiment spec's preflight is where a RUN refuses,
+    # naming the missing draw size rather than interpolating across it.
     nulls = curated_dir(staging, "ground_null", canon.ground_null_paths())
     inputs.AddItem(nulls, "ecspr::ground_null")
     via_library.append("ecspr::ground_null")
+
+    # ecspr::frozen_null was staged here until the star-lane retirement. Its
+    # lesson carries over and is why ground_null_paths() returns JOINED paths:
+    # canon.FROZEN_NULL_FILES were bare filenames, and passing them to
+    # symlink_to() unjoined produced ten links pointing at nothing. The planner
+    # resolves on TYPES rather than existence, so the plan rendered perfectly and
+    # the breakage only surfaced inside a scoring container.
 
     inputs.Save()
     return inputs, via_library, via_incumbent
@@ -191,7 +211,7 @@ def main() -> int:
     resources = [DataInstanceLibrary.Load(LIB / f"resources/{n}") for n in ("containers", "envs", "lib")]
     transforms = [TransformInstanceLibrary.Load(LIB / f"transforms/{d}") for d in DOMAINS]
 
-    agent = Agent(home=Source.FromLocal(staging / "agent_home"), runtime=Runtime.MAMBA, native=True)
+    agent = Agent(home=Source.FromLocal(staging / "agent_home"), runtime=ContainerRuntime.APPTAINER)
 
     print("=== planning ===")
     targets = TargetBuilder()

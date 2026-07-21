@@ -36,12 +36,24 @@ DOMAINS = [
     "ecsprUndirected",
     "ecsprNetA",
     "ecsprNetB",
+    # The benchmark lane PRODUCES no base graphs -- it CONSUMES
+    # `ecspr::benchmark_base_graphs`, a staged item of the frozen benchmark
+    # tree. (An earlier reading had it building them from X; X withholds the
+    # atom mapping on purpose, and the atom-transit count is both the edge
+    # weight and, via the w<=0 drop, the connectivity, so they are not
+    # derivable from X. See transforms/build/benchmark/NOTES.md.)
+    #
+    # It is still mutually exclusive with netA/netB, for the opposite reason:
+    # selecting it must DROP them, because on the benchmark the annotation
+    # chain that feeds `ecspr::base_graphs` is upstream of the freeze and must
+    # not be planned at all. A score has to measure the solver, not the lanes.
+    "ecsprBenchmark",
 ]
 
 # The ECSPr domains that must NOT both be offered to the planner in one run,
 # keyed by the selector that chooses between them. Consumed by pipeline.py.
 ECSPR_SOLVE_DOMAINS = {"directed": "ecsprDirected", "undirected": "ecsprUndirected"}
-ECSPR_NETWORK_DOMAINS = {"A": "ecsprNetA", "B": "ecsprNetB"}
+ECSPR_NETWORK_DOMAINS = {"A": "ecsprNetA", "B": "ecsprNetB", "benchmark": "ecsprBenchmark"}
 
 
 def domains_for(solve: str | None = None, network: str | None = None) -> list[str]:

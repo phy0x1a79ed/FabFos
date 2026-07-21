@@ -8,39 +8,10 @@ tier: external
 kind: external
 url: https://laser.jbei.org/
 note: the LASER engineering-outcome set; the GOF validation arm
-bytes: 19747197
-sha256: tree-7d0c908e3eba7e4da14080b731ecd48cdbc9596fe68d30eccd7beb8f3434521d
-n_files: 558
+bytes: 17066194
+sha256: tree-7ba33a097170ea7d138e2e8fdc0443c064f95dbdf7edba41538f25680998dbe9
+n_files: 530
 files:
-  .git/HEAD: f6f2b945f6c411b02ba3da9c7ace88dcf71b6af65ba2e0d89aa82900042b5a10
-  .git/config: 4c213a530ea5150c43843ffe5c89939011f964e028b14d6baad3781476a7682f
-  .git/config.worktree: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-  .git/description: 85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee
-  .git/gitdir: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-  .git/hooks/applypatch-msg.sample: 0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7
-  .git/hooks/commit-msg.sample: 1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437
-  .git/hooks/fsmonitor-watchman.sample: f3c0228d8e827f1c5260ac59fdd92c3d425c46e54711ef713c5a54ae0a4db2b4
-  .git/hooks/post-update.sample: 81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5
-  .git/hooks/pre-applypatch.sample: e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475
-  .git/hooks/pre-commit.sample: f9af7d95eb1231ecf2eba9770fedfa8d4797a12b02d7240e98d568201251244a
-  .git/hooks/pre-merge-commit.sample: d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53
-  .git/hooks/pre-push.sample: ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a
-  .git/hooks/pre-rebase.sample: 4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3
-  .git/hooks/pre-receive.sample: a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989
-  .git/hooks/prepare-commit-msg.sample: e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619
-  .git/hooks/push-to-checkout.sample: a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f
-  .git/hooks/update.sample: 8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106
-  .git/index: f0f4207ffe5c869308d0448e82d6c844367a4509def9aaacb905fcaaf85e720a
-  .git/info/exclude: 6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1
-  .git/logs/HEAD: 09cb2b5be073aa084360512e81dfed747851f6b8869ceb3501cf96ccb6802bc0
-  .git/logs/refs/heads/master: 09cb2b5be073aa084360512e81dfed747851f6b8869ceb3501cf96ccb6802bc0
-  .git/logs/refs/remotes/origin/HEAD: 09cb2b5be073aa084360512e81dfed747851f6b8869ceb3501cf96ccb6802bc0
-  .git/objects/pack/pack-bb5bfe3d582730bdb3f641a02854b6f7d079f995.idx: 696f6feccd52a0a6a2821e9ed54949ac8dca3edba580e8e2002dcd56ff9d2411
-  .git/objects/pack/pack-bb5bfe3d582730bdb3f641a02854b6f7d079f995.pack: d9f6db8125d5c0b9217b0e7cf1ae1a8f2e824452c3e3d93d66a0a21e73d47928
-  .git/packed-refs: 388b0c5b26292bca985358bb65746e9754ee3060da399ecb2e3b7b79ed46c49a
-  .git/refs/heads/master: 7a8c41e24d4e573a2e878e5107fd8ed13132a31ceab5fb3f8a33aa6c8ffda94e
-  .git/refs/remotes/origin/HEAD: cdc65e67690c4c6475174e5ec662b70655246a2f3924354778835ab3be70aa76
-  .git/shallow: 7a8c41e24d4e573a2e878e5107fd8ed13132a31ceab5fb3f8a33aa6c8ffda94e
   BiocycParser.py: 66366fc0aec75dd9f71852ec3087a5c8a5b83dcd82543682263fa9b0c35ad6e5
   ComplexityStatistics_New.py: 039c8bd57734fc58f78f01fd81d110c3cb145a1b6ea808db161cbf4bc44420c9
   CurationErrorDetector.py: 754bdfc4a43a0519a3ec9460aaa872ed67edc31cc7724feeee66935bfa5c2b59
@@ -49,6 +20,7 @@ files:
   GraphUtils.py: 684c4cb9a6222570fa9b0df8d76897a52b44f29ff68ed15d5542d2efd6806074
   MetEngDatabase.py: 224654ba12f3fc6a27640f86a868a1c1dd1b316cef0cf89609c3588cfb7878ac
   ModelLogger.py: c86a4166916344e7955ea3fb5e9a2c406939f8d4e8e546ffefa5c1ec894b22cb
+  PROVENANCE.md: fc3be2e2bbf82367cc272b8896761ea473873f6d4b442113845756e53c368439
   ProductAnnotator.py: dd87b646e4c1452c7a9e56c8ccc5e172394cfa3cb81a2de7fff57e8158db8aaa
   README.md: 348307d629ba451c26ce4a6677b73d72b037498b8fd8d74e405e7f44f59b2db0
   ReactionBuilder.py: ccaeacda5030eaa835677676afe7c9674e3bb7e49c10acad98ea8b3bdc65cc4c

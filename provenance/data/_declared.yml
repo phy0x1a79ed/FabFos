@@ -11,6 +11,12 @@
 #
 # `select` narrows a directory source. Without it a directory is taken whole.
 # `exclude` drops paths under it. Both are glob patterns relative to `src`.
+#
+# `src` is resolved against `defaults.data_root` when relative, taken as-is when
+# absolute, and against the REPO when it starts with `repo/`. Use the `repo/`
+# form for anything this repository itself produces: an absolute path would pin
+# the declaration to one checkout and read as MISSING in every other, including
+# after a merge.
 
 version: 1
 library: .awm/data/ref
@@ -369,20 +375,33 @@ items:
     type: ecspr::atom_pairs
     tier: derived
     kind: derived
-    producer: resources/lib/ecspr_atom_pairs.py + notes/build_tier4.py
+    producer: resources/lib/ecspr_atom_pairs.py + notes/build_tier4.py (curated increment)
     inputs: [metanetx.reac_prop, metanetx.chem_prop, metacyc26.flatfiles]
     determinism: reproducible
     note: >-
-      TIER 4 since 2026-07-20. The atom-atom mapping table, now the tier3
-      predicted table plus the STRICTLY ADDITIVE MetaCyc curated increment
-      (+105,891 pairs over 5,246 reactions). The `_tier4` suffix is on the
-      SOURCE only -- `dest` is unsuffixed, so every consumer keeps its path and
-      the tier is a property of the declaration, not of the filename a
-      consumer reads. The tier3 sibling (atom_pairs.parquet, sha 9e6d4347)
-      stays on disk as the comparison baseline. See
-      ecspr_reference/mnxref-4_5/TIER4_FREEZE.md for the freeze record and the
-      deliberate exclusions (the 15,539-reaction upgrade path, 954 refused,
-      11,389 unextracted) -- tier4 is the additive increment ONLY.
+      TIER 4 since 2026-07-20 (sha256 7b3b217f...): 2,455,235 pairs over 63,621
+      reactions. Tier 3 (the forsaken-tail recovery) plus a STRICTLY ADDITIVE
+      increment of curated MetaCyc atom maps -- 16,890 expert-assigned reaction
+      maps from atom-mappings-smiles.dat that nothing in this tree had ever read,
+      contributing +105,891 pairs over 5,246 reactions. Added rows carry
+      method=curated, source=metacyc_aam, confidence=1.0 and are the only rows
+      not derived from prediction.
+
+      Licensed by convergence, not by authority: 15,539 of these reactions
+      already existed in tier 3 with pairs derived independently by MCS+RXNMapper,
+      and the two agree at 98.6% molecule-level / 90.8% exact atom-to-atom. That
+      is what justifies trusting the 1,306 reactions where only MetaCyc has an
+      answer.
+
+      The `_tier4` suffix is on the SOURCE only -- `dest` is unsuffixed, so every
+      consumer keeps its path and the tier is a property of the declaration and
+      of the content hash, not of the filename a consumer reads. The tier3
+      sibling (atom_pairs.parquet, sha 9e6d4347) stays on disk as the comparison
+      baseline; before that this was tier 1 (56,090 resolved / 2,270 diluted /
+      25,436 refused of 83,796). See ecspr_reference/mnxref-4_5/TIER4_FREEZE.md
+      for the freeze record and the deliberate exclusions (the 15,539-reaction
+      upgrade path, 954 refused, 11,389 unextracted) -- tier4 is the additive
+      increment ONLY.
 
   - id: mnxref.direction
     src: ecspr_reference/mnxref-4_5/direction.parquet
@@ -432,14 +451,40 @@ items:
     type: ecspr::mnx_bipartite
     tier: derived
     kind: derived
-    producer: resources/lib/ecspr_atom_graph.py
+    producer: repo/transforms/build/reference/build_tier4_graph.py
     inputs: [mnxref.atom_pairs]
     determinism: reproducible
     note: >-
-      Per-element bipartite graphs mnx_bipartite_{C,N,P,S}.pkl. These are
-      plain networkx graphs of Python floats -- version-coupled to networkx,
-      NOT to numpy (the widely-repeated numpy-1.26 claim is false and was
-      checked).
+      Per-element bipartite graphs mnx_bipartite_{C,N,P,S}.pkl, built from the
+      TIER 4 atom-pair universe. These are plain networkx graphs of Python
+      floats -- version-coupled to networkx, NOT to numpy (the widely-repeated
+      numpy-1.26 claim is false and was checked).
+
+      PRODUCER CORRECTED 2026-07-20. This field previously read
+      `resources/lib/ecspr_atom_graph.py`, which is wrong: that module has no
+      main(), writes no pickle, and is the atom-vs-star measurement harness, a
+      different lane. The real producer has always been
+      fabfos/reference/build_atom_graph.py, retargeted by rebinding
+      reference.ATOM_PAIRS and reference.GRAPH_DIR. The mislabel had a cost --
+      notes/TIER4_FREEZE.md read it, concluded a transform harness was needed to
+      rebuild the graph, and left tier 4 frozen but unread for that reason.
+
+      Topology does not move between tiers: the skeleton is fixed at 126,636
+      nodes / 362,482 edges from reac_prop participation, and pairs that fall off
+      it are dropped, so a tier can never add a reaction. Weights move, and since
+      every consumer drops w_X <= 0, the effective universe moves with them.
+      Live w_X>0 edges here: C 189,846, N 121,027, S 32,738, P 86,833.
+
+      Measured against what this REPLACES, which is the point of the change: the
+      incumbent star graph had C 196,018 / N 128,286 / S 35,207 / P 91,961, and
+      shares only 79-84% of its edges with this one (Jaccard C 0.808, N 0.822,
+      S 0.836, P 0.792 -- 16-21% turnover). The star fabricated transits for
+      structureless stubs and gave atom-transit edges to non-molecules; this is
+      re-weighted from the frozen pair table instead.
+
+      Against tier 3 the change is small and strictly additive, which is the
+      freeze's own gate confirmed at graph level: C +506, N +307, S +137, P +170,
+      and ZERO edges lost in any element (Jaccard 0.996-0.998).
 
   # ------------------------------------------------------------------
   # RETIRED LANE (2026-07-20). The four records below declare the STAR
@@ -566,6 +611,87 @@ items:
       the per-MNXR forms).
 
   # ===================================================================
+  # derived/ -- the EVIDENCE BASIS the host base graph is induced from
+  # ===================================================================
+  # Declared 2026-07-20, and the reason is a defect rather than tidiness.
+  # evidence_weights.parquet was the ONLY input on the method path with no
+  # canon symbol and no declaration, so when the basis moved to the 199-fosmid
+  # CLEAN evidence nothing repointed it: it kept being hand-passed from
+  # 04_reaction_network/cache. The frozen reference solve was therefore built
+  # from a MISMATCHED pair -- CLEAN evidence naming the reactions, pre-CLEAN
+  # weights setting their conductance -- silently zeroing 4,688 CLEAN-nominated
+  # reactions. An input with no name is an input nothing can repoint, which is
+  # why all four members of the pair are declared together here.
+
+  - id: evidence.table
+    src: fabfos_2026_199/ecspr_clean/evidence_network/evidence_table_clean.parquet
+    dest: derived/evidence/evidence_table_clean.parquet
+    type: functional_annotation::evidence_table
+    tier: derived
+    kind: derived
+    producer: ecspr compile_evidence
+    inputs: [metanetx.reac_prop]
+    determinism: reproducible
+    note: >-
+      The compiled per-(source, orf, mnxr) evidence behind the canonical
+      199-fosmid CLEAN basis. A byte-identical copy sits in the incumbent
+      03_layer2_evidence/cache (md5 e27448a4...); this is the one canon names.
+
+  - id: evidence.weights
+    src: fabfos_2026_199/ecspr_clean/evidence_network/evidence_weights.parquet
+    dest: derived/evidence/evidence_weights.parquet
+    type: ecspr::evidence_weights
+    tier: derived
+    kind: derived
+    producer: resources/lib/ecspr_network.py weights
+    inputs: [evidence.table]
+    determinism: reproducible
+    note: >-
+      The per-(source, mnxr) conductances the HOST base is induced with:
+      40,204 rows over 3 sources, epi300 9,992 reactions. A pure function of
+      evidence.table, carrying its own belief-conservation assertion.
+
+      REGENERATED 2026-07-20 from the CLEAN evidence. The previous canonical
+      file (18,079 rows, epi300 5,499) does NOT reproduce from this evidence
+      table and is not a subset of what does -- it derives from the pre-CLEAN
+      fabfos_2026 evidence. Because build_base_graph gates candidate reactions
+      on this file (`er = e_epi.get(r, 0.0); if er <= 0: continue`), the stale
+      copy was setting the effective host universe, not the evidence table.
+      Fixing it moves the carbon lane to testable 40/40 -- the "one carbon axis
+      lost its LCC endpoint on the honest graph" in MIGRATION.md was this file,
+      not the graph.
+
+  - id: evidence.addition_weights
+    src: fabfos_2026_199/ecspr_clean/evidence_network/fosmid_addition_weights.pkl
+    dest: derived/evidence/fosmid_addition_weights.pkl
+    type: ecspr::addition_weights
+    tier: derived
+    kind: derived
+    producer: resources/lib/ecspr_network.py addition-weights
+    inputs: [evidence.table]
+    determinism: reproducible
+    note: >-
+      The reactions each fosmid injects onto the host base (contig -> mnxr -> E),
+      199 units. Verified to reproduce BIT-IDENTICALLY from evidence.table, which
+      is what localised the mismatch above to the host weights alone.
+
+  - id: axes.set4
+    src: /home/tony/agentic_workspace/projects/scadc/metabolic-modelling/main/metabolic-modelling/04_reaction_network/cache/biomass_dag_axes_set4.json
+    dest: derived/axes/biomass_dag_axes_set4.json
+    type: ecspr::biomass_axes
+    tier: derived
+    kind: derived
+    producer: hand-curated (the set4 axis definitions)
+    determinism: frozen
+    note: >-
+      The 79 biomass source->sink axis DEFINITIONS. Graph-INDEPENDENT: it is
+      set4 itself, so it is the same table regardless of which universe the
+      solve runs on -- assert canonical axes against THIS, never against the
+      testable subset. Absolute src: it still lives in the incumbent tree and
+      has no producer in this repo. One of the 12 absolute-path inputs the
+      README's Known gaps names; this closes four of them.
+
+  # ===================================================================
   # validation/ -- frozen expected outputs; gates read them, nothing writes
   # ===================================================================
 
@@ -621,3 +747,297 @@ items:
       matched a tier3 solve at 100% and the tier4 solve at 13%).
       The tier3 siblings under significance/ (and the *_undirected.bak beside
       them, pre-flip outputs) are retained there as the comparison baseline.
+
+  # ===================================================================
+  # validation/benchmark/v3 -- the X/Y benchmark, version 3
+  #
+  # A benchmark VERSION IS SELF-CONTAINED: everything needed to run and score
+  # v3 lands under one destination tree, so deleting v1 or v2 cannot break it.
+  # That is why the X, the contract shape, the ground truth and the baseline
+  # below are sourced from v1 and copied IN rather than referenced sideways.
+  #
+  # They are declared against `ecspr_benchmark/v1`, the FROZEN copy taken
+  # 2026-07-19 -- not `ecspr/benchmark/v1`, which is where the v1 builders
+  # still write. Verified different inodes. Placement is by hard link, so
+  # linking the live tree would let a builder re-run mutate the library
+  # through a shared inode with no gate firing.
+  #
+  # X is version-independent on purpose: it is the four NETWORK BUILDS, and v3
+  # revises the observations, not the networks. It already carries the
+  # per-reaction evidence weight E for all four builds, which is exactly why
+  # net B needs no annotation lane re-run and why this whole path runs under a
+  # plain container runtime.
+  # ===================================================================
+
+  - id: benchmark.v3.observations
+    src: ecspr_benchmark/v3
+    dest: validation/benchmark/v3/observations
+    type: ecspr::benchmark_observations
+    tier: validation
+    kind: derived
+    producer: external (fig-validate/main/ecspr/benchmark_v3)   # SLOT: ours at handover
+    inputs: [laser, keio]
+    determinism: reproducible
+    note: >-
+      548 measured perturbations: 382 gain-of-function (LASER strain records
+      plus 10 curated cases) and 166 loss-of-function (Keio deletions). A
+      curation pass over v2 that resolves gene->reaction mapping against
+      reaction chemistry rather than gene name alone; every call it makes is
+      committed in the decision tables declared below rather than buried in a
+      builder.
+      DIRECTION LIVES IN `measured`, NOT `expected`: the `expected` column is
+      blank for all 372 LASER strain rows and populated only for the 10 curated
+      cases. Distribution is 320 up / 3 down / 49 unknown, so 491 of the 548
+      carry a usable direction. Nearly all sign contrast in the benchmark comes
+      from the 166 uniformly-negative deletion conditions plus 3 strain rows --
+      the GOF arm is close to a pure "does this raise conductance toward its own
+      target more than elsewhere" test.
+      Its own CURATION.md states 387 observations; the file and README both say
+      382. The tables are right and the prose is stale.
+
+  - id: benchmark.v3.decisions
+    src: /home/tony/agentic_workspace/projects/scadc/fig-validate/main/ecspr/benchmark_v3
+    dest: validation/benchmark/v3/decisions
+    type: ecspr::benchmark_decisions
+    tier: validation
+    kind: derived
+    producer: hand-curated
+    determinism: manual
+    select: [host_lineage.tsv, gene_reaction_overrides.tsv]
+    note: >-
+      The two reviewable decision tables, which until now existed ONLY in the
+      builder checkout -- so the benchmark's judgement calls were not part of
+      the benchmark. host_lineage.tsv maps strain -> lineage -> GEM with a proxy
+      flag (81 v3 observations sit on a proxy GEM); gene_reaction_overrides.tsv
+      carries 157 hand-resolved gene -> reaction calls, each with its deciding
+      evidence. Staged as data because that is what makes them auditable.
+
+  - id: benchmark.v3.target_resolution
+    src: repo/transforms/build/benchmark/target_resolution.tsv
+    dest: validation/benchmark/v3/decisions/target_resolution.tsv
+    type: ecspr::benchmark_decisions
+    tier: validation
+    kind: derived
+    producer: transforms/build/benchmark/10_build_targets.py
+    inputs: [benchmark.v3.observations, metanetx.chem_prop, metanetx.chem_xref]
+    determinism: reproducible
+    note: >-
+      The third decision table, and the only one this repo produces: every
+      free-text target string in v3 resolved to a metabolite id, with the METHOD
+      that resolved it and the REASON beside each row. 274 raw strings -> 341
+      components; 124 land on a metabolite present in X.
+      The residual is mostly not a name-matching failure. 27 components resolve
+      in MetaNetX but lie OUTSIDE X -- catechin, lycopene, GFP and other
+      heterologous products of engineered strains, which ECSPr cannot score
+      because the network does not contain them. Others are compound classes
+      ("Carotenoids", "Biodiesel") with no single id to target. Both correctly
+      carry no target cell.
+      Ambiguity is refused, not guessed: a folded name matching more than one X
+      metabolite resolves to nothing and says so, because picking the first
+      would be a wrong target that scores as though it were right.
+      This table is an ENRICHMENT. A condition's target comes first from the
+      reactions it perturbs -- 380 of 382 GOF rows have a perturbed reaction in
+      X -- which is what keeps the arm scorable regardless of this coverage.
+
+  - id: benchmark.v3.inputs
+    src: ecspr_benchmark/v1/X
+    dest: validation/benchmark/v3/X
+    type: ecspr::benchmark_inputs
+    tier: validation
+    kind: derived
+    producer: 10_build_X.py
+    determinism: reproducible
+    note: >-
+      The frozen X, carried forward from v1 unchanged: the four builds
+      netA_iML1515 / netA_iECDH10B / netB_iML1515 / netB_iECDH10B, with
+      reactions (24,080), gpr (90,924), participants (51,793), metabolites
+      (9,787), crosswalk (7,064) and invariants. `invariants.tsv` contains one
+      check that FAILS, on purpose and documented -- do not "fix" it.
+
+  - id: benchmark.v3.contract
+    src: ecspr_benchmark/v1/Y
+    dest: validation/benchmark/v3/contract
+    type: ecspr::benchmark_answer_key
+    tier: validation
+    kind: derived
+    producer: 20_build_panel.py + 21_build_Y.py
+    inputs: [benchmark.v3.ground_truth]
+    determinism: reproducible
+    note: >-
+      v1's answer key, staged as the CONTRACT SHAPE -- the exact column sets the
+      frozen scorer reads (conditions 282, panel_anchors 49, panel_edges 2,084,
+      expectations 3,750 sparse). v3's own key is declared separately below and
+      lands in Y/; this is the reference for what that has to look like, and is
+      also what makes the v1-vs-v3 comparison meaningful.
+
+  - id: benchmark.v3.ground_truth
+    src: ecspr_benchmark/v1/ground_truth
+    dest: validation/benchmark/v3/ground_truth
+    type: ecspr::benchmark_ground_truth
+    tier: validation
+    kind: derived
+    producer: 70_build_phenotype_table.py
+    inputs: [keio, laser]
+    determinism: reproducible
+    note: >-
+      The upstream tables the answer key is DERIVED FROM: pheno_edges.tsv (the
+      auxotrophy product per deleted gene), lof_ground_truth.tsv (essentiality
+      on glucose minimal), conditions_manifest.tsv, and the curated gof_*.tsv
+      transplant sinks. Staged so v3 can rebuild its own key from SOURCE rather
+      than inheriting v1's conclusions -- deriving a v3 key from v1's key would
+      make the two agree by construction and prove nothing.
+      Carries v1's known internal inconsistency unrepaired: phenotype_table.tsv
+      has netA_fit / proxy_mnxm columns that no script writes.
+
+  - id: benchmark.v3.baseline
+    src: ecspr_benchmark/v1/baseline
+    dest: validation/benchmark/v3/baseline
+    type: ecspr::benchmark_baseline
+    tier: validation
+    kind: derived
+    producer: 40_baseline.py
+    determinism: reproducible
+    note: >-
+      v1's scored reference numbers (specificity / potency / essentiality), so a
+      v3 result has something to be read against. These are scorer OUTPUT. They
+      are typed apart from the answer key precisely so nothing can stage them
+      where a key belongs and leak scored numbers into the thing being scored.
+
+  - id: benchmark.v3.v1_provenance
+    src: ecspr_benchmark/v1
+    dest: validation/benchmark/v3/v1
+    type: ecspr::benchmark_provenance
+    tier: validation
+    kind: derived
+    producer: 50_audit.py
+    determinism: reproducible
+    select: [MANIFEST.tsv, PROVENANCE.md, README.md, _audit.json]
+    note: >-
+      v1's self-description, NESTED under v1/ rather than left at the tree root.
+      Placement builds one flat destination map and a key collision there is a
+      silent last-writer-wins, so two README.md landing at the same level would
+      quietly drop one. The nesting is what prevents that, not a filing
+      preference.
+
+  - id: benchmark.v3.base_graphs
+    src: ecspr_reference/mnxref-4_5/benchmark_tier4
+    dest: validation/benchmark/v3/base_graphs
+    type: ecspr::benchmark_base_graphs
+    tier: validation
+    kind: derived
+    producer: repo/transforms/build/reference/build_tier4_base_graphs.py (drives 60_build_netA_base.py + 62_build_netB_base.py)
+    inputs: [benchmark.v3.universe, benchmark.v3.inputs]
+    determinism: reproducible
+    select:
+      - netA_iML1515/base_*.pkl
+      - netA_iECDH10B/base_*.pkl
+      - netB_iML1515/base_*.pkl
+      - netB_iECDH10B/base_*.pkl
+    note: >-
+      The four facets x four elements of element-resolved bipartite graph that
+      the incumbent actually solves on. networkx.Graph, nodes ("rxn", mnxr) and
+      ("met", mnxm), one float edge attribute w_C / w_N / w_S / w_P. On net A
+      that weight is the raw atom-transit count; on net B it is the transit
+      count times the per-reaction evidence weight E_full.
+      DECLARED RATHER THAN COMPUTED, and this is the important part: these
+      CANNOT be rebuilt from X. X withholds the atom mapping on purpose -- its
+      own _provenance.json says "aam: WITHHELD -- the atom mapping is under
+      test" -- and the transit count is exactly what X does not ship. Formulas
+      and stoichiometry are not a substitute: a formula says which atoms a
+      metabolite CONTAINS, not how many it inherited from that reaction's other
+      participants, and `load_bipartite` deletes every w<=0 edge, so the atom
+      mapping fixes connectivity and LCC membership rather than only weights.
+      That is the benchmark working as designed. X withholds the AAM so an
+      independent implementation derives its OWN; these graphs are the
+      incumbent's answer to that, which is why they are an INPUT to scoring the
+      incumbent and never part of X.
+      They are network construction, not ECSPr output. The independence audit's
+      forbidden-token list already draws that line and it must stay drawn --
+      the panel's anchor liveness gate re-measures every anchor in each facet's
+      largest connected component and cannot run without these.
+
+  - id: benchmark.v3.universe
+    src: ecspr_reference/mnxref-4_5/graph_tier4
+    dest: validation/benchmark/v3/universe
+    type: ecspr::benchmark_universe
+    tier: validation
+    kind: derived
+    producer: repo/transforms/build/reference/build_tier4_graph.py
+    inputs: [mnxref.atom_pairs]
+    determinism: reproducible
+    select: [mnx_bipartite_C.pkl, mnx_bipartite_N.pkl, mnx_bipartite_S.pkl, mnx_bipartite_P.pkl]
+    note: >-
+      The atom-mapped MetaNetX universe, per element, from which every base
+      graph above is induced. Four elements; the benchmark scores C/N/S/P only.
+      Staged because the GOF arm needs it at SOLVE time, not just at build time:
+      `base_plus_reactions` re-reads the universe to find the reactions a
+      condition inserts, so a GOF perturbation cannot be applied without it. A
+      tree holding base graphs but no universe would build and then fail on the
+      first of the 382 gain-of-function conditions.
+
+      REPOINTED TO TIER 4, 2026-07-20. This previously resolved to
+      04_reaction_network/cache -- the incumbent STAR graph, dated 13 June,
+      weighted from aam_unified_expanded.tsv. That is the graph
+      build_atom_graph.py's docstring indicts for fabricating transits for
+      structureless stubs, giving atom-transit edges to non-molecules that carry
+      no atom, and treating pseudo-reactions as chemistry. It was never any tier
+      of the honest reference lane; it predates all four.
+
+      So the benchmark's headline result (specificity AUC 0.83-0.92, recorded in
+      reports/benchmark_v3_result.md) was scored against a universe the method
+      itself had disowned. That report is kept and annotated rather than deleted.
+
+      This is a two-generation jump, not one, and it is the substantive change:
+      16-21% of the edge set turns over per element (Jaccard C 0.808, N 0.822,
+      S 0.836, P 0.792). By comparison tier 3 -> tier 4 moves 0.2-0.4%. Anyone
+      attributing an AUC shift to "adopting tier 4" should read those two numbers
+      together -- this run is far more about abandoning the star.
+
+      CONSEQUENCE: the frozen v3 answer key was derived under the star universe
+      and is re-frozen alongside it, not overwritten. Y itself is NOT circular --
+      21_build_Y_v3.py reads no ECSPr output, enforced by 50_audit_v3.py -- but
+      it is not universe-INVARIANT either: it reads panel_edges.tsv, whose anchors
+      are re-gated live against these graphs. Condition coverage must therefore be
+      compared across universes before any AUC delta is quoted.
+
+  - id: benchmark.v3.provenance
+    src: repo/transforms/build/benchmark/v3_build
+    dest: validation/benchmark/v3/provenance
+    type: ecspr::benchmark_provenance
+    tier: validation
+    kind: derived
+    producer: transforms/build/benchmark/50_audit_v3.py
+    inputs: [benchmark.v3.answer_key, benchmark.v3.inputs]
+    determinism: reproducible
+    select: [MANIFEST.tsv, _audit.json]
+    note: >-
+      v3's own self-description: a per-file sha256 manifest over X and Y, and
+      the result of the four freeze gates. The FREEZE IS THE REWARD FOR THE
+      GATES PASSING -- 50_audit_v3.py exits nonzero and writes no pass record if
+      any gate fails, so a manifest existing is itself the evidence.
+      Gate 4 is new in v3: answer-key precedence, which refuses to freeze if
+      solve output is already present in the tree. That is the one ordering
+      error no amount of care inside the builders can catch, because a key
+      authored after seeing results looks identical to one authored before.
+
+  - id: benchmark.v3.answer_key
+    src: repo/transforms/build/benchmark/v3_build/Y
+    dest: validation/benchmark/v3/Y
+    type: ecspr::benchmark_answer_key
+    tier: validation
+    kind: derived
+    producer: transforms/build/benchmark/ (v3 fork of 20_build_panel.py + 21_build_Y.py)
+    inputs: [benchmark.v3.ground_truth, benchmark.v3.observations, benchmark.v3.decisions]
+    determinism: reproducible
+    degraded_mode: >-
+      Without this, v3 has observations but no expectations, so the scorer has
+      nothing to score against: directional specificity and the essentiality
+      diagnostic both return empty and no validation result can be produced.
+      The v1 contract staged at contract/ still documents the required shape,
+      and v1 remains fully scorable, so the failure is a refusal rather than a
+      wrong number.
+    note: >-
+      DECLARED BEFORE IT EXISTS, deliberately. The gap is then visible in the
+      provenance gate now, rather than discovered at score time as a confusing
+      empty join. Filled by the v3 answer-key build; frozen and hashed BEFORE
+      any solve runs, which is the property that makes it an answer key at all.

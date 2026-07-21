@@ -8,9 +8,18 @@ are given, a vector pool-size estimate, orthogonal end-sequence tags, and the
 ECSPr metabolic graph. Target lineage pins downstream products to the
 deduplicated contigs (so ORF annotation runs on them, not the raw assembly)
 and forces host filtering when a background genome is supplied. Execution is
-optional and runs under the chosen runtime; the default runtime is MAMBA so a
-conda/mamba install of FabFos is self-contained — each tool runs via
-``mamba run -n <env>`` with no container relay.
+optional and runs under the chosen container runtime; the default is APPTAINER,
+which is what the cluster provides.
+
+Note on the conda lane: an earlier revision defaulted to a ``Runtime.MAMBA``
+that launched each tool as ``mamba run -n <env>``. That enum lives on an
+*unmerged* engine branch and is absent from the pinned metasmith, so it is not
+selectable here. The consequence is real and worth stating: the three fosmid
+transforms that carry ``envs::*.condaenv`` (``orfcall_inserts``, ``kofam_lane``,
+``uniref_lane``) cannot run on the pinned engine, because under a container
+runtime the env file's *contents* are handed over as an image URI. The ECSPr
+benchmark path does not touch any of them — its network comes pre-weighted from
+the frozen benchmark inputs — which is why it runs here unaffected.
 """
 from __future__ import annotations
 
@@ -23,7 +32,7 @@ from pathlib import Path
 from metasmith.python_api import (
     Agent,
     Source,
-    Runtime,
+    ContainerRuntime,
     DataTypeLibrary,
     DataInstanceLibrary,
     TransformInstanceLibrary,
@@ -33,7 +42,7 @@ from metasmith.python_api import (
     Duration,
 )
 
-from .library import resolve_library_root, DOMAINS
+from .library import resolve_library_root, domains_for
 
 
 @dataclass
@@ -47,8 +56,13 @@ class FabFosInputs:
     end_forward: Path | None = None
     end_reverse: Path | None = None
     ends_facing: bool = False
-    runtime: Runtime = Runtime.MAMBA
+    runtime: ContainerRuntime = ContainerRuntime.APPTAINER
     threads: int = 8
+    # Which ECSPr lanes to offer the planner. Both members of each pair produce
+    # the same type, so handing over both would let the planner pick by
+    # tiebreak; these make the choice explicit. None == do not offer that lane.
+    solve_lane: str | None = None       # "directed" | "undirected"
+    network_lane: str | None = None     # "A" | "B" | "benchmark"
     # ECSPr prerequisite: also build the per-fosmid bipartite metabolic graphs.
     # Requires the bundled/host reference inputs below.
     ecspr: bool = False
@@ -160,17 +174,15 @@ def generate_workflow(inp: FabFosInputs, staging: Path):
     lib_root = resolve_library_root()
     samples, res = build_inputs(inp, staging, lib_root)
     resources = [DataInstanceLibrary.Load(lib_root / f"resources/{n}") for n in ("containers", "lib")]
-    transforms = [TransformInstanceLibrary.Load(lib_root / f"transforms/{d}") for d in DOMAINS]
-    # Under MAMBA, metasmith itself runs from the active conda env (the
-    # `fabfos` env that ships the planner/executor), so the agent is `native`:
-    # no container wrapper around metasmith, no relay. Tools still launch via
-    # `mamba run -n <env>` (that is decided per-tool from the *.env.yml, not by
-    # the agent's native flag). The container runtimes keep the default
-    # (non-native) container deploy.
+    # Lane selection is a caller's decision, not a planner tiebreak: each ECSPr
+    # pair has two members producing the same type, so `domains_for` drops the
+    # ones not asked for. Handing over the full DOMAINS list (as this did) let
+    # the planner resolve the duplicate silently.
+    domains = domains_for(solve=inp.solve_lane, network=inp.network_lane)
+    transforms = [TransformInstanceLibrary.Load(lib_root / f"transforms/{d}") for d in domains]
     agent = Agent(
         home=Source.FromLocal(staging / "agent_home"),
         runtime=inp.runtime,
-        native=(inp.runtime == Runtime.MAMBA),
     )
     task = agent.GenerateWorkflow(
         samples=samples.AsSamples("sequences::read_metadata"),
@@ -210,18 +222,13 @@ def run_pipeline(inp: FabFosInputs, *, provision: bool = True) -> Path:
     agent, task = generate_workflow(inp, staging)
     assert task.ok, "FabFos workflow generation failed; see planner hints above"
 
-    # Under MAMBA each tool runs as `mamba run -n <env>`; those envs must exist
-    # before the workflow launches (unlike containers, which materialize on
-    # first `docker run`). Stand up any missing per-tool envs from the library's
-    # *.env.yml specs. Idempotent: existing envs are left untouched.
-    if provision and inp.runtime == Runtime.MAMBA:
-        from .provision import provision_tool_environments
-        rep = provision_tool_environments(resolve_library_root())
-        if rep.failed:
-            raise RuntimeError(
-                f"tool-environment provisioning failed for {[n for n, _ in rep.failed]}; "
-                f"created={rep.created} skipped={rep.skipped}"
-            )
+    # No provisioning step: every runtime selectable on the pinned engine is a
+    # container runtime, and containers materialize on first run. The per-tool
+    # mamba envs only mattered under the MAMBA runtime that this engine does not
+    # publish. `--provision-only` still stands them up explicitly for anyone
+    # driving those tools by hand; `provision` is kept in the signature so
+    # callers passing it keep working.
+    del provision
 
     agent.Deploy()
     agent.StageWorkflow(task, on_exist="clear")

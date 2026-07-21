@@ -10,7 +10,12 @@ import re
 from pathlib import Path
 
 SRC = Path("/home/tony/agentic_workspace/projects/scadc/fig-model/main/fabfos/canon.py")
-DST = Path("/home/tony/agentic_workspace/projects/fabfos/scadc/src/fabfos/canon.py")
+# Repo-relative, NOT an absolute path to one checkout. This used to name
+# .../projects/fabfos/scadc/src/fabfos/canon.py directly, so running the
+# generator from any other worktree silently regenerated a DIFFERENT checkout's
+# canon and left the current one untouched -- the exact class of drift this
+# script exists to end. make_canon.py lives at transforms/build/_stage/.
+DST = Path(__file__).resolve().parents[3] / "src" / "fabfos" / "canon.py"
 
 text = SRC.read_text()
 
@@ -101,10 +106,27 @@ def _manifest() -> dict:
         if not index.exists():
             raise CanonError(f"library at [{root}] has no _metadata/index.yml")
         raw = yaml.safe_load(index.open()) or {}
-        man = raw.get("manifest", {})
+        # index.yml IS the manifest -- a flat `path: type` mapping written in
+        # YAML's explicit-key form. It has no `manifest:` wrapper, so asking
+        # for one yields {} and every symbol then fails as "not in the
+        # manifest", pointing at the declaration instead of at this reader.
+        # Accept the wrapper if a future writer adds one; otherwise take the
+        # document itself.
+        man = raw.get("manifest", raw) if isinstance(raw, dict) else {}
         _manifest_cache = {
-            k: (v["type"] if isinstance(v, dict) else v) for k, v in man.items()
+            str(k): (v["type"] if isinstance(v, dict) else v)
+            for k, v in man.items()
         }
+    # An EMPTY manifest is a broken read, never a legitimately empty library:
+    # every caller is asking for a path that must exist. Failing here names the
+    # real fault; failing later names an innocent symbol.
+    if not _manifest_cache:
+        raise CanonError(
+            f"library at [{root}] resolved an EMPTY manifest. The library is "
+            f"not built, or _metadata/index.yml is not in the expected "
+            f"`path: type` form. This is a reader/library fault, not a bad "
+            f"symbol -- do not chase the declaration."
+        )
     return _manifest_cache
 
 
@@ -162,6 +184,37 @@ _PATHS: dict[str, str] = {
     # absolute path while every test still passed.
     "BIPARTITE_DIR":               "derived/mnxref-4_5/graph",
     "SOLVE_BASE_DIR":              "derived/mnxref-4_5/solve",
+    # ---- the evidence basis ----
+    # These four were the last inputs on the method path still resolving to
+    # absolute paths in the incumbent tree. EVIDENCE_WEIGHTS is the one that
+    # cost something: with no symbol here, it could not be repointed when the
+    # basis moved to the CLEAN evidence at canon.FOSMID_BASIS, so it silently stayed
+    # pre-CLEAN and set the effective host universe. See evidence.weights in
+    # _declared.yml. A symbol that does not exist upstream cannot be rewritten
+    # by this table, which is why canon.py had to name it first.
+    "EVIDENCE_TABLE":              "derived/evidence/evidence_table_clean.parquet",
+    "EVIDENCE_WEIGHTS":            "derived/evidence/evidence_weights.parquet",
+    "ADDITION_WEIGHTS":            "derived/evidence/fosmid_addition_weights.pkl",
+    "AXES_JSON":                   "derived/axes/biomass_dag_axes_set4.json",
+    # ---- the X/Y benchmark, v3 ----
+    # One SELF-CONTAINED tree: X, the contract shape, the ground truth the key
+    # is derived from, the baseline and v1's provenance all live inside v3, so
+    # deleting a sibling version cannot break this one. BENCH_V3_Y is the
+    # answer key and is declared MISSING until the v3 key is built and frozen;
+    # touching it before then raises CanonError naming the symbol, which is the
+    # intended refusal -- scoring against an absent key must never quietly
+    # produce an empty result.
+    "BENCH_V3_ROOT":               "validation/benchmark/v3",
+    "BENCH_V3_OBSERVATIONS":       "validation/benchmark/v3/observations",
+    "BENCH_V3_DECISIONS":          "validation/benchmark/v3/decisions",
+    "BENCH_V3_X":                  "validation/benchmark/v3/X",
+    "BENCH_V3_CONTRACT":           "validation/benchmark/v3/contract",
+    "BENCH_V3_GROUND_TRUTH":       "validation/benchmark/v3/ground_truth",
+    "BENCH_V3_BASELINE":           "validation/benchmark/v3/baseline",
+    "BENCH_V3_V1_PROVENANCE":      "validation/benchmark/v3/v1",
+    "BENCH_V3_BASE_GRAPHS":        "validation/benchmark/v3/base_graphs",
+    "BENCH_V3_UNIVERSE":           "validation/benchmark/v3/universe",
+    "BENCH_V3_Y":                  "validation/benchmark/v3/Y",
 }
 
 # Declared, but absent from every machine we have looked at. Named so the
@@ -214,20 +267,58 @@ shadowed = set(re.findall(r"^(\w+)\s*=", HEADER, re.M)) | set(
 names = set(re.findall(r'^\s*"(\w+)":', HEADER, re.M))
 names |= {"REFERENCE_NULL_DIR", "DIR_METACYC_PGDB", "DIR_ECOCYC_PGDB"}
 
-out_lines, skipping = [], False
+def _delta(s: str) -> int:
+    """Net bracket depth contributed by a line, ignoring brackets in strings.
+
+    Continuation used to be detected as `line.endswith("(")`, which only sees
+    an assignment that opens a bracket and immediately wraps. A wrap in the
+    MIDDLE of the expression -- `X = (DATA / "a" / "b"` then `/ "c.parquet")`,
+    the form every evidence-basis symbol is written in -- ends on a quote, so
+    the opening line got commented out and its continuation was emitted bare,
+    producing an IndentationError in the generated canon. Depth-tracking is the
+    only version that does not depend on how the source happens to be wrapped.
+    """
+    depth, quote, i = 0, None, 0
+    while i < len(s):
+        c = s[i]
+        if quote:
+            if c == "\\":
+                i += 2
+                continue
+            if s.startswith(quote, i):
+                i += len(quote)
+                quote = None
+                continue
+        elif c in "\"'":
+            for q in (c * 3, c):
+                if s.startswith(q, i):
+                    quote = q
+                    i += len(q)
+                    break
+            continue
+        elif c == "#":
+            break
+        elif c in "([{":
+            depth += 1
+        elif c in ")]}":
+            depth -= 1
+        i += 1
+    return depth
+
+
+out_lines, depth = [], 0
 for line in text.split("\n"):
+    if depth > 0:                      # inside a neutralised assignment
+        out_lines.append("# " + line)
+        depth += _delta(line)
+        continue
     m = re.match(r"^([A-Z_][A-Z0-9_]*)\s*=", line)
     if m and m.group(1) in names:
-        indent = "# "
         out_lines.append(f"# [resolved through the library] {line.strip()[:100]}")
-        skipping = line.rstrip().endswith(("(", "["))
-        continue
-    if skipping:
-        out_lines.append("# " + line)
-        if line.rstrip().endswith((")", "]")):
-            skipping = False
+        depth = _delta(line)
         continue
     out_lines.append(line)
+assert depth == 0, f"unbalanced brackets while neutralising canon (depth {depth})"
 text = "\n".join(out_lines)
 
 DST.write_text(text)

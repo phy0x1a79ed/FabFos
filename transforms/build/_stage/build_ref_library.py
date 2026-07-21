@@ -103,9 +103,18 @@ def build_plan(decl: dict) -> tuple[list[dict], list[dict]]:
         if item.get("status") == "MISSING" or item.get("src") is None:
             missing.append(item)
             continue
-        src = Path(item["src"])
-        if not src.is_absolute():
-            src = root / src
+        raw_src = str(item["src"])
+        # `repo/...` resolves against the REPO, not the data root. Needed the
+        # moment the repo itself produces a declared item (the benchmark's
+        # target-resolution table is the first). An absolute path would pin the
+        # declaration to one checkout, so it would resolve in the worktree that
+        # wrote it and be MISSING everywhere else -- including after a merge.
+        if raw_src.startswith("repo/"):
+            src = REPO / raw_src[len("repo/"):]
+        else:
+            src = Path(raw_src)
+            if not src.is_absolute():
+                src = root / src
         if not src.exists():
             missing.append({**item, "_reason": f"declared source does not exist: {src}"})
             continue
@@ -309,7 +318,14 @@ def phase_index(decl: dict, lib_path: Path) -> int:
     from fabfos.library import resolve_library_root  # noqa: E402
 
     types_root = resolve_library_root() / "data_types"
-    for ns in ("ecspr", "ref"):
+    # functional_annotation joined 2026-07-20 with the evidence-basis items.
+    # It is not optional and not cosmetic: nine on-path transforms declare their
+    # evidence requirement as `functional_annotation::evidence_table`, and
+    # metasmith matches endpoints by namespace-qualified type, so typing the
+    # staged table into any other namespace would leave those requirements
+    # unsatisfiable -- or, worse, satisfiable by a same-named type with
+    # different text, which is a wrong join rather than an error.
+    for ns in ("ecspr", "ref", "functional_annotation"):
         lib.AddTypeLibrary(types_root / f"{ns}.yml", namespace=ns)
 
     by_id = {}

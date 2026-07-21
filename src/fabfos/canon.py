@@ -159,10 +159,27 @@ def _manifest() -> dict:
         if not index.exists():
             raise CanonError(f"library at [{root}] has no _metadata/index.yml")
         raw = yaml.safe_load(index.open()) or {}
-        man = raw.get("manifest", {})
+        # index.yml IS the manifest -- a flat `path: type` mapping written in
+        # YAML's explicit-key form. It has no `manifest:` wrapper, so asking
+        # for one yields {} and every symbol then fails as "not in the
+        # manifest", pointing at the declaration instead of at this reader.
+        # Accept the wrapper if a future writer adds one; otherwise take the
+        # document itself.
+        man = raw.get("manifest", raw) if isinstance(raw, dict) else {}
         _manifest_cache = {
-            k: (v["type"] if isinstance(v, dict) else v) for k, v in man.items()
+            str(k): (v["type"] if isinstance(v, dict) else v)
+            for k, v in man.items()
         }
+    # An EMPTY manifest is a broken read, never a legitimately empty library:
+    # every caller is asking for a path that must exist. Failing here names the
+    # real fault; failing later names an innocent symbol.
+    if not _manifest_cache:
+        raise CanonError(
+            f"library at [{root}] resolved an EMPTY manifest. The library is "
+            f"not built, or _metadata/index.yml is not in the expected "
+            f"`path: type` form. This is a reader/library fault, not a bad "
+            f"symbol -- do not chase the declaration."
+        )
     return _manifest_cache
 
 
@@ -226,6 +243,37 @@ _PATHS: dict[str, str] = {
     # absolute path while every test still passed.
     "BIPARTITE_DIR":               "derived/mnxref-4_5/graph",
     "SOLVE_BASE_DIR":              "derived/mnxref-4_5/solve",
+    # ---- the evidence basis ----
+    # These four were the last inputs on the method path still resolving to
+    # absolute paths in the incumbent tree. EVIDENCE_WEIGHTS is the one that
+    # cost something: with no symbol here, it could not be repointed when the
+    # basis moved to the 199-fosmid CLEAN evidence, so it silently stayed
+    # pre-CLEAN and set the effective host universe. See evidence.weights in
+    # _declared.yml. A symbol that does not exist upstream cannot be rewritten
+    # by this table, which is why canon.py had to name it first.
+    "EVIDENCE_TABLE":              "derived/evidence/evidence_table_clean.parquet",
+    "EVIDENCE_WEIGHTS":            "derived/evidence/evidence_weights.parquet",
+    "ADDITION_WEIGHTS":            "derived/evidence/fosmid_addition_weights.pkl",
+    "AXES_JSON":                   "derived/axes/biomass_dag_axes_set4.json",
+    # ---- the X/Y benchmark, v3 ----
+    # One SELF-CONTAINED tree: X, the contract shape, the ground truth the key
+    # is derived from, the baseline and v1's provenance all live inside v3, so
+    # deleting a sibling version cannot break this one. BENCH_V3_Y is the
+    # answer key and is declared MISSING until the v3 key is built and frozen;
+    # touching it before then raises CanonError naming the symbol, which is the
+    # intended refusal -- scoring against an absent key must never quietly
+    # produce an empty result.
+    "BENCH_V3_ROOT":               "validation/benchmark/v3",
+    "BENCH_V3_OBSERVATIONS":       "validation/benchmark/v3/observations",
+    "BENCH_V3_DECISIONS":          "validation/benchmark/v3/decisions",
+    "BENCH_V3_X":                  "validation/benchmark/v3/X",
+    "BENCH_V3_CONTRACT":           "validation/benchmark/v3/contract",
+    "BENCH_V3_GROUND_TRUTH":       "validation/benchmark/v3/ground_truth",
+    "BENCH_V3_BASELINE":           "validation/benchmark/v3/baseline",
+    "BENCH_V3_V1_PROVENANCE":      "validation/benchmark/v3/v1",
+    "BENCH_V3_BASE_GRAPHS":        "validation/benchmark/v3/base_graphs",
+    "BENCH_V3_UNIVERSE":           "validation/benchmark/v3/universe",
+    "BENCH_V3_Y":                  "validation/benchmark/v3/Y",
 }
 
 # Declared, but absent from every machine we have looked at. Named so the
@@ -485,13 +533,19 @@ RETIRED_AXIS_SETS = ("set2", "set2cat")
 # The axis DEFINITIONS (source/sink species per axis). Graph-INDEPENDENT: it is set4
 # itself, so it is exactly AXES_N regardless of which graph the solve runs on. Assert
 # canonical axes against THIS.
-AXES_JSON = INCUMBENT_CACHE / f"biomass_dag_axes_{AXIS_SET}.json"
+# [resolved through the library] AXES_JSON = INCUMBENT_CACHE / f"biomass_dag_axes_{AXIS_SET}.json"
 # The TESTABLE subset: which of the AXES_JSON axes have both endpoints in the solve
-# graph's LCC. Graph-DEPENDENT, so it moves with the canonical graph -- on the honest
-# reference graph one carbon axis (a phospholipid endpoint the star reached only via a
-# fabricated transit) is no longer testable, so this is a strict subset of set4 and is
+# graph's LCC. Graph-DEPENDENT, so it may move with the canonical graph, and it is
 # NOT asserted equal to AXES_PER_ELEMENT. It lives beside the reference solve it
 # describes.
+#
+# CORRECTED 2026-07-20. This comment used to state that on the honest reference
+# graph one carbon axis (a phospholipid endpoint the star reached only via a
+# fabricated transit) is no longer testable, i.e. 39/40. That attribution was
+# wrong and the same claim is repeated in MIGRATION.md. The axis was lost to the
+# STALE EVIDENCE_WEIGHTS, not to the graph: rebuilding the host base from weights
+# coherent with EVIDENCE_TABLE restores it on BOTH the old and tier-4 universes
+# (C 40/40, total 79/79). Tier 4 does not move the testable set at all.
 # [resolved through the library] AXES_TESTABLE_JSON = REFERENCE_SOLVE_DIR / "axes_testable.json"
 AXES_N = 79
 AXES_PER_ELEMENT = {"C": 40, "N": 23, "S": 7, "P": 9}
@@ -505,8 +559,8 @@ CLEAN_FLOOR = 0.01   # F1-optimal; CLEAN does not abstain, so an unguarded lane 
 # Two byte-identical copies exist -- one in the code tree, one here in the data
 # tree. Prefer this one: data belongs in the data tree, and a pipeline input read
 # out of a code checkout is the same inversion as the axis table below.
-EVIDENCE_TABLE = (DATA / "fabfos_2026_199" / "ecspr_clean" / "evidence_network"
-                  / "evidence_table_clean.parquet")
+# [resolved through the library] EVIDENCE_TABLE = (DATA / "fabfos_2026_199" / "ecspr_clean" / "evidence_network"
+#                   / "evidence_table_clean.parquet")
 
 # The nucleotide basis. Note the filename does NOT record the count -- the sibling
 # that does is the retired subset. Assert the count; do not read the name.
@@ -515,8 +569,23 @@ INSERTS_FNA = DATA / "fabfos_2026" / "putative_inserts.fna"
 # The reactions each fosmid injects onto the host base. Derived from the evidence
 # table; staged rather than recomputed, so that a Network A run and a Network B run
 # differ ONLY in the base and the comparison between them is about the host.
-ADDITION_WEIGHTS = (DATA / "fabfos_2026_199" / "ecspr_clean" / "evidence_network"
-                    / "fosmid_addition_weights.pkl")
+# [resolved through the library] ADDITION_WEIGHTS = (DATA / "fabfos_2026_199" / "ecspr_clean" / "evidence_network"
+#                     / "fosmid_addition_weights.pkl")
+
+# The per-(source, mnxr) conductances the HOST base is induced with -- the other
+# half of the pair above. It had no name here until 2026-07-20, and that absence
+# was not cosmetic: every other input moved to the 199-fosmid CLEAN basis while
+# the weights kept being hand-passed from the incumbent 04_reaction_network cache,
+# because there was no symbol to repoint. The frozen reference solve was therefore
+# built from a MISMATCHED pair -- CLEAN evidence naming the reactions, pre-CLEAN
+# weights setting their conductance -- which silently zeroed 4,688 CLEAN-nominated
+# reactions and admitted 195 weight keys the evidence does not contain. The
+# visible symptom was a carbon axis that appeared to lose its LCC endpoint "on the
+# honest graph" (MIGRATION.md); it was the stale weights, not the graph.
+# Regenerate with `ecspr_network.py weights --evidence <EVIDENCE_TABLE>`; it is a
+# pure function of the evidence table and carries its own conservation assertion.
+# [resolved through the library] EVIDENCE_WEIGHTS = (DATA / "fabfos_2026_199" / "ecspr_clean" / "evidence_network"
+#                     / "evidence_weights.parquet")
 
 # The per-(source, mnxr) conductances the HOST base is induced with -- the other half of
 # the pair above. It had no name here until 2026-07-20, and that absence was not

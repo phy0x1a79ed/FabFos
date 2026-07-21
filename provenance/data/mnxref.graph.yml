@@ -6,13 +6,35 @@ dest: derived/mnxref-4_5/graph
 type: ecspr::mnx_bipartite
 tier: derived
 kind: derived
-producer: resources/lib/ecspr_atom_graph.py
+producer: repo/transforms/build/reference/build_tier4_graph.py
 inputs:
 - mnxref.atom_pairs
 determinism: reproducible
-note: Per-element bipartite graphs mnx_bipartite_{C,N,P,S}.pkl. These are plain networkx graphs
-  of Python floats -- version-coupled to networkx, NOT to numpy (the widely-repeated numpy-1.26
-  claim is false and was checked).
+note: 'Per-element bipartite graphs mnx_bipartite_{C,N,P,S}.pkl, built from the TIER 4 atom-pair
+  universe. These are plain networkx graphs of Python floats -- version-coupled to networkx,
+  NOT to numpy (the widely-repeated numpy-1.26 claim is false and was checked).
+
+  PRODUCER CORRECTED 2026-07-20. This field previously read `resources/lib/ecspr_atom_graph.py`,
+  which is wrong: that module has no main(), writes no pickle, and is the atom-vs-star measurement
+  harness, a different lane. The real producer has always been fabfos/reference/build_atom_graph.py,
+  retargeted by rebinding reference.ATOM_PAIRS and reference.GRAPH_DIR. The mislabel had a
+  cost -- notes/TIER4_FREEZE.md read it, concluded a transform harness was needed to rebuild
+  the graph, and left tier 4 frozen but unread for that reason.
+
+  Topology does not move between tiers: the skeleton is fixed at 126,636 nodes / 362,482 edges
+  from reac_prop participation, and pairs that fall off it are dropped, so a tier can never
+  add a reaction. Weights move, and since every consumer drops w_X <= 0, the effective universe
+  moves with them. Live w_X>0 edges here: C 189,846, N 121,027, S 32,738, P 86,833.
+
+  Measured against what this REPLACES, which is the point of the change: the incumbent star
+  graph had C 196,018 / N 128,286 / S 35,207 / P 91,961, and shares only 79-84% of its edges
+  with this one (Jaccard C 0.808, N 0.822, S 0.836, P 0.792 -- 16-21% turnover). The star
+  fabricated transits for structureless stubs and gave atom-transit edges to non-molecules;
+  this is re-weighted from the frozen pair table instead.
+
+  Against tier 3 the change is small and strictly additive, which is the freeze''s own gate
+  confirmed at graph level: C +506, N +307, S +137, P +170, and ZERO edges lost in any element
+  (Jaccard 0.996-0.998).'
 bytes: 60632980
 sha256: tree-4b2b6b4acc6c1be6f0ccb941ccd69830dab0115bfeeb64181c6b9b7834621fda
 n_files: 4

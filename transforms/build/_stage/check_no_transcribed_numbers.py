@@ -107,7 +107,14 @@ EXEMPT = re.compile(r"#\s*canon-ok:\s*\S")
 # legitimately carry these values (that is what the engine is), and they are
 # gitignored. Scanning them reports the engine's constants as our transcription,
 # which is both wrong and noisy enough to get the whole check ignored.
-SKIP_DIRS = {"__pycache__", ".runs", "_staged_nulls", ".git"}
+#
+# `v3_build` is the same class and arrived with the benchmark-v3 merge: it is the
+# FROZEN benchmark build tree -- MANIFEST.tsv, the answer key under Y/, the scored
+# tables -- hashed and pinned in provenance. Its provenance JSON records which axis
+# set the panel was built from, which is a RECORD of a value, not a restatement of
+# one; and it is frozen, so the only way to satisfy the gate by editing it would be
+# to break the hash the freeze exists to protect.
+SKIP_DIRS = {"__pycache__", ".runs", "_staged_nulls", ".git", "v3_build"}
 
 
 def _skipped(rel: Path) -> bool:

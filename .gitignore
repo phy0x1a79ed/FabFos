@@ -24,3 +24,9 @@ trim_sequences.fasta.*
 # build artifact: dev.sh -b bundles the metasmith library in here for shipping.
 # Generated, never edited; the source of truth is src/metasmith_libraries/.
 src/fabfos/_library/
+
+# Benchmark solve outputs and retrieved HPC results: multi-GB / 400 MB+ TSVs,
+# reproducible from the recorded sockeye run key. The SCORE tables are small
+# and ARE tracked.
+transforms/build/benchmark/v3_build/run/
+transforms/build/benchmark/v3_build/run_star_universe_baseline/

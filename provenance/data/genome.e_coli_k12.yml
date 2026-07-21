@@ -7,11 +7,12 @@ type: ref::genome_bundle
 tier: external
 kind: external
 url: https://www.ncbi.nlm.nih.gov/datasets/
-bytes: 210328245
-sha256: tree-581baab171637277df189153b5a6558bce4702b8b918883c675d6de48e9979b5
-n_files: 31
+bytes: 210735103
+sha256: tree-98d2407b115ea93570dcdfb450c269e65e7320aed728eb5fcfcc0c6db8cf59ed
+n_files: 32
 files:
   GCF_000005845.2_ASM584v2_genomic.fna: 53bb6a51b6e92139ced1e38f74b7938781027c52200922ff03718c2237d23bb4
+  GCF_000005845.2_ASM584v2_genomic.gff.gz: 7aa71ffaef2caa51e5cb00da96d567c8001c19f029a173d3df3b273331a587b2
   GCF_000005845.2_ASM584v2_protein.faa: efa0ef3c4fc6f6e9e8a2591accb5b4bd8d9244478fe99362958784705794a01b
   annotations/k12.clean.tsv: 89d454af484217a48d698a375e65726f79d1dcc0abeb0ae15a0c60ecb0c7d6f8
   annotations/k12.kofam.csv: 6a4db41235657a23a47ac35358e3269728253a30ef6403d2f334689a836182bd

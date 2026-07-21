@@ -94,7 +94,7 @@ package.
 ## Method version
 
 The package version (`src/fabfos/version.txt`) versions the CLI. The **method**
-version (`src/fabfos/method_version.txt`, currently `0.3.0`) versions the
+version (`src/fabfos/method_version.txt`, currently `0.3.1`) versions the
 composition that decides what a number out of this pipeline *means*: canon's
 content and status, the transform library's commit and dirty flag, metasmith's
 own version, every container digest, the sha256 of the data library's index,
@@ -102,10 +102,18 @@ the type contract, and the planner's domain list. A CLI bugfix is not a new
 method; repinning the engine library is one even if no fabfos source changed.
 
 ```bash
-fabfos --method-version      # 0.3.0+434c471
+fabfos --method-version      # 0.3.1+37a1d54
 fabfos --describe-method     # the full hashed document -- diff two to see WHICH part moved
-fabfos --require-method 0.3.0+434c471   # fail unless the live method matches
+fabfos --require-method 0.3.1+37a1d54   # fail unless the live method matches
 ```
+
+The `+hash` suffix moves whenever any hashed component does, and **staging counts**:
+the data library's index is one of the seven, so re-staging an artifact changes the
+method id even when no source file was touched. The id above is a snapshot at the
+tier-4 benchmark run, not a fixture — a pinned id in a document goes stale on the
+next `build_ref_library.py --place`, which is exactly what happened to the
+`0.3.0+434c471` this line used to carry (the live id had already drifted to
+`0.3.0+60b2513` before anyone looked).
 
 Stamping refuses while a container **on the method path** is unresolved. It is
 scoped to the path rather than all 44 records, because refusing over `stringtie`
@@ -193,9 +201,32 @@ tiebreak. `library.domains_for()` drops the unselected lanes.
 - **Pulse-chase V1 is red**: 7,119 refused reactions still carry a fabricated
   transit pair in the frozen atom-pair table. Pre-existing, and a property of the
   AAM build rather than of the measurement.
+- **Nothing refuses an observed/null universe mismatch mechanically — do not
+  wait to be stopped.** Carried over from the tier-4 move, and it applies to the
+  ground null exactly as it applied to the frozen one. An earlier note claimed
+  `canon.assert_canonical_reference()` "refuses the pair by design"; that is
+  false, and the way it is false is instructive. That function pins the
+  *reference* inputs — `reac_prop.tsv` and `direction.parquet` — by sha256, and a
+  tier move changes neither: the tier changes `atom_pairs.parquet` and hence the
+  graph WEIGHTS, while reac_prop and the direction ratios are untouched. So a
+  tier-4 observed solve scored against an old-graph null passes it cleanly, and
+  `check_canon.py`'s null check is likewise PRESENCE-only. Solve/null universe
+  agreement is guaranteed only **by construction** — both produced from the same
+  graph in one pass — and must be verified by whoever runs it. The benchmark is
+  unaffected: it consumes no null (`potency` reports `undefined:no_null_pool`),
+  which is why it could be re-run first.
 - **The `sif/` tier still does not exist**, despite being named in the tier
   tables. Both images are on quay now, so it is a convenience rather than the
   fallback it was written as.
+- **The ecspr image name and its provenance pin disagree.** `containers/ecspr.oci`
+  now names `quay.io/hallamlab/ecspr:2026.07.14`, which is public and resolves
+  anonymously (verified against the quay API 2026-07-21). `external_ecspr` does
+  not — it 401s, which is what made the method unrunnable, since the `external_`
+  prefix is for third-party images and this one is built here. But
+  `provenance/containers/ecspr.yml` still records `pinned_reference:
+  quay.io/hallamlab/external_ecspr@sha256:97f7afad…`. Both names resolve to the
+  same digest, so this is a naming inconsistency rather than a different image;
+  the record should move to `ecspr` once someone re-verifies it end to end.
 - **The licensed BioCyc PGDBs are absent** from the data tree — only the
   MetaCyc flatfiles survive, so the direction ensemble's curated member cannot
   be rebuilt as-is. `provenance/data/biocyc.pgdbs.yml` states what degrades.

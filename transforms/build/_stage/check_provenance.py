@@ -92,7 +92,11 @@ def main() -> int:
 
     types_root = resolve_library_root() / "data_types"
     contract: dict[str, set[str]] = {}
-    for ns in ("ecspr", "ref"):
+    # Must stay in step with build_ref_library.py's namespace tuple. An item
+    # typed into a namespace absent from this list is NOT validated -- it only
+    # emits a note -- so a namespace that the builder indexes but this gate does
+    # not load is a silent hole exactly where the gate is supposed to be strict.
+    for ns in ("ecspr", "ref", "functional_annotation"):
         p = types_root / f"{ns}.yml"
         contract[ns] = set(yaml.safe_load(p.open())["types"]) if p.exists() else set()
     before = len(failures)

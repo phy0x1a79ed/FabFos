@@ -6,6 +6,7 @@ resolved: true
 digest: sha256:97f7afad99f55fe66a213851f48f6293f6b328ce7db4fe035a93de6f24f582db
 pinned_reference: quay.io/hallamlab/external_ecspr@sha256:97f7afad99f55fe66a213851f48f6293f6b328ce7db4fe035a93de6f24f582db
 resolved_on: 2026-07-19
+renamed_on: 2026-07-20
 resolution: >-
   Remediation (a) was taken: the image held in the local daemon was tagged and
   pushed to quay as-is, NOT rebuilt -- a rebuild would have resolved a
@@ -15,6 +16,37 @@ resolution: >-
   the other resolved records are pinned; the enclosing OCI index digest is
   sha256:795f38040040ffe1b4e1726d68d84a8b04b32be1e660bdb36fce543efd431f13,
   which is also the local image id and is deliberately NOT what is pinned here.
+
+  Renamed 2026-07-20: the repo was originally published as
+  `quay.io/hallamlab/external_ecspr`, but the `external_` prefix denotes
+  third-party images and this one is built here (`built_by_us: true` below).
+  The new tag was created registry-side from the SAME manifest index
+  (`docker buildx imagetools create`), not by re-pushing a local image, so both
+  references resolve to byte-identical manifests and the digests above are
+  unchanged. `external_ecspr:2026.07.14` is left in place as an alias -- runs
+  already recorded against it stay resolvable, and the benchmark V3 result was
+  produced under that name.
+
+  REVERTED TO THE `external_ecspr` REFERENCE 2026-07-20, same day, because the
+  rename left the method unrunnable. The claim above -- that both references
+  resolve -- is true only for an authenticated client. Quay defaults new repos
+  to PRIVATE, `hallamlab/ecspr` was never opened up, and an anonymous manifest
+  GET returns 401. The tier-4 benchmark run refused at pre-pull on exactly that,
+  which is the pre-pull guard working as designed: the alternative is a pull
+  scheduled on a compute node with no outbound internet, which slurm.nf's
+  errorStrategy='ignore' would have turned into a silent green run with empty
+  outputs.
+
+  Verified against the registry rather than assumed: `external_ecspr:2026.07.14`
+  reports is_public: true, and under an OCI image-manifest Accept header returns
+  docker-content-digest sha256:97f7afad... -- identical to the digest pinned
+  above. So the digests, the recipe and the runtime are untouched; only the name
+  the client resolves has moved back to the one that is reachable.
+
+  The rename is not abandoned, it is BLOCKED on making `hallamlab/ecspr` public
+  on quay, which needs org admin rights this pipeline does not and should not
+  have. Until then the reachable name is the correct one to pin: an unreachable
+  reference in a provenance record is not a stricter claim, it is a false one.
 origin: built-here
 built_by_us: true
 recipe: containers/ecspr/

@@ -218,15 +218,23 @@ tiebreak. `library.domains_for()` drops the unselected lanes.
 - **The `sif/` tier still does not exist**, despite being named in the tier
   tables. Both images are on quay now, so it is a convenience rather than the
   fallback it was written as.
-- **The ecspr image name and its provenance pin disagree.** `containers/ecspr.oci`
-  now names `quay.io/hallamlab/ecspr:2026.07.14`, which is public and resolves
-  anonymously (verified against the quay API 2026-07-21). `external_ecspr` does
-  not — it 401s, which is what made the method unrunnable, since the `external_`
-  prefix is for third-party images and this one is built here. But
-  `provenance/containers/ecspr.yml` still records `pinned_reference:
-  quay.io/hallamlab/external_ecspr@sha256:97f7afad…`. Both names resolve to the
-  same digest, so this is a naming inconsistency rather than a different image;
-  the record should move to `ecspr` once someone re-verifies it end to end.
+- ~~**The ecspr image name and its provenance pin disagree.**~~ **Closed 2026-07-21.**
+  `containers/ecspr.oci` and `provenance/containers/ecspr.yml` now both name
+  `quay.io/hallamlab/ecspr:2026.07.14`, verified by pulling on a machine that is
+  not this one: `ecspr` fetches anonymously, `external_ecspr` 401s. The digest is
+  unchanged — the rename was made registry-side from the same manifest index, so
+  artifacts produced under the old name stay reproducible.
+- **A SIF of the ecspr image cannot be built with apptainer 1.5.1.** `apptainer
+  pull` fetches the layers and then dies in `mksquashfs 4.7.5` with `FATAL ERROR:
+  Bug in orderer`; small images convert fine, so it is that image's layers, not a
+  broken install. `apptainer build --sandbox` works and is the documented
+  workaround (7.9 GB unpacked). Older apptainer (1.3.1, e.g. sockeye) is
+  unaffected.
+- **The ecspr image carries no `cobra` and no `sksparse`.** Network A's builder
+  (`ecsprAtomA/gem_atom_graph.py` → `ecspr_build._load_model`) needs cobra, so the
+  curated-GEM lane **cannot be built inside the pinned container**; its graphs must
+  be pre-built and staged as `.npz`. Missing CHOLMOD only costs speed — the solve
+  falls back to `splu`.
 - **The licensed BioCyc PGDBs are absent** from the data tree — only the
   MetaCyc flatfiles survive, so the direction ensemble's curated member cannot
   be rebuilt as-is. `provenance/data/biocyc.pgdbs.yml` states what degrades.

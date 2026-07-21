@@ -1,0 +1,7 @@
+container: docker://quay.io/hallamlab/metasmith:0.18.7-9fd2ad6
+home:
+  address: /home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/agent_home
+  type: DIRECT
+real_path: /home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/agent_home
+runtime: APPTAINER
+setup_commands: []

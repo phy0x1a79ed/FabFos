@@ -1,0 +1,92 @@
+manifest:
+  antismash.oci:
+    type: containers::antismash.oci
+  bakta.oci:
+    type: containers::bakta.oci
+  bbtools.oci:
+    type: containers::bbtools.oci
+  bedtools.oci:
+    type: containers::bedtools.oci
+  blast.oci:
+    type: containers::blast.oci
+  braker3.oci:
+    type: containers::braker3.oci
+  busco.oci:
+    type: containers::busco.oci
+  checkm.oci:
+    type: containers::checkm.oci
+  clean.oci:
+    type: containers::clean.oci
+  deeptfactor.oci:
+    type: containers::deeptfactor.oci
+  diamond.oci:
+    type: containers::diamond.oci
+  ecspr.oci:
+    type: containers::ecspr.oci
+  fastani.oci:
+    type: containers::fastani.oci
+  fastp.oci:
+    type: containers::fastp.oci
+  fastqc.oci:
+    type: containers::fastqc.oci
+  filtlong.oci:
+    type: containers::filtlong.oci
+  flye.oci:
+    type: containers::flye.oci
+  genomad.oci:
+    type: containers::genomad.oci
+  gfatools.oci:
+    type: containers::gfatools.oci
+  gffread.oci:
+    type: containers::gffread.oci
+  gtdbtk.oci:
+    type: containers::gtdbtk.oci
+  hifiasm-meta.oci:
+    type: containers::hifiasm-meta.oci
+  hifiasm.oci:
+    type: containers::hifiasm.oci
+  megahit.oci:
+    type: containers::megahit.oci
+  metabolic.env.yml:
+    type: containers::metabolic.env.yml
+  metabolomics-python.oci:
+    type: containers::metabolomics-python.oci
+  metabuli.oci:
+    type: containers::metabuli.oci
+  miniasm.oci:
+    type: containers::miniasm.oci
+  minimap2.oci:
+    type: containers::minimap2.oci
+  nanoplot.oci:
+    type: containers::nanoplot.oci
+  ncbi-datasets.oci:
+    type: containers::ncbi-datasets.oci
+  orad.oci:
+    type: containers::orad.oci
+  ppanggolin.oci:
+    type: containers::ppanggolin.oci
+  pprodigal.oci:
+    type: containers::pprodigal.oci
+  predictf.oci:
+    type: containers::predictf.oci
+  pydeseq2.oci:
+    type: containers::pydeseq2.oci
+  python_for_data_science.oci:
+    type: containers::python_for_data_science.oci
+  salmon.oci:
+    type: containers::salmon.oci
+  samtools.oci:
+    type: containers::samtools.oci
+  seqkit.oci:
+    type: containers::seqkit.oci
+  skani.oci:
+    type: containers::skani.oci
+  sra-tools.oci:
+    type: containers::sra-tools.oci
+  star.oci:
+    type: containers::star.oci
+  stringtie.oci:
+    type: containers::stringtie.oci
+  vsearch.oci:
+    type: containers::vsearch.oci
+schema: v1

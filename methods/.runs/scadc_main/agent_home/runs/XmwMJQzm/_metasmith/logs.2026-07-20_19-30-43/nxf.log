@@ -1,0 +1,131 @@
+Jul-21 02:30:47.513 [main] DEBUG nextflow.cli.Launcher - $> nextflow -config ./workflow.resources.nf -config ./workflow.config.nf -log _metasmith/logs.2026-07-20_19-30-43/nxf.log run ./workflow.nf -params-file ./workflow.params.yml --hostName Cosmos --output results -with-report _metasmith/logs.2026-07-20_19-30-43/nxf_report.html -with-dag _metasmith/logs.2026-07-20_19-30-43/workflow.dag_nxf.dot -with-timeline _metasmith/logs.2026-07-20_19-30-43/nxf_timeline.html -with-trace _metasmith/logs.2026-07-20_19-30-43/nxf_trace.tsv -lib ./lib -ansi-log false -resume -work-dir /msm_home/runs/XmwMJQzm/nxf_work
+Jul-21 02:30:47.597 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 26.04.1
+Jul-21 02:30:47.644 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=./.nextflow/plugins; core-plugins: nf-amazon@3.9.1,nf-azure@1.22.3,nf-cloudcache@0.6.0,nf-codecommit@0.5.2,nf-console@1.3.0,nf-google@1.27.2,nf-k8s@1.5.2,nf-seqera@0.19.1,nf-tower@1.27.0,nf-wave@1.20.0
+Jul-21 02:30:47.697 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Jul-21 02:30:47.698 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Jul-21 02:30:47.702 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.14.1 in 'deployment' mode
+Jul-21 02:30:47.751 [main] DEBUG nextflow.util.RetryConfig - Missing nextflow session - using default retry config
+Jul-21 02:30:48.067 [main] DEBUG nextflow.plugin.PluginUpdater - Using plugin repository: HttpPluginRepository [registry]; url=https://registry.nextflow.io/api
+Jul-21 02:30:48.074 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Jul-21 02:30:48.189 [main] DEBUG nextflow.config.ConfigBuilder - User config file: /msm_home/runs/XmwMJQzm/./workflow.resources.nf
+Jul-21 02:30:48.190 [main] DEBUG nextflow.config.ConfigBuilder - User config file: /msm_home/runs/XmwMJQzm/./workflow.config.nf
+Jul-21 02:30:48.193 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /msm_home/runs/XmwMJQzm/workflow.resources.nf
+Jul-21 02:30:48.193 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /msm_home/runs/XmwMJQzm/workflow.config.nf
+Jul-21 02:30:48.198 [main] DEBUG nextflow.config.ConfigParserFactory - Using config parser v2
+Jul-21 02:30:48.222 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Jul-21 02:30:48.810 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Jul-21 02:30:48.894 [main] WARN  nextflow.config.ConfigBuilder - It appears you have never run this project before -- Option `-resume` is ignored
+Jul-21 02:30:48.938 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Jul-21 02:30:48.939 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Jul-21 02:30:48.960 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: ./.nextflow/secrets/store.json
+Jul-21 02:30:48.964 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@64f981e2] - activable => nextflow.secret.LocalSecretsProvider@64f981e2
+Jul-21 02:30:48.979 [main] INFO  nextflow.cli.CmdRun - Launching `./workflow.nf` [distracted_watson] - revision: 766da84a36
+Jul-21 02:30:49.011 [main] WARN  nextflow.config.ConfigValidator - Unrecognized config option 'filePorter.maxThreads'
+Jul-21 02:30:49.065 [main] DEBUG nextflow.Session - Session UUID: 62e142fd-4b28-4a9d-a00b-3ad6d4a186df
+Jul-21 02:30:49.065 [main] DEBUG nextflow.Session - Run name: distracted_watson
+Jul-21 02:30:49.066 [main] DEBUG nextflow.Session - Executor pool size: 2
+Jul-21 02:30:49.075 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Jul-21 02:30:49.106 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 26.04.1 build 12112
+  Created: 11-05-2026 13:29 UTC (13:29 GMT)
+  System: Linux 6.18.33.2-microsoft-standard-WSL2
+  Runtime: Groovy 4.0.31 on OpenJDK 64-Bit Server VM 23.0.2-internal-adhoc.conda.src
+  Encoding: UTF-8 (UTF-8)
+  Process: 805538@Cosmos [127.0.1.1]
+  CPUs: 1 - Mem: 68.7 GB (415 MB) - Swap: 24 GB (23.2 GB) - Virtual threads ON
+Jul-21 02:30:49.146 [main] DEBUG nextflow.Session - Work-dir: /msm_home/runs/XmwMJQzm/nxf_work [ext2/ext3]
+Jul-21 02:30:49.146 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /msm_home/runs/XmwMJQzm/bin
+Jul-21 02:30:49.161 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Jul-21 02:30:49.176 [main] DEBUG nextflow.Session - Observer factory (v2): LinObserverFactory
+Jul-21 02:30:49.178 [main] DEBUG nextflow.Session - Observer factory (v2): DefaultObserverFactory
+Jul-21 02:30:49.215 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Jul-21 02:30:49.223 [main] DEBUG nextflow.util.CustomPoolFactory - Creating virtual thread pool
+Jul-21 02:30:49.287 [main] DEBUG nextflow.Session - Session start
+Jul-21 02:30:49.294 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow started -- trace file: _metasmith/logs.2026-07-20_19-30-43/nxf_trace.tsv
+Jul-21 02:30:49.296 [main] DEBUG nextflow.script.ScriptLoaderFactory - Using script parser v2
+Jul-21 02:30:51.972 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Jul-21 02:30:52.556 [main] DEBUG n.script.dsl.ProcessConfigBuilder - Config settings `withName:p01__significance` matches process p01__significance
+Jul-21 02:30:52.558 [main] DEBUG n.script.dsl.ProcessConfigBuilder - Config settings `withName:.*` matches process p01__significance
+Jul-21 02:30:52.560 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Jul-21 02:30:52.560 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jul-21 02:30:52.571 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Jul-21 02:30:52.577 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=8; memory=8 GB; capacity=4; pollInterval=100ms; dumpInterval=5m
+Jul-21 02:30:52.579 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: local)
+Jul-21 02:30:52.612 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'p01__significance': maxForks=0; fair=false; array=0
+Jul-21 02:30:52.650 [main] DEBUG nextflow.Session - Process names: p01__significance
+Jul-21 02:30:52.652 [main] DEBUG nextflow.Session - Igniting dataflow network (12)
+Jul-21 02:30:52.662 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > p01__significance
+Jul-21 02:30:52.663 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
+  Main: /msm_home/runs/XmwMJQzm/workflow.nf
+Jul-21 02:30:52.663 [main] DEBUG nextflow.script.ScriptRunner - > Awaiting termination 
+Jul-21 02:30:52.663 [main] DEBUG nextflow.Session - Session await
+Jul-21 02:30:52.817 [Task submitter] DEBUG nextflow.processor.TaskProcessor - Handling unexpected condition for
+  task: name=p01__significance (1); work-dir=/msm_home/runs/XmwMJQzm/nxf_work/86/4d5866feb159aef40a7bb8aeca0720
+  error [nextflow.exception.ProcessUnrecoverableException]: Process requirement exceeds available memory -- req: 24 GB; avail: 8 GB
+Jul-21 02:30:52.828 [Task submitter] DEBUG nextflow.processor.TaskRun - Unable to dump error of process 'null' -- Cause: java.nio.file.NoSuchFileException: /msm_home/runs/XmwMJQzm/nxf_work/86/4d5866feb159aef40a7bb8aeca0720/.command.log
+Jul-21 02:30:52.830 [Task submitter] ERROR nextflow.processor.TaskProcessor - Error executing process > 'p01__significance (1)'
+
+Caused by:
+  Process requirement exceeds available memory -- req: 24 GB; avail: 8 GB
+
+
+Command executed:
+
+  echo "step 1, sample [[aT5KCaxc:[525025134430777892], vohFRHsV:[288073750975865022], vNAT43RD:[939339087586825539], mIlFiO6w:[998115530373274444], Ip5yo1fu:[706496068017274183], xdeUzdZ4:[727968464493146190], CS92or1c:[720626292830168825], FILES:[[/msm_home/runs/XmwMJQzm/_metasmith/task/data/Ymf7qCbcMqFp/scadc_main.txt], [/home/tony/agentic_workspace/projects/fabfos/scadc/.awm/data/ref/derived/mnxref-4_5/solve_directed/reff_axes_report.tsv], [/home/tony/agentic_workspace/projects/fabfos/scadc/.awm/data/ref/derived/mnxref-4_5/solve_directed/ieff_axes_report.tsv], [/home/tony/agentic_workspace/data/scadc/fabfos_2026/orfs_199.faa], [/home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/refs/ecspr_frozen_null], [/msm_home/runs/XmwMJQzm/_metasmith/task/data/IvyoACq9xkYX/ecspr.oci], [/msm_home/runs/XmwMJQzm/_metasmith/task/data/GWVC6WPW1X1W/ecspr_significance.py]]]]"
+  echo "significance"
+  echo "res 8/24 GB/1" >>.command.metadata
+  echo "lin [{\"aT5KCaxc\":[525025134430777892],\"vohFRHsV\":[288073750975865022],\"vNAT43RD\":[939339087586825539],\"mIlFiO6w\":[998115530373274444],\"Ip5yo1fu\":[706496068017274183],\"xdeUzdZ4\":[727968464493146190],\"CS92or1c\":[720626292830168825],\"FILES\":[[\"/msm_home/runs/XmwMJQzm/_metasmith/task/data/Ymf7qCbcMqFp/scadc_main.txt\"],[\"/home/tony/agentic_workspace/projects/fabfos/scadc/.awm/data/ref/derived/mnxref-4_5/solve_directed/reff_axes_report.tsv\"],[\"/home/tony/agentic_workspace/projects/fabfos/scadc/.awm/data/ref/derived/mnxref-4_5/solve_directed/ieff_axes_report.tsv\"],[\"/home/tony/agentic_workspace/data/scadc/fabfos_2026/orfs_199.faa\"],[\"/home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/refs/ecspr_frozen_null\"],[\"/msm_home/runs/XmwMJQzm/_metasmith/task/data/IvyoACq9xkYX/ecspr.oci\"],[\"/msm_home/runs/XmwMJQzm/_metasmith/task/data/GWVC6WPW1X1W/ecspr_significance.py\"]]}]" >>.command.metadata
+  echo "fmt 2" >>.command.metadata
+  cat /home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/agent_home/runs/XmwMJQzm/workflow.step_1.meta >>.command.metadata
+  echo "inp aT5KCaxc,vohFRHsV,vNAT43RD,mIlFiO6w,Ip5yo1fu,xdeUzdZ4,CS92or1c" >>.command.metadata
+  echo "out pKixB8Yw,i3oS98wX" >>.command.metadata
+  b1="/home/tony/agentic_workspace"
+  echo "--bind $b1:$b1" >.command.binds
+  
+  CONTAINER=/msm_home
+  DIRECT=/home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/agent_home
+  function bootstrap {
+  	if [ -e $CONTAINER ]; then
+  		$CONTAINER/lib/msm_bootstrap $@
+  	elif [ -e $DIRECT ]; then
+  		$DIRECT/lib/msm_bootstrap $@
+  	else
+  		echo "critical error: could not find metasmith bootstrap script"
+  	fi
+  }
+  
+  bootstrap /home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/agent_home/runs/XmwMJQzm "1" Cosmos
+  [ -e .command.success ] && exit 0 || exit 1
+
+Command exit status:
+  -
+
+Command output:
+  (empty)
+
+Work dir:
+  /msm_home/runs/XmwMJQzm/nxf_work/86/4d5866feb159aef40a7bb8aeca0720
+
+Tip: you can replicate the issue by changing to the process work dir and entering the command `bash .command.run`
+Jul-21 02:30:52.832 [Task submitter] DEBUG nextflow.Session - Session aborted -- Cause: Process requirement exceeds available memory -- req: 24 GB; avail: 8 GB
+Jul-21 02:30:52.845 [Task submitter] DEBUG nextflow.Session - The following nodes are still active:
+  [operator] flatMap
+  [operator] flatMap
+  [operator] flatMap
+  [operator] flatMap
+  [operator] map
+  [operator] map
+
+Jul-21 02:30:52.852 [Task submitter] DEBUG n.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=1; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=0; peakCpus=0; peakMemory=0; ]
+Jul-21 02:30:52.866 [Task submitter] DEBUG nextflow.trace.ReportObserver - Workflow completed -- rendering execution report
+Jul-21 02:30:53.146 [Task submitter] DEBUG nextflow.trace.TimelineObserver - Workflow completed -- rendering execution timeline
+Jul-21 02:30:53.182 [Task submitter] DEBUG nextflow.trace.TraceFileObserver - Workflow completed -- saving trace file
+Jul-21 02:30:53.183 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: local) - terminating tasks monitor poll loop
+Jul-21 02:30:53.187 [main] DEBUG nextflow.Session - Session await > all processes finished
+Jul-21 02:30:53.187 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Jul-21 02:30:53.187 [main] DEBUG n.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=1; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=0; peakCpus=0; peakMemory=0; ]
+Jul-21 02:30:53.198 [main] DEBUG nextflow.trace.ReportObserver - Workflow completed -- rendering execution report
+Jul-21 02:30:53.417 [main] DEBUG nextflow.trace.TimelineObserver - Workflow completed -- rendering execution timeline
+Jul-21 02:30:53.469 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow completed -- saving trace file
+Jul-21 02:30:53.473 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Jul-21 02:30:53.483 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye

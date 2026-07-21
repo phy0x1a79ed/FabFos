@@ -1,0 +1,293 @@
+plan:
+  given:
+  - instance_id: 79eubv3FJa
+    path: scadc_main.txt
+    type: Ymf7qCbcMqFp::fosmids::recovery_experiment
+    type_id: aT5KCaxc
+  - instance_id: 6wf8PutMlb
+    path: /home/tony/agentic_workspace/projects/fabfos/scadc/.awm/data/ref/derived/mnxref-4_5/solve_directed/ieff_axes_report.tsv
+    type: Ymf7qCbcMqFp::ecspr::ieff_axes_report
+    type_id: vNAT43RD
+  - instance_id: VLihte7Frh
+    path: /home/tony/agentic_workspace/data/scadc/fabfos_2026/orfs_199.faa
+    type: Ymf7qCbcMqFp::sequences::open_reading_frames
+    type_id: mIlFiO6w
+  - instance_id: W2hwLkxsql
+    path: /home/tony/agentic_workspace/projects/fabfos/scadc/.awm/data/ref/derived/mnxref-4_5/solve_directed/reff_axes_report.tsv
+    type: Ymf7qCbcMqFp::ecspr::reff_axes_report
+    type_id: vohFRHsV
+  - instance_id: t4wguhK7rA
+    path: ecspr.oci
+    type: IvyoACq9xkYX::containers::ecspr.oci
+    type_id: xdeUzdZ4
+  - instance_id: m0nH8nP0l5
+    path: ecspr_significance.py
+    type: GWVC6WPW1X1W::lib::ecspr_significance.py
+    type_id: CS92or1c
+  - instance_id: cUDb4jBLIw
+    path: /home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/refs/ecspr_frozen_null
+    type: Ymf7qCbcMqFp::ecspr::frozen_null
+    type_id: Ip5yo1fu
+  publish_intermediates: true
+  steps:
+  - dependency_map:
+      CS92or1c:
+      - m0nH8nP0l5
+      Ip5yo1fu:
+      - cUDb4jBLIw
+      SSFnudjt:
+      - wKt2UY8OOK
+      aT5KCaxc:
+      - 79eubv3FJa
+      mIlFiO6w:
+      - VLihte7Frh
+      n79RIn2y:
+      - K5qZE5befF
+      vNAT43RD:
+      - 6wf8PutMlb
+      vohFRHsV:
+      - W2hwLkxsql
+      xdeUzdZ4:
+      - t4wguhK7rA
+    instances:
+      6wf8PutMlb:
+        instance_id: 6wf8PutMlb
+        path: /home/tony/agentic_workspace/projects/fabfos/scadc/.awm/data/ref/derived/mnxref-4_5/solve_directed/ieff_axes_report.tsv
+        type: Ymf7qCbcMqFp::ecspr::ieff_axes_report
+        type_id: vNAT43RD
+      79eubv3FJa:
+        instance_id: 79eubv3FJa
+        path: scadc_main.txt
+        type: Ymf7qCbcMqFp::fosmids::recovery_experiment
+        type_id: aT5KCaxc
+      K5qZE5befF:
+        instance_id: K5qZE5befF
+        path: pKixB8Yw.tsv
+        type: Z01GnC9ZxFQM::ecspr::reff_significance
+        type_id: pKixB8Yw
+      VLihte7Frh:
+        instance_id: VLihte7Frh
+        path: /home/tony/agentic_workspace/data/scadc/fabfos_2026/orfs_199.faa
+        type: Ymf7qCbcMqFp::sequences::open_reading_frames
+        type_id: mIlFiO6w
+      W2hwLkxsql:
+        instance_id: W2hwLkxsql
+        path: /home/tony/agentic_workspace/projects/fabfos/scadc/.awm/data/ref/derived/mnxref-4_5/solve_directed/reff_axes_report.tsv
+        type: Ymf7qCbcMqFp::ecspr::reff_axes_report
+        type_id: vohFRHsV
+      cUDb4jBLIw:
+        instance_id: cUDb4jBLIw
+        path: /home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/refs/ecspr_frozen_null
+        type: Ymf7qCbcMqFp::ecspr::frozen_null
+        type_id: Ip5yo1fu
+      m0nH8nP0l5:
+        instance_id: m0nH8nP0l5
+        path: ecspr_significance.py
+        type: GWVC6WPW1X1W::lib::ecspr_significance.py
+        type_id: CS92or1c
+      t4wguhK7rA:
+        instance_id: t4wguhK7rA
+        path: ecspr.oci
+        type: IvyoACq9xkYX::containers::ecspr.oci
+        type_id: xdeUzdZ4
+      wKt2UY8OOK:
+        instance_id: wKt2UY8OOK
+        path: i3oS98wX.tsv
+        type: Z01GnC9ZxFQM::ecspr::ieff_significance
+        type_id: i3oS98wX
+    order: 1
+    schema: v2
+    transform: Z01GnC9ZxFQM::significance.py
+  targets:
+  - instance:
+      instance_id: K5qZE5befF
+      path: pKixB8Yw.tsv
+      type: Z01GnC9ZxFQM::ecspr::reff_significance
+      type_id: pKixB8Yw
+    name: ecspr::reff_significance
+    producing_step:
+      name: significance
+      order: 1
+  - instance:
+      instance_id: wKt2UY8OOK
+      path: i3oS98wX.tsv
+      type: Z01GnC9ZxFQM::ecspr::ieff_significance
+      type_id: i3oS98wX
+    name: ecspr::ieff_significance
+    producing_step:
+      name: significance
+      order: 1
+  types:
+    CS92or1c:
+      name: lib::ecspr_significance.py
+      properties:
+        src: ecspr_significance
+        usage: command line
+    Ip5yo1fu:
+      name: ecspr::frozen_null
+      properties:
+      - DIRECTORY of null draws for BOTH lanes, one {lane}_null_canonical_N{n}.tsv
+        per draw size; the scorer DERIVES its draw sizes from this directory's contents,
+        so it must be a CURATED dir built from an explicit list by the caller -- never
+        a raw cache, which accumulates retired sizes beside the canonical ones
+    aT5KCaxc:
+      name: fosmids::recovery_experiment
+      properties:
+        logistics: to group the pooled assemblies + reads of one fosmid-recovery run
+          (single grouping node; all inputs and intermediates descend from it)
+    i3oS98wX:
+      name: ecspr::ieff_significance
+      parents:
+      - xdeUzdZ4
+      - Ip5yo1fu
+      - aT5KCaxc
+      - mIlFiO6w
+      - vohFRHsV
+      - CS92or1c
+      - vNAT43RD
+      properties:
+        Format: TSV
+        _:
+        - effective-conductance significance vs the staged null (full-mixture SF p
+          + per-row empirical p_emp, SF-interpolated across flanking size anchors,
+          BH-q within element x style for schema parity only -- rank by effect size)
+        ext: tsv
+        fields:
+        - N_hi
+        - N_lo
+        - at_floor
+        - axis_id
+        - delta_obs
+        - element
+        - fosmid
+        - k_hi
+        - k_lo
+        - n_bg
+        - n_orfs
+        - p
+        - p_emp
+        - p_floor
+        - q
+        - survives
+        - w
+        - null
+    mIlFiO6w:
+      name: sequences::open_reading_frames
+      parents:
+      - aT5KCaxc
+      properties:
+        Data: protein sequence
+        Format: FASTA
+        content: open reading frames
+        ext: faa
+    pKixB8Yw:
+      name: ecspr::reff_significance
+      parents:
+      - xdeUzdZ4
+      - Ip5yo1fu
+      - aT5KCaxc
+      - mIlFiO6w
+      - vohFRHsV
+      - CS92or1c
+      - vNAT43RD
+      properties:
+        Format: TSV
+        _:
+        - effective-resistance significance vs the staged null (full-mixture SF p
+          + per-row empirical p_emp, SF-interpolated across flanking size anchors,
+          BH-q within element x style for schema parity only -- rank by effect size)
+        ext: tsv
+        fields:
+        - N_hi
+        - N_lo
+        - at_floor
+        - axis_id
+        - delta_obs
+        - element
+        - fosmid
+        - k_hi
+        - k_lo
+        - n_bg
+        - n_orfs
+        - p
+        - p_emp
+        - p_floor
+        - q
+        - survives
+        - w
+        - null
+    vNAT43RD:
+      name: ecspr::ieff_axes_report
+      parents:
+      - aT5KCaxc
+      properties:
+        Format: TSV
+        _:
+        - per-(fosmid, element, axis) observed effective-conductance delta_ieff solve
+          report (1/r_aug - 1/r_base)
+        ext: tsv
+        fields:
+        - axis_id
+        - delta_ieff
+        - element
+        - fosmid
+        - g_aug
+        - g_base
+        - iter
+        - n_added_rxns
+        - sink_hub
+        - source_hub
+        - null
+    vohFRHsV:
+      name: ecspr::reff_axes_report
+      parents:
+      - aT5KCaxc
+      properties:
+        Format: TSV
+        _:
+        - per-(fosmid, element, axis) observed effective-resistance delta_reff solve
+          report
+        ext: tsv
+        fields:
+        - axis_id
+        - delta_reff
+        - element
+        - fosmid
+        - iter
+        - n_added_rxns
+        - r_aug
+        - r_base
+        - sink_hub
+        - source_hub
+        - null
+    xdeUzdZ4:
+      name: containers::ecspr.oci
+      properties:
+        Format: OCI
+        _:
+        - 'ECSPr numeric core. Replaces envs::ecspr.condaenv on this lane: the conda_env
+          mechanism is consumed only under a MAMBA runtime, which exists solely on
+          an unmerged engine branch -- under the runtimes the engine actually ships,
+          the env file''s CONTENT is read as an image name, so `fabfos-ecspr` was
+          being handed to apptainer/docker as an image URI. Recipe: container_builds/main/ecspr.
+          Pins that matter: numpy>=2, and torch built for the CUDA the target cluster''s
+          GPUs accept (the default build breaks them). Solve and ablation are CPU-intractable
+          on the dense maps, so the GPU pin is not a fallback.'
+        provides:
+        - py/networkx
+        - py/numpy
+        - py/pandas
+        - py/pyarrow
+        - py/scikit-learn
+        - py/scipy
+        - py/torch
+task:
+  data_libraries:
+  - Ymf7qCbcMqFp
+  - IvyoACq9xkYX
+  - lB934ITHG8oP
+  - GWVC6WPW1X1W
+  - Ymf7qCbcMqFp
+  ok: true
+  transform_libraries:
+  - Z01GnC9ZxFQM

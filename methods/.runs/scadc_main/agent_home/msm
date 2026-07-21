@@ -1,0 +1,9 @@
+#!/bin/bash
+AGENT_HOME=/home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/agent_home
+BINDS="$BINDS --bind $(pwd -P):/ws,$AGENT_HOME:/msm_home,$AGENT_HOME:/home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/agent_home,${TMPDIR-"/tmp"}:${TMPDIR-"/tmp"},/home/tony/.globus:/home/tony/.globus,/home/tony/.globusonline:/home/tony/.globusonline"
+if [ -e "$AGENT_HOME/dev/metasmith" ]; then
+    echo "including dev binds"
+    BINDS="$BINDS --bind $AGENT_HOME/dev/metasmith:/opt/conda/envs/metasmith_env/lib/python3.12/site-packages/metasmith"
+fi
+echo "binds [$BINDS]"
+apptainer exec --no-home --cleanenv --env TMPDIR=${TMPDIR-"/tmp"} --env OPENBLAS_NUM_THREADS=1 --env OMP_NUM_THREADS=1 $BINDS "$(if [ -d "${APPTAINER_CACHEDIR:-$AGENT_HOME/container_images}/docker..quay.io_hallamlab_metasmith..0.18.7-9fd2ad6.sandbox" ]; then echo "${APPTAINER_CACHEDIR:-$AGENT_HOME/container_images}/docker..quay.io_hallamlab_metasmith..0.18.7-9fd2ad6.sandbox"; else echo "${APPTAINER_CACHEDIR:-$AGENT_HOME/container_images}/docker..quay.io_hallamlab_metasmith..0.18.7-9fd2ad6.sif"; fi)" metasmith $@

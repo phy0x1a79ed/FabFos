@@ -1,0 +1,4 @@
+executor:
+  queueSize: 1
+process:
+  maxForks: 1

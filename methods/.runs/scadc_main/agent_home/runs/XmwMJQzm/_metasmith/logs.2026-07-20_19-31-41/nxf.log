@@ -1,0 +1,78 @@
+Jul-21 02:31:44.487 [main] DEBUG nextflow.cli.Launcher - $> nextflow -config ./workflow.resources.nf -config ./workflow.config.nf -log _metasmith/logs.2026-07-20_19-31-41/nxf.log run ./workflow.nf -params-file ./workflow.params.yml --hostName Cosmos --output results -with-report _metasmith/logs.2026-07-20_19-31-41/nxf_report.html -with-dag _metasmith/logs.2026-07-20_19-31-41/workflow.dag_nxf.dot -with-timeline _metasmith/logs.2026-07-20_19-31-41/nxf_timeline.html -with-trace _metasmith/logs.2026-07-20_19-31-41/nxf_trace.tsv -lib ./lib -ansi-log false -resume -work-dir /msm_home/runs/XmwMJQzm/nxf_work
+Jul-21 02:31:44.550 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 26.04.1
+Jul-21 02:31:44.567 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=./.nextflow/plugins; core-plugins: nf-amazon@3.9.1,nf-azure@1.22.3,nf-cloudcache@0.6.0,nf-codecommit@0.5.2,nf-console@1.3.0,nf-google@1.27.2,nf-k8s@1.5.2,nf-seqera@0.19.1,nf-tower@1.27.0,nf-wave@1.20.0
+Jul-21 02:31:44.589 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Jul-21 02:31:44.589 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Jul-21 02:31:44.591 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.14.1 in 'deployment' mode
+Jul-21 02:31:44.603 [main] DEBUG nextflow.util.RetryConfig - Missing nextflow session - using default retry config
+Jul-21 02:31:44.698 [main] DEBUG nextflow.plugin.PluginUpdater - Using plugin repository: HttpPluginRepository [registry]; url=https://registry.nextflow.io/api
+Jul-21 02:31:44.702 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Jul-21 02:31:44.748 [main] DEBUG nextflow.config.ConfigBuilder - User config file: /msm_home/runs/XmwMJQzm/./workflow.resources.nf
+Jul-21 02:31:44.748 [main] DEBUG nextflow.config.ConfigBuilder - User config file: /msm_home/runs/XmwMJQzm/./workflow.config.nf
+Jul-21 02:31:44.750 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /msm_home/runs/XmwMJQzm/workflow.resources.nf
+Jul-21 02:31:44.751 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /msm_home/runs/XmwMJQzm/workflow.config.nf
+Jul-21 02:31:44.754 [main] DEBUG nextflow.config.ConfigParserFactory - Using config parser v2
+Jul-21 02:31:44.766 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Jul-21 02:31:45.089 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Jul-21 02:31:45.176 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Jul-21 02:31:45.176 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Jul-21 02:31:45.187 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: ./.nextflow/secrets/store.json
+Jul-21 02:31:45.189 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@15c487a8] - activable => nextflow.secret.LocalSecretsProvider@15c487a8
+Jul-21 02:31:45.199 [main] INFO  nextflow.cli.CmdRun - Launching `./workflow.nf` [gigantic_escher] - revision: 766da84a36
+Jul-21 02:31:45.221 [main] WARN  nextflow.config.ConfigValidator - Unrecognized config option 'filePorter.maxThreads'
+Jul-21 02:31:45.257 [main] DEBUG nextflow.Session - Session UUID: 62e142fd-4b28-4a9d-a00b-3ad6d4a186df
+Jul-21 02:31:45.257 [main] DEBUG nextflow.Session - Run name: gigantic_escher
+Jul-21 02:31:45.257 [main] DEBUG nextflow.Session - Executor pool size: 2
+Jul-21 02:31:45.263 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Jul-21 02:31:45.283 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 26.04.1 build 12112
+  Created: 11-05-2026 13:29 UTC (13:29 GMT)
+  System: Linux 6.18.33.2-microsoft-standard-WSL2
+  Runtime: Groovy 4.0.31 on OpenJDK 64-Bit Server VM 23.0.2-internal-adhoc.conda.src
+  Encoding: UTF-8 (UTF-8)
+  Process: 806643@Cosmos [127.0.1.1]
+  CPUs: 1 - Mem: 68.7 GB (711.9 MB) - Swap: 24 GB (23.2 GB) - Virtual threads ON
+Jul-21 02:31:45.300 [main] DEBUG nextflow.Session - Work-dir: /msm_home/runs/XmwMJQzm/nxf_work [ext2/ext3]
+Jul-21 02:31:45.300 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /msm_home/runs/XmwMJQzm/bin
+Jul-21 02:31:45.310 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Jul-21 02:31:45.320 [main] DEBUG nextflow.Session - Observer factory (v2): LinObserverFactory
+Jul-21 02:31:45.321 [main] DEBUG nextflow.Session - Observer factory (v2): DefaultObserverFactory
+Jul-21 02:31:45.350 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Jul-21 02:31:45.355 [main] DEBUG nextflow.util.CustomPoolFactory - Creating virtual thread pool
+Jul-21 02:31:45.415 [main] DEBUG nextflow.Session - Session start
+Jul-21 02:31:45.420 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow started -- trace file: _metasmith/logs.2026-07-20_19-31-41/nxf_trace.tsv
+Jul-21 02:31:45.422 [main] DEBUG nextflow.script.ScriptLoaderFactory - Using script parser v2
+Jul-21 02:31:46.832 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Jul-21 02:31:47.203 [main] DEBUG n.script.dsl.ProcessConfigBuilder - Config settings `withName:p01__significance` matches process p01__significance
+Jul-21 02:31:47.206 [main] DEBUG n.script.dsl.ProcessConfigBuilder - Config settings `withName:.*` matches process p01__significance
+Jul-21 02:31:47.209 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Jul-21 02:31:47.209 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jul-21 02:31:47.217 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Jul-21 02:31:47.222 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=8; memory=8 GB; capacity=4; pollInterval=100ms; dumpInterval=5m
+Jul-21 02:31:47.223 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: local)
+Jul-21 02:31:47.247 [main] DEBUG nextflow.processor.TaskProcessor - Creating process 'p01__significance': maxForks=0; fair=false; array=0
+Jul-21 02:31:47.284 [main] DEBUG nextflow.Session - Process names: p01__significance
+Jul-21 02:31:47.286 [main] DEBUG nextflow.Session - Igniting dataflow network (12)
+Jul-21 02:31:47.295 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > p01__significance
+Jul-21 02:31:47.295 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
+  Main: /msm_home/runs/XmwMJQzm/workflow.nf
+Jul-21 02:31:47.295 [main] DEBUG nextflow.script.ScriptRunner - > Awaiting termination 
+Jul-21 02:31:47.295 [main] DEBUG nextflow.Session - Session await
+Jul-21 02:31:47.502 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Jul-21 02:31:47.503 [Task submitter] INFO  nextflow.Session - [fa/145e83] Submitted process > p01__significance (1)
+Jul-21 02:32:01.583 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 1; name: p01__significance (1); status: COMPLETED; exit: 1; error: -; workDir: /msm_home/runs/XmwMJQzm/nxf_work/fa/145e83dd41a633ae4cf8ae9ca5e4ed]
+Jul-21 02:32:01.592 [TaskFinalizer] DEBUG nextflow.processor.TaskProcessor - Handling unexpected condition for
+  task: name=p01__significance (1); work-dir=/msm_home/runs/XmwMJQzm/nxf_work/fa/145e83dd41a633ae4cf8ae9ca5e4ed
+  error [nextflow.exception.ProcessFailedException]: Process `p01__significance (1)` terminated with an error exit status (1)
+Jul-21 02:32:01.597 [TaskFinalizer] INFO  nextflow.processor.TaskProcessor - [fa/145e83] NOTE: Process `p01__significance (1)` terminated with an error exit status (1) -- Error is ignored
+Jul-21 02:32:01.602 [main] DEBUG nextflow.Session - Session await > all processes finished
+Jul-21 02:32:00.982 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: local) - terminating tasks monitor poll loop
+Jul-21 02:32:00.982 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Jul-21 02:32:00.985 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'TaskFinalizer' shutdown completed (hard=false)
+Jul-21 02:32:00.995 [main] DEBUG n.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=1; ignoredCount=1; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=56.2s; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=1; peakCpus=4; peakMemory=6 GB; ]
+Jul-21 02:32:01.006 [main] DEBUG nextflow.trace.ReportObserver - Workflow completed -- rendering execution report
+Jul-21 02:32:00.308 [main] DEBUG nextflow.trace.TimelineObserver - Workflow completed -- rendering execution timeline
+Jul-21 02:32:00.346 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow completed -- saving trace file
+Jul-21 02:32:00.351 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Jul-21 02:32:00.359 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'FileTransfer' shutdown completed (hard=false)
+Jul-21 02:32:00.359 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye

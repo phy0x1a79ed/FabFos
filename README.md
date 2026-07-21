@@ -119,12 +119,12 @@ non-redundant contigs → pool-size estimate. `fabfos --plan-only --dag <path>`
 renders it (5 steps).
 
 The **full ECSPr chain now resolves end to end**, reference inserts →
-significance, 12 steps:
+significance, 13 steps:
 
 ```
 build_ec_bridge · orfcall_inserts · build_uniprot_bridge · clean_lane ·
 uniref_lane · kofam_lane · compile_evidence · evidence_weights ·
-addition_weights · base_graphs · solve_directed · significance
+addition_weights · atom_graph · probe · effects · significance
 ```
 
 `examples/ecspr_full_dag.py` builds and renders it, and is the worked template
@@ -132,10 +132,40 @@ for calling metasmith directly. The rendered DAG is committed at
 `reports/dag/ecspr_full.svg`. Planning does not need the staged files to exist,
 so it renders on a machine holding none of the 46 GB.
 
-Lane selection is deliberate, not structural: `ecsprNetB`/`ecsprNetA` both
-produce `ecspr::base_graphs`, and `ecsprDirected`/`ecsprUndirected` both produce
-the axes reports, so loading both members of a pair would let the planner choose
-by tiebreak. `library.domains_for()` drops the unselected lane.
+### What ECSPr measures (rebuilt 2026-07-20)
+
+ECSPr is a **measuring instrument**: give it a network and two metabolite
+terminals, get back a solution you can interrogate at any node for **current**
+and for **voltage**. It takes no perturbation argument. A knockout is a smaller
+gene set, hence a different network, and the comparison is a subtraction the
+caller does on two independent solves.
+
+The network is **atom-resolved**: a node is `(metabolite, canonical atom rank)`
+and an edge is an atom transfer. The previous *star* topology joined every
+metabolite to reaction-node hubs, and eliminating a reaction node — which is
+exactly what a Woodbury update does — left a clique over its participants, so
+two participants sharing no atom still got a conductance between them. Measured
+on MNXR106432 (carbon): a zero-carbon channel scored 21× a real one. The star
+lane is **retired**; it is not a second lane standing beside this one.
+
+The headline measurement is the **media → ground probe**. Unit current is
+injected at a growth substrate and *every* biomass precursor for that element is
+merged into one aggregate ground; the report gives, per precursor, the current it
+actually draws. A loss-of-function edge does not merely lower a point-to-point
+conductance — it *redistributes* flow, and a starved precursor shows up as its
+share collapsing while the total barely moves. That question is invisible to a
+two-terminal probe, which is why the two-terminal probe was not enough.
+
+Significance therefore answers two separable questions: did this raise total
+conductance to biomass (`delta_total`), and did it redistribute where the carbon
+lands (`delta_clr`). Per-precursor shares sum to one, so they are compositional
+and the statistic is the centred log-ratio coordinate; both tails are scored,
+because "feeds P" and "starves P" are different claims.
+
+Lane selection is deliberate, not structural: `ecsprAtomB` (evidence-weighted),
+`ecsprAtomA` (curated GEM) and `ecsprAtomGPR` (GEM + active gene set) all produce
+`ecspr::atom_graph`, so loading more than one would let the planner choose by
+tiebreak. `library.domains_for()` drops the unselected lanes.
 
 ### Known gaps
 
@@ -146,12 +176,23 @@ by tiebreak. `library.domains_for()` drops the unselected lane.
   reference inserts. `examples/ecspr_full_dag.py` prints this list every run.
   Each one is a reason the method is not yet portable, and closing them is the
   next revision's main work.
-- **`ecspr::compute_profile` is undeclared**, so `ecspr::ablation_importance`
-  cannot be targeted alongside significance.
-- **No transform produces `ecspr::frozen_null`.** It is staged from canon's
-  explicit file list — never a glob, because the scorer discovers its draw
-  sizes by listing that directory, so a stray retired size would silently widen
-  the null basis.
+- **The ground null has a producer but has not been produced.**
+  `ecsprGround/null.py` is the transform that closes the long-standing
+  "`ecspr::frozen_null` has no producer" gap, but it is build-side and expensive
+  and no draw file exists yet. `check_canon.py` reports this rather than failing
+  on it; the experiment spec's preflight is where a run refuses, naming the
+  missing draw size — never interpolating across it.
+- **`ecspr::ground_null` is staged from canon's explicit file list** — never a
+  glob, because the scorer discovers its draw sizes by listing that directory,
+  so a stray retired size would silently widen the null basis.
+- **Sulfate has no atom-mapped route to any sulfur precursor** in the epi300
+  evidence graph (7,890 of 9,992 weighted reactions have no S atom-pair row), so
+  the S probe from sulfate returns a definite zero. That is a coverage finding
+  about the AAM tier, not a solver failure, and the report says so explicitly
+  rather than omitting the row.
+- **Pulse-chase V1 is red**: 7,119 refused reactions still carry a fabricated
+  transit pair in the frozen atom-pair table. Pre-existing, and a property of the
+  AAM build rather than of the measurement.
 - **The `sif/` tier still does not exist**, despite being named in the tier
   tables. Both images are on quay now, so it is a convenience rather than the
   fallback it was written as.

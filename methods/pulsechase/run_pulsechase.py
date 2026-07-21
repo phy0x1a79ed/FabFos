@@ -72,11 +72,16 @@ from fabfos import canon                    # noqa: E402
 import toy                      # noqa: E402
 import thresholds as T          # noqa: E402
 
-sys.path.insert(0, str(canon.ENGINE_LIB / "resources" / "lib"))
+# The IN-REPO submodule, deliberately -- NOT `canon.ENGINE_LIB`, which points at the
+# sibling standalone checkout. This suite is the acceptance harness for the engine THIS
+# REPO ships, so it must load that engine; pointing it at the sibling would let the two
+# drift and let the suite pass against code the repo does not contain.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent
+                       / "src/metasmith_libraries/resources/lib"))
 from ecspr_atom_graph import (atom_edges, star_edges, Grid, axis_terminals,     # noqa: E402
                               reff_from_z, permute_pairs, ATOM_REFF_EPS,
                               supernode_ieff, merge_terminals, metabolite_atoms)
-from ecspr_solver import _reff_dense, SELFTEST_TOL, REFF_EPS                      # noqa: E402
+from ecspr_graph import _reff_dense, SELFTEST_TOL, REFF_EPS                       # noqa: E402
 from ecspr_directed import build_incidence, directed_ceff                         # noqa: E402
 
 # The all-paths measurement now lives in the engine (ecspr_atom_graph); the suite tests
@@ -629,80 +634,18 @@ def axis_hops(base_graph: nx.Graph, src: str, dst: str) -> int | None:
     return d // 2
 
 
-def _load_base(el: str):
-    import pickle
-    with open(canon.SOLVE_BASE_DIR / f"base_{el}.pkl", "rb") as fh:
-        return pickle.load(fh)
-
-
-def _rank_far_axes(el: str):
-    import json
-    axes = json.loads(canon.AXES_JSON.read_text())
-    testable = json.loads(canon.AXES_TESTABLE_JSON.read_text())
-    base = _load_base(el)
-    ranked = []
-    for ax_id in testable.get(el, []):
-        a = axes[ax_id]
-        hops = axis_hops(base, a["source"][0], a["sink"][0])
-        if hops is not None:
-            ranked.append((hops, ax_id, a["source"][0], a["sink"][0]))
-    ranked.sort(reverse=True)
-    return base, ranked
-
-
-def check_III1():
-    """Far edges. Rank the testable canon.AXIS_SET axes by reaction hops; take
-    FAR_EDGE_COUNT per element. Every star-reachable far edge is co-LCC on the star base (component
-    membership), or fails into the enumerated allow-set. Assert reachability, not a
-    magnitude threshold."""
-    from ecspr_solver import SMWGraphContext
-    ok = True
-    total = 0
-    fails = []
-    for el in canon.ELEMENTS:
-        base, ranked = _rank_far_axes(el)
-        far = ranked[:T.FAR_EDGE_COUNT]
-        ctx = SMWGraphContext(base, edge_weight_key=f"w_{el}")
-        for hops, ax_id, s, t in far:
-            total += 1
-            sn, tn = ("met", s), ("met", t)
-            reachable = sn in ctx.lcc and tn in ctx.lcc
-            if not reachable:
-                # allow-set: transport (s==t bare), no-atom-of-element, or genuinely
-                # disconnected in source chemistry
-                allowed = (s == t) or (sn not in base) or (tn not in base) \
-                    or (not nx.has_path(base, sn, tn))
-                if not allowed:
-                    ok = False
-                    fails.append(ax_id)
-    return V("III1", "robustness", {"atom": "PASS" if ok else "FAIL"}, {"atom": "PASS"},
-             f"{total} far edges over {len(canon.ELEMENTS)} elements co-LCC or allow-set "
-             f"({'clean' if ok else 'FAILS: ' + ','.join(fails)})")
-
-
-def check_III2():
-    """Conditioning guard. On far edges the base R_eff is finite and below FAR_REFF_MAX,
-    so long-path Ieff is signal, not float noise near the 1e-12 clamp."""
-    from ecspr_solver import SMWGraphContext, SMWSolver, reff_base
-    ok = True
-    worst = 0.0
-    n = 0
-    for el in canon.ELEMENTS:
-        base, ranked = _rank_far_axes(el)
-        ctx = SMWGraphContext(base, edge_weight_key=f"w_{el}")
-        for hops, ax_id, s, t in ranked[:T.FAR_EDGE_COUNT]:
-            try:
-                solver = SMWSolver(base, [("met", s)], [("met", t)],
-                                   edge_weight_key=f"w_{el}", context=ctx)
-            except ValueError:
-                continue
-            r = reff_base(solver)
-            n += 1
-            worst = max(worst, r)
-            if not (np.isfinite(r) and 0 < r < T.FAR_REFF_MAX):
-                ok = False
-    return V("III2", "robustness", {"atom": "PASS" if ok else "FAIL"}, {"atom": "PASS"},
-             f"{n} far-edge base R_eff finite & < {T.FAR_REFF_MAX:g} (worst r={worst:.3g})")
+# check_III1 / check_III2 (far-edge co-LCC and far-edge base R_eff) and check_III5
+# (the batch-path claim) were RETIRED on 2026-07-20 with the star lane. All three read
+# artifacts that no longer exist or have producers: III1/III2 needed the star base
+# graphs (canon.SOLVE_BASE_DIR) and the graph-derived testable-axis subset
+# (canon.AXES_TESTABLE_JSON); III5 introspected ecspr_ablation._reff_batch, whose module
+# is gone. A gate against a retired artifact does not become a passing gate by being
+# left in the roster -- it becomes a green light for nothing.
+#
+# What they were checking -- that a far endpoint pair still has a finite, bounded
+# resistance rather than a fabricated transit -- is now covered structurally: on the
+# atom graph a transit edge only exists where an atom actually moves, and II2 / II9 /
+# II10 measure exactly that. Nothing was dropped without a replacement.
 
 
 def check_III3():
@@ -895,7 +838,7 @@ CHECKS = [
     check_I9,
     check_II1, check_II2, check_II3, check_II4, check_II5, check_II6, check_II7,
     check_II8, check_II9, check_II10,
-    check_III1, check_III2, check_III3, check_III4, check_III5,
+    check_III3, check_III4,
     check_IV1, check_IV2,
     check_V1,
 ]

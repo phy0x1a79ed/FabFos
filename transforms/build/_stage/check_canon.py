@@ -82,11 +82,25 @@ def main() -> int:
         check(f"canon.{symbol} == {item_id}.sha256",
               getattr(canon, symbol) == rec.get("sha256"))
 
-    print("\n5. the frozen null files canon names are all in the library")
+    print("\n5. the frozen star nulls canon still names are in the library")
+    # These address FROZEN HISTORICAL bytes. The star lane retired on 2026-07-20 and
+    # nothing produces or consumes those tables any more, but they remain declared so
+    # the tier3->tier4 report and the benchmark history stay readable. Checking that
+    # they are still where canon says they are is a provenance check, not a lane gate.
     d = canon.REFERENCE_NULL_DIR
     missing = [f for f in canon.FROZEN_NULL_FILES if not (d / f).exists()]
-    check(f"{len(canon.FROZEN_NULL_FILES)} frozen null files present", not missing,
+    check(f"{len(canon.FROZEN_NULL_FILES)} frozen star null files present", not missing,
           f"missing: {missing}")
+
+    print("\n6. the ground null canon names (the live lane) -- reported, not required")
+    # Deliberately NOT a hard check: ecspr::ground_null is BUILD-side and expensive, and
+    # it now HAS a producing transform (ecsprGround/null.py), so absence means "not
+    # produced yet", not "canon is wrong". The experiment spec's preflight is where a run
+    # refuses over it, naming the missing draw size -- never interpolating across it.
+    gmissing = [p.name for p in canon.ground_null_paths() if not p.exists()]
+    print(f"  {len(canon.ground_null_files()) - len(gmissing)}/"
+          f"{len(canon.ground_null_files())} ground-null draw files present"
+          + (f"; not produced yet: {gmissing}" if gmissing else ""))
 
     if failures:
         print(f"\n{len(failures)} FAILURE(S): {', '.join(failures)}")

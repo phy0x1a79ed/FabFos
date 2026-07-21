@@ -14,16 +14,19 @@ Planning does NOT require the staged files to exist; the planner resolves on
 types and lineage. So this renders on a machine that has none of the 46 GB.
 A real run obviously does need them.
 
-Two lanes are selected here, and the choice is deliberate rather than
-structural:
+The lane is selected here, and the choice is deliberate rather than
+structural: `ecsprAtomB` builds the atom-transfer graph from the experiment's
+own annotation evidence. THREE domains produce `ecspr::atom_graph` --
+`ecsprAtomB`, `ecsprAtomA` (a curated GEM) and `ecsprAtomGPR` (a GEM plus an
+active gene set) -- so loading two would let the planner pick by tiebreak.
+Which lane runs is a claim about the method, so it is made here, explicitly,
+and recorded in the method id.
 
-  * network B (`ecsprNetB`) -- base graphs induced from the experiment's own
-    annotation evidence, as opposed to network A's curated GEM.
-  * the DIRECTED solve (`ecsprDirected`) -- canonical since 2026-07-18.
-
-Both lanes in a pair produce the SAME output types, so loading both would let
-the planner pick one by tiebreak. Which lane runs is a claim about the method,
-so it is made here, explicitly, and recorded in the method id.
+The STAR lane was retired on 2026-07-20. On that topology a metabolite was a
+single node joined to reaction-node HUBS, and eliminating a reaction node --
+which is what the Woodbury update does -- left a CLIQUE over its participants,
+so two participants sharing no atom still got a conductance. Here a node IS an
+atom and an edge IS an atom transfer.
 
 Where each staged input comes from is reported at the end, split into items
 resolved through the data library and items still resolved from an absolute
@@ -51,16 +54,18 @@ LIB = resolve_library_root()
 
 # The lanes. Both members of each pair produce the same types; loading both
 # would make the planner choose by tiebreak rather than by intent.
-DOMAINS = ["fosmids", "functionalAnnotation", "ecspr", "ecsprNetB", "ecsprDirected"]
+DOMAINS = ["fosmids", "functionalAnnotation", "ecspr", "ecsprAtomB", "ecsprGround"]
 
 # Staged inputs that the data library carries, addressed through canon so that
 # no absolute path appears here.
 FROM_LIBRARY: dict[str, str] = {
     "ecspr::metanetx_reac_prop": "REAC_PROP",
-    # reaction_roles is content-identical to reac_prop; canon addresses it
-    # separately so the directed lane's dependency is explicit.
-    "ecspr::reaction_roles": "DIR_REAC_PROP",
-    "ecspr::mnx_bipartite": "BIPARTITE_DIR",
+    # The atom-transfer universe. `ecspr::reaction_roles` used to sit beside this
+    # -- the star needed it, parsed out of reac_prop.tsv, to know which side of a
+    # reaction a metabolite sat on. The atom-pair table already names substrate and
+    # product per transfer, so the question disappeared with the topology.
+    "ecspr::atom_pairs": "REFERENCE_ATOM_PAIRS",
+    "ecspr::direction_ratios": "REFERENCE_DIRECTION",
 }
 
 # Staged inputs the data library does NOT yet declare, so they are still
@@ -72,8 +77,7 @@ RN_CACHE = MM / "04_reaction_network" / "cache"
 
 FROM_INCUMBENT: dict[str, Path] = {
     "ecspr::metanetx_chem_prop": INCUMBENT / "references/metanetx/chem_prop.tsv",
-    "ecspr::biomass_axes": RN_CACHE / "biomass_dag_axes_set2cat.json",
-    "ecspr::direction_ratios": INCUMBENT / "direction/direction_annotation.parquet",
+    "ecspr::biomass_axes": RN_CACHE / "biomass_dag_axes_set4.json",
     "functional_annotation::ko_to_mnxr": MM / "_reference_try1/betweenness/cache/ko_to_mnxr.tsv",
     "functional_annotation::metanetx_reac_xref": INCUMBENT / "references/metanetx/reac_xref.tsv",
     "functional_annotation::rhea2uniprot": INCUMBENT / "references/rhea/rhea2uniprot.tsv",
@@ -158,10 +162,13 @@ def build_inputs(staging: Path) -> tuple[DataInstanceLibrary, list[str], list[st
             inputs.AddItem(path, type_name)
         via_incumbent.append(type_name)
 
-    # The frozen null, curated by canon's EXPLICIT file list -- never a glob.
-    nulls = curated_dir(staging, "frozen_null", [Path(p) for p in canon.FROZEN_NULL_FILES])
-    inputs.AddItem(nulls, "ecspr::frozen_null")
-    via_library.append("ecspr::frozen_null")
+    # The ground null, curated by canon's EXPLICIT file list -- never a glob. The
+    # scorer derives its draw sizes by listing this directory, so the list IS the
+    # basis. Unlike the retired ecspr::frozen_null, this type HAS a producer
+    # (ecsprGround/null.py) -- that missing producer was a named Known gap.
+    nulls = curated_dir(staging, "ground_null", canon.ground_null_paths())
+    inputs.AddItem(nulls, "ecspr::ground_null")
+    via_library.append("ecspr::ground_null")
 
     inputs.Save()
     return inputs, via_library, via_incumbent
@@ -188,12 +195,14 @@ def main() -> int:
 
     print("=== planning ===")
     targets = TargetBuilder()
-    targets.Add("ecspr::reff_significance")
-    targets.Add("ecspr::ieff_significance")
-    # NOT targeted here: ecspr::ablation_importance. The ablation transform
-    # additionally requires ecspr::compute_profile, which the data library does
-    # not yet declare, so adding it makes the whole set unsatisfiable rather
-    # than just its own branch. Declaring compute_profile is the next revision.
+    # Both artifacts, because they are different questions and only one of them
+    # needs the built graph. `ground_significance` runs off atom_pairs +
+    # evidence_weights directly -- it must REBUILD per unit, so it needs the
+    # ingredients, not the built object -- and would therefore never select the
+    # atom_graph builder on its own. `ground_probe_report` is what describes the
+    # base network, and it is the step that exercises `ecsprAtomB`.
+    targets.Add("ecspr::ground_probe_report")
+    targets.Add("ecspr::ground_significance")
     task = agent.GenerateWorkflow(
         samples=list(inputs.AsSamples("fosmids::recovery_experiment")),
         resources=resources + [inputs],

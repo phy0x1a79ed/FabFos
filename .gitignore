@@ -20,3 +20,7 @@ trim_sequences.fasta.*
 /scratch
 /secrets
 /lib/tini
+
+# build artifact: dev.sh -b bundles the metasmith library in here for shipping.
+# Generated, never edited; the source of truth is src/metasmith_libraries/.
+src/fabfos/_library/

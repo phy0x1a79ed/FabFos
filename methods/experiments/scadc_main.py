@@ -1,28 +1,44 @@
-"""SCADC main: score the canonical basis for ECSPr significance.
+"""SCADC main: score the canonical basis for ECSPr ground-probe significance.
 
-Stages the canonical solve and asks for the significance targets. Every path and
-every number comes from `canon`; this file transcribes neither.
+Stages the reference ingredients and asks for `ecspr::ground_significance`. Every path
+and every number comes from `canon`; this file transcribes neither.
 
-WHY THE SOLVE IS STAGED RATHER THAN RECOMPUTED
-----------------------------------------------
-The observed solve is the expensive, already-verified artifact, and re-deriving it
-here would change nothing except the risk. What this spec exists to exercise is the
-SPINE and the SCORER -- and staging the solve makes that a real gate: the output must
-reproduce the incumbent table, so a regression anywhere in staging, planning, the
-container, or the scorer shows up as a numeric difference rather than as a plausible
-new table.
+WHAT CHANGED HERE (2026-07-20)
+------------------------------
+This spec used to STAGE a frozen two-terminal solve (`ecspr::{reff,ieff}_axes_report`)
+and ask only for the scorer, so that the output had to reproduce the incumbent table and
+any regression in staging / planning / the container / the scorer showed up as a numeric
+difference. That gate is gone with the lane it gated.
+
+The star topology joined every metabolite to reaction-node HUBS, and eliminating a
+reaction node -- which is exactly what the Woodbury update does -- left a CLIQUE over its
+participants, giving two participants that share no atom a conductance between them
+(measured on MNXR106432, carbon: a zero-carbon channel 21x a real one). Reproducing that
+table would be reproducing the artifact. So this spec now stages the INGREDIENTS -- the
+atom-pair table, the direction ensemble, the evidence weights, the addition maps -- and
+the atom lane builds, probes and scores from them.
+
+The replacement gate is not parity against a frozen table; it is CONSERVATION plus the
+SYMMETRIC LIMIT, both asserted in the engine's own self-tests (`ecspr_graph.py`), plus
+the pulse-chase suite. Those gate the measurement rather than its agreement with an
+earlier run of itself.
 
 WHY THERE IS NO ANNOTATION LANE HERE
 ------------------------------------
-Deliberate, and the single most important line in this file. The driver this replaces
-re-ran annotation from gated databases on every invocation. Fresh annotation changes
-the evidence, which changes the numbers, which destroys the parity signal that makes
-any of this trustworthy -- so the pipeline could never be used to check itself. A
-canonical driver stages evidence as an INPUT. Running annotation fresh is a separate,
-later, deliberate question, and it should be asked by an experiment whose name says so.
+Deliberate, and still the single most important line in this file. The driver this
+replaces re-ran annotation from gated databases on every invocation. Fresh annotation
+changes the evidence, which changes the numbers, which destroys any hope of attributing a
+difference to the thing you changed -- so the pipeline could never be used to check
+itself. A canonical driver stages evidence as an INPUT. Running annotation fresh is a
+separate, later, deliberate question, and it should be asked by an experiment whose name
+says so.
 
-Only the `ecspr` domain is loaded. A loaded domain can be selected structurally by the
-planner, so leaving the annotation domain in is how you get a lane you did not ask for.
+WHICH DOMAINS ARE LOADED, AND WHY EXACTLY THESE
+-----------------------------------------------
+A loaded domain can be selected structurally by the planner, so leaving one in is how you
+get a lane you did not ask for. THREE domains produce `ecspr::atom_graph` -- `ecsprAtomB`
+(evidence-weighted), `ecsprAtomA` (curated GEM), `ecsprAtomGPR` (GEM + active gene set).
+Exactly one is loaded here, and which one is a claim about the method.
 """
 from __future__ import annotations
 
@@ -32,16 +48,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from fabfos import canon
-from spec import DirInput, ExperimentSpec, Value
+from spec import DirInput, ExperimentSpec
 
 
 def assert_axes():
     """Assert the axis set by COUNT, not by filename -- the filename is what drifted.
 
-    Assert the graph-INDEPENDENT axis definition (AXES_JSON, exactly canon.AXES_N of
-    the canon.AXIS_SET axes), not the graph-derived testable subset
-    (AXES_TESTABLE_JSON), which on the honest reference graph is a strict subset (one
-    phospholipid C axis lost its LCC endpoint).
+    The ground probe derives its media / central / precursor sets from THIS file's
+    contents, so an unnoticed substitution would silently redefine what "biomass" means
+    for every share in the output.
     """
     canon.assert_canonical_axes(canon.AXES_JSON)
 
@@ -49,8 +64,8 @@ def assert_axes():
 def assert_basis():
     """Assert the ORF FASTA carries the expected basis, including the split contigs.
 
-    Cheap, and it fails here rather than after the planner has staged everything.
-    The split contigs are the ones a `\\w`-based ORF regex drops silently.
+    Cheap, and it fails here rather than after the planner has staged everything. The
+    split contigs are the ones a `\\w`-based ORF regex drops silently.
     """
     contigs = set()
     with open(canon.ORFS_FAA) as fh:
@@ -65,61 +80,58 @@ def assert_basis():
             f"basis FASTA has {len(contigs)} contigs; expected canon.FOSMID_BASIS")
 
 
-def note_production_status():
-    """Surface the canonical method's PRODUCTION status so a pending state reads as
-    'produce these outputs', not 'this experiment is misconfigured'. Non-fatal: the
-    input-existence check that follows is what stops a run; this only explains it. The
-    canonical orientation is the declared standard regardless of whether its frozen
-    outputs exist yet (see canon.CANONICAL_ORIENTATION)."""
-    st = canon.production_status()
-    if st["pending"]:
-        print(
-            f"  PENDING PRODUCTION: canonical orientation is '{st['orientation']}'; its "
-            f"frozen outputs are not on disk yet.\n"
-            f"    This experiment STAGES them (it does not produce them) -- run the "
-            f"directed reference solve + null\n"
-            f"    with the fixed solver to produce them, then re-run. The standard is "
-            f"declared; this is validation work, not a misconfiguration.")
+def note_null_status():
+    """Surface whether the ground null has been produced yet.
+
+    Non-fatal: the input-existence check that follows is what stops a run; this only
+    explains it. `ecspr::ground_null` is BUILD-side and expensive, and unlike its
+    predecessor it HAS a producing transform (`ecsprGround/null.py`) -- so a pending
+    state reads as "produce this artifact", not "this experiment is misconfigured".
+    """
+    missing = [p.name for p in canon.ground_null_paths() if not p.exists()]
+    if missing:
+        print(f"  PENDING PRODUCTION: {len(missing)} ground-null draw file(s) are not on "
+              f"disk yet: {missing}\n"
+              f"    Produce them with the ecsprGround/null.py transform, then re-run. The "
+              f"draw-size grid comes from canon.DRAW_SIZES (the run's own ORF\n"
+              f"    percentiles); a size that is missing must be GENERATED, never "
+              f"interpolated across.")
     else:
-        print(f"  ok: canonical '{st['orientation']}' outputs produced")
+        print(f"  ok: all {len(canon.DRAW_SIZES)} ground-null draw sizes present")
 
 
 SPEC = ExperimentSpec(
     name="scadc_main",
     inputs={
-        # the staged, canonical solve -- the frozen reference solve on the honest
-        # reference graph (delta_obs). ORIENTATION-DISPATCHED: reference_axes_report()
-        # returns the undirected OR the directed (diode) frozen table per
-        # canon.CANONICAL_ORIENTATION. This spec never re-solves -- it stages the frozen
-        # report -- so it needs NO roles/direction inputs (those are the solve_directed
-        # transform's, not the scorer's); flipping the orientation moves this spec onto
-        # the directed reference table with no edit here, only the one-line canon flip.
-        "ecspr::reff_axes_report": canon.reference_axes_report("reff"),
-        "ecspr::ieff_axes_report": canon.reference_axes_report("ieff"),
-        # ORF counts for null size matching
+        # The atom-transfer universe and its directionality. Both are network-AGNOSTIC
+        # static functions of the MNXR ids, so they are shared staged inputs.
+        "ecspr::atom_pairs": canon.REFERENCE_ATOM_PAIRS,
+        "ecspr::direction_ratios": canon.REFERENCE_DIRECTION,
+        # The host's per-reaction conductances and the per-fosmid addition maps -- the
+        # matched pair. Staged rather than recomputed so that two runs differ only in
+        # what they were asked to differ in.
+        "ecspr::evidence_weights": canon.EVIDENCE_WEIGHTS,
+        "ecspr::addition_weights": canon.ADDITION_WEIGHTS,
+        # The biomass DAG. The probe derives media / central / precursor from it.
+        "ecspr::biomass_axes": canon.AXES_JSON,
+        # ORF counts for null size matching.
         "sequences::open_reading_frames": canon.ORFS_FAA,
-        # the null -- the reference-GRAPH null, the matched pair to the solve above:
-        # delta_obs and its null are on the SAME graph AND the SAME orientation.
-        # reference_null_files() dispatches on canon.CANONICAL_ORIENTATION in lockstep
-        # with the solve above, so a flip can never leave delta_obs and its null on
-        # different orientations. Curated from an EXPLICIT list (the scorer derives its
-        # draw sizes from whatever is here, so this list IS the basis -- a glob would
-        # silently redefine it).
-        "ecspr::frozen_null": DirInput(canon.reference_null_files()),
-        # device/dtype as a hashed input, so a GPU run and a CPU run of the same
-        # step cannot collide on one cache entry
-        "ecspr::compute_profile": Value("compute_profile.yml", canon.COMPUTE_CPU),
+        # The null. Curated from an EXPLICIT list: the scorer derives its draw sizes by
+        # listing this directory, so this list IS the basis -- a glob would silently
+        # redefine it, and a cache holds retired sizes beside canonical ones.
+        "ecspr::ground_null": DirInput(canon.ground_null_paths()),
     },
     per_experiment=frozenset({
-        "ecspr::reff_axes_report",
-        "ecspr::ieff_axes_report",
+        "ecspr::evidence_weights",
+        "ecspr::addition_weights",
         "sequences::open_reading_frames",
     }),
     targets=(
-        "ecspr::reff_significance",
-        "ecspr::ieff_significance",
+        "ecspr::ground_significance",
     ),
-    domains=("ecspr",),
+    # ecsprAtomB is the evidence-weighted graph builder. It is ONE of three producers of
+    # ecspr::atom_graph and the others must not be loaded beside it.
+    domains=("ecspr", "ecsprAtomB", "ecsprGround"),
     namespaces=("sequences", "fosmids", "ecspr"),
-    preflight=(assert_axes, assert_basis, note_production_status),
+    preflight=(assert_axes, assert_basis, note_null_status),
 )

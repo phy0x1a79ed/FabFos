@@ -482,7 +482,6 @@ RETIRED_AXIS_SETS = ("set2", "set2cat")
 # instead of importing the name, so canon's copy was never exercised. That is the exact
 # failure mode this module exists to prevent, inverted -- prose was right, canon was
 # wrong, and the duplicate hid it.
-AXES_TSV = DATA / "figures" / "publish" / "05_scadc" / f"biomass_edges_{AXIS_SET}.tsv"
 # The axis DEFINITIONS (source/sink species per axis). Graph-INDEPENDENT: it is set4
 # itself, so it is exactly AXES_N regardless of which graph the solve runs on. Assert
 # canonical axes against THIS.
@@ -600,28 +599,6 @@ BIPARTITE_FILES = tuple(f"mnx_bipartite_{e}.pkl" for e in ELEMENTS)
 BASE_GRAPH_FILES = tuple(f"base_{e}.pkl" for e in ELEMENTS)
 
 # =====================================================================
-# The solver gate
-# =====================================================================
-# WHY THIS EXISTS. Neither existing gate runs the solver. `run_parity.py` feeds the
-# scorer `delta_obs` from `{lane}_axes_report.tsv` via --report-dir, and every
-# experiment spec stages `ecspr::{reff,ieff}_axes_report` as an INPUT -- scadc_main
-# says so outright ("the staged, canonical solve"). Both cover (delta_obs, nulls) ->
-# p/q. The solve itself was gated only by a prose claim in transforms/ecspr/solve.py
-# ("verified ... max|abs| 1.4e-8") -- untested, and LOOSER than PARITY_TOL.
-#
-# WHY IT GATES AGAINST A DENSE REBUILD RATHER THAN THE INCUMBENT TABLE. Measured:
-# the engine solver agrees with a dense ground-truth rebuild to ~1e-14, while the
-# incumbent `axes_report` agrees only to ~1e-8. `g_base` matches at ~1e-16, so the
-# graph is identical and the divergence is entirely in the Woodbury update -- and it
-# is the INCUMBENT that carries it. Gating the solver against the incumbent would
-# therefore pin the accurate implementation to the inaccurate one. The referent is
-# the rebuild: no Woodbury, no clique elimination, no shared factorisation.
-SOLVER_GATE_TOP_CELLS = 3      # per (element, axis): the largest observed deltas
-SOLVER_GATE_RANDOM_CELLS = 2   # per (element, axis): typical rows, not just extremes
-SOLVER_GATE_AXES = 2           # axes sampled per element
-SOLVER_GATE_SEED = 7
-
-# =====================================================================
 # Compute
 # =====================================================================
 # Staged as a content-hashed input so it enters the task hash. See MIGRATION.md
@@ -725,119 +702,67 @@ DIR_COLUMNS = ("mnxr", "dG_prime", "sigma", "ratio",
 # [resolved through the library] DIR_CURATED = DIR_DATA / "curated_per_mnxr.parquet"
 
 # =====================================================================
-# The canonical solve reports (the reference graph)
+# RETIRED: the star-lane solve reports (2026-07-20)
 # =====================================================================
-def _require_orientation(orientation: str) -> None:
-    if orientation not in ORIENTATIONS:
-        raise ValueError(
-            f"unknown orientation {orientation!r}; expected one of {ORIENTATIONS}")
+# `reference_axes_report()`, `reference_axes_report_directed()`,
+# `undirected_axes_report()`, `reference_null_files()`, `production_status()`,
+# `incumbent_axes_report()` and `incumbent_sig_table()` addressed the two-terminal
+# per-axis reff/ieff tables and their nulls. ECSPr no longer produces them: the star
+# topology joined every metabolite to reaction-node HUBS, and eliminating a reaction
+# node -- which is what a Woodbury update does -- left a CLIQUE over its participants,
+# giving two participants sharing no atom a conductance between them (measured on
+# MNXR106432, carbon: a zero-carbon channel 21x a real one). The measurement moved to
+# the atom-resolved graph; see `ground_probe_report()` / `ground_null_files()` below.
+#
+# The CONSTANTS that address those frozen bytes are deliberately KEPT --
+# CANONICAL_ORIENTATION, LANES, CANONICAL_LANE, FROZEN_NULL_FILES, DRAW_SIZES,
+# REFERENCE_SOLVE_DIR, REFERENCE_NULL_*_DIR -- because the frozen tables are still
+# declared in the data library and the tier3->tier4 report and the benchmark history
+# still read them. What is gone is every FUNCTION that fed a live chain off them. Do
+# not delete the frozen artifacts; they are provenance, not dead weight.
+#
+# The ground probe's artifacts. `ground_null_files()` is an EXPLICIT curated list for
+# the same reason FROZEN_NULL_FILES was: the scorer derives its draw sizes by listing
+# the staged directory, so a glob over a cache would silently widen the null basis.
+GROUND_NULL_STEM = "ground_null_N{n}.tsv"
 
 
-def reference_axes_report(lane: str = CANONICAL_LANE,
-                          orientation: str | None = None) -> Path:
-    """The canonical solve the experiment stages as delta_obs.
+def ground_probe_dir() -> Path:
+    """Where the ground probe's artifacts live, under the reference root.
 
-    The frozen reference solve on the honest reference graph, in the canonical
-    ORIENTATION (CANONICAL_ORIENTATION, override via `orientation` for a study run or a
-    gate): the DIRECTED solve (REFERENCE_SOLVE_DIRECTED_DIR/{lane}_axes_report.tsv) since
-    2026-07-18, the undirected solve (REFERENCE_SOLVE_DIR/...) before. Read-only frozen
-    data, never rebuilt by a consumer. This replaced incumbent_axes_report() as the staged
-    solve when the reference graph became canonical (2026-07-17); the orientation flipped
-    to directed once the fixed diode solver's null cleared its gates. For the undirected
-    symmetric-limit referent the parity gates join against, use undirected_axes_report()
-    or reference_axes_report(lane, orientation="undirected").
+    A FUNCTION, not a module-level constant: REFERENCE_ROOT resolves lazily through the
+    library manifest via module __getattr__, and a module-level assignment here would
+    shadow that and silently restore a hardcoded path. Three earlier accessors made
+    exactly that mistake and were dead on every call -- see `_lib`.
     """
-    _require_lane(lane)
-    orientation = orientation or CANONICAL_ORIENTATION
-    _require_orientation(orientation)
-    if orientation == "directed":
-        return reference_axes_report_directed(lane)
-    return _lib("REFERENCE_SOLVE_DIR") / f"{lane}_axes_report.tsv"
+    return _lib("REFERENCE_ROOT") / "ground_probe"
 
 
-def reference_axes_report_directed(lane: str = CANONICAL_LANE) -> Path:
-    """The DIRECTED (diode) reference solve -- the canonical delta_obs.
-
-    Its OWN directory (solve_directed), never an alias onto the undirected directory with
-    a `_directed` filename suffix -- an earlier fork tried that, and the suffixed files it
-    named were never produced, so every consumer failed at the point of use. It emits the
-    SAME reff/ieff schema as the undirected solve, so it flows through CANONICAL_LANE and
-    the significance scorer unchanged.
-    """
-    _require_lane(lane)
-    return _lib("REFERENCE_SOLVE_DIRECTED_DIR") / f"{lane}_axes_report.tsv"
+def ground_null_dir() -> Path:
+    return _lib("REFERENCE_ROOT") / "ground_null"
 
 
-def undirected_axes_report(lane: str = CANONICAL_LANE) -> Path:
-    """The frozen UNDIRECTED reference solve -- the symmetric-limit referent the directed
-    parity gates join against (directed force-noop must reproduce THIS, cell for cell, to
-    ~1e-6). Once CANONICAL_ORIENTATION is 'directed' this is NO LONGER the staged canonical
-    solve (that is reference_axes_report()); it is the fixed referent that proves the
-    directed model degrades to the undirected one wherever direction is unknown.
-    Equivalent to reference_axes_report(lane, orientation="undirected")."""
-    _require_lane(lane)
-    return _lib("REFERENCE_SOLVE_DIR") / f"{lane}_axes_report.tsv"
+def ground_significance_dir() -> Path:
+    return _lib("REFERENCE_ROOT") / "ground_significance"
 
 
-def reference_null_files(orientation: str | None = None) -> list[Path]:
-    """The frozen null files matched to reference_axes_report(): the SAME graph AND the
-    SAME orientation as the observed solve, so delta_obs and the null it is scored
-    against are never mismatched. Curated from an explicit list -- a glob would silently
-    redefine the draw-size basis, because the scorer reads its grid from directory
-    CONTENTS and both null directories have accumulated retired sizes.
-
-    Note what this does NOT establish: same orientation and same graph DIRECTORY is not
-    the same UNIVERSE. The atom-pair tier is invisible here (the directory names do not
-    carry it, and the two hash pins in assert_canonical_reference are tier-invariant).
-    That is what check_universe_pair.py is for.
-    """
-    orientation = orientation or CANONICAL_ORIENTATION
-    _require_orientation(orientation)
-    if orientation == "directed":
-        return [_lib("REFERENCE_NULL_DIRECTED_DIR") / f
-                for f in FROZEN_NULL_FILES_DIRECTED]
-    return [_lib("REFERENCE_NULL_UNDIRECTED_DIR") / f
-            for f in FROZEN_NULL_FILES_UNDIRECTED]
+def ground_probe_report(basis: str = "epi300") -> Path:
+    """The base media->ground probe table for one evidence basis."""
+    return ground_probe_dir() / f"ground_probe_{basis}.tsv"
 
 
-def production_status(orientation: str | None = None) -> dict:
-    """Whether the canonical method's frozen outputs have been PRODUCED yet.
-
-    Canonicity is the declared standard (CANONICAL_ORIENTATION); this reports only
-    whether that standard's outputs exist+frozen on disk, so a consumer can fail with an
-    actionable message ("produce them") instead of a bare file-not-found, and so it is
-    never confused for a statement about whether the standard is canonical. `pending`
-    True means: standard is declared, outputs not produced yet -- run the producer.
-    """
-    orientation = orientation or CANONICAL_ORIENTATION
-    _require_orientation(orientation)
-    obs = {lane: reference_axes_report(lane, orientation).exists() for lane in LANES}
-    nul = {p.name: p.exists() for p in reference_null_files(orientation)}
-    return {
-        "orientation": orientation,
-        "observed_reference": obs,
-        "null": nul,
-        "pending": (not all(obs.values())) or (not all(nul.values())),
-    }
+def ground_effect_report(basis: str = "epi300") -> Path:
+    """The observed per-unit effect table (delta_total + delta_clr per precursor)."""
+    return ground_probe_dir() / f"ground_effects_{basis}.tsv"
 
 
-# =====================================================================
-# The incumbent referent (frozen, historical -- NOT the canonical graph)
-# =====================================================================
-# Kept so the SCORER-parity gate can still join the frozen incumbent inputs to the
-# frozen incumbent outputs (a pure regression of the mixture-SF port, independent of
-# which graph is canonical). These are no longer the graph the solve runs on.
-def incumbent_sig_table(lane: str = CANONICAL_LANE) -> Path:
-    """The incumbent significance table the SCORER-parity gate joins against."""
-    _require_lane(lane)
-    return INCUMBENT_ROOT / "reff" / f"{SCORER}_{lane}.tsv"
+def ground_null_files() -> tuple:
+    """The curated null file list -- never a glob. One per staged draw size."""
+    return tuple(GROUND_NULL_STEM.format(n=n) for n in DRAW_SIZES)
 
 
-def incumbent_axes_report(lane: str = CANONICAL_LANE) -> Path:
-    """The incumbent star-graph solve. Frozen historical referent; use
-    reference_axes_report() for the canonical (reference-graph) solve."""
-    _require_lane(lane)
-    return INCUMBENT_CACHE / f"{lane}_axes_report.tsv"
+def ground_null_paths() -> list:
+    return [ground_null_dir() / n for n in ground_null_files()]
 
 
 def _require_lane(lane: str) -> None:

@@ -11,8 +11,8 @@ transcribed). These are behavioural bounds on ECSPr itself, so they belong to th
 suite, not to the basis -- but they follow the same commit-before-you-look discipline.
 
 Solver/atom tolerances are imported from the engine, never restated:
-  * ecspr_solver.SELFTEST_TOL   (1e-9)   -- star/production two-terminal R_eff
-  * ecspr_solver.REFF_EPS/IEFF_EPS (1e-12) -- star/production conductance floor
+  * ecspr_graph.SELFTEST_TOL    (1e-9)   -- the atom lane's two-terminal R_eff
+  * ecspr_graph.REFF_EPS/IEFF_EPS (1e-12) -- the atom lane's conductance floor
   * ecspr_atom_graph.ATOM_REFF_EPS (1e-12) -- ATOM-lane conductance floor (distinct)
   * canon.EPS (1e-12), canon.PARITY_TOL (1e-9), canon.GPU_CPU_TOL (1e-6)
 """

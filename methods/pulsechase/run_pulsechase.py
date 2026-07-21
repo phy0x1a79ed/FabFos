@@ -696,22 +696,6 @@ def check_III4():
              f"per-cell Ieff exact across 2- and 3-shard partitions={exact}")
 
 
-def check_III5():
-    """Batch path -- VERIFIED vacuous, DROPPED with rationale. The CPU
-    ecspr_ablation._reff_batch ignores batch_size (it is a per-map reff_summary loop),
-    so a 'bit-identity across batch sizes' claim is vacuous. The honest GPU-vs-CPU
-    retarget needs a CUDA device, unavailable here -> the claim is dropped, not faked."""
-    import inspect
-    from ecspr_ablation import _reff_batch
-    src = inspect.getsource(_reff_batch)
-    # affirm the vacuity: batch_size is a parameter the body never branches on
-    vacuous = "batch_size" in src and "for a in maps" in src
-    note = ("CPU _reff_batch ignores batch_size (per-map loop); GPU-vs-CPU retarget "
-            "needs CUDA (absent) -> claim dropped, not asserted by bit-identity")
-    return V("III5", "robustness", {"atom": "NA"}, {"atom": "NA"},
-             note if vacuous else "UNEXPECTED: _reff_batch body changed")
-
-
 # =====================================================================
 # Runner
 # =====================================================================

@@ -97,8 +97,17 @@ def main() -> int:
         contract[ns] = set(yaml.safe_load(p.open())["types"]) if p.exists() else set()
     before = len(failures)
     seen = set()
+    retired = []
     for item_id, item in declared.items():
         t = item.get("type", "")
+        if item.get("retired"):
+            # A RETIRED record declares a frozen artifact whose producing lane is gone,
+            # so its type is deliberately absent from the library contract. The bytes and
+            # their sha256 pin stay -- an unreproducible artifact whose pin is dropped
+            # becomes an unverifiable claim -- but nothing may stage it as a typed input
+            # again. Reported, not checked; `retired: true` is what says so out loud.
+            retired.append(f"{item_id} [{t}]")
+            continue
         if "::" not in t:
             check(item_id, False, f"type [{t}] is not namespaced")
             continue
@@ -109,7 +118,10 @@ def main() -> int:
             continue
         if name not in contract[ns]:
             check(item_id, False, f"type [{t}] is not in {types_root/(ns+'.yml')}")
-    check(f"{len(declared)} declared types all resolve",
+    if retired:
+        print(f"  {len(retired)} RETIRED record(s), type check skipped by design: "
+              + ", ".join(retired))
+    check(f"{len(declared) - len(retired)} live declared types all resolve",
           len(failures) == before,
           f"namespaces used: {', '.join(sorted(seen))}; "
           f"contract sizes: {', '.join(f'{k}={len(v)}' for k, v in sorted(contract.items()))}")

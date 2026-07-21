@@ -441,7 +441,23 @@ items:
       NOT to numpy (the widely-repeated numpy-1.26 claim is false and was
       checked).
 
+  # ------------------------------------------------------------------
+  # RETIRED LANE (2026-07-20). The four records below declare the STAR
+  # lane's frozen outputs. Nothing produces or consumes them any more:
+  # ECSPr moved to the atom-resolved graph, because on the star topology
+  # eliminating a reaction node left a clique over its participants and
+  # gave two participants sharing no atom a conductance between them
+  # (MNXR106432, carbon: a zero-carbon channel 21x a real one).
+  #
+  # They are KEPT, and their bytes are NOT to be deleted: the tier3->tier4
+  # report and the benchmark history read them, and an unreproducible
+  # artifact whose pin is dropped becomes an unverifiable claim. `type:`
+  # names a type the library no longer declares -- that is the marker,
+  # and it is deliberate. Nothing may stage these as a typed input again.
+  # ------------------------------------------------------------------
+
   - id: mnxref.solve
+    retired: true
     src: ecspr_reference/mnxref-4_5/solve_tier4
     dest: derived/mnxref-4_5/solve
     type: ecspr::base_graphs
@@ -457,6 +473,7 @@ items:
       canonical solve runs on.
 
   - id: mnxref.solve_directed
+    retired: true
     src: ecspr_reference/mnxref-4_5/solve_directed_tier4
     dest: derived/mnxref-4_5/solve_directed
     type: ecspr::base_graphs
@@ -479,6 +496,7 @@ items:
       sibling (solve_directed/) stays on disk as the comparison baseline.
 
   - id: mnxref.null_undirected
+    retired: true
     src: ecspr_reference/mnxref-4_5/null
     dest: derived/mnxref-4_5/null
     type: ecspr::frozen_null
@@ -498,6 +516,7 @@ items:
       to work around this hazard. Verify by sha256; NEVER by regeneration.
 
   - id: mnxref.null_directed
+    retired: true
     src: ecspr_reference/mnxref-4_5/null_directed_tier4
     dest: derived/mnxref-4_5/null_directed
     type: ecspr::frozen_null

@@ -364,17 +364,25 @@ items:
       which must agree with the metanetx.reac_prop record.
 
   - id: mnxref.atom_pairs
-    src: ecspr_reference/mnxref-4_5/atom_pairs.parquet
+    src: ecspr_reference/mnxref-4_5/atom_pairs_tier4.parquet
     dest: derived/mnxref-4_5/atom_pairs.parquet
     type: ecspr::atom_pairs
     tier: derived
     kind: derived
-    producer: resources/lib/ecspr_atom_pairs.py
-    inputs: [metanetx.reac_prop, metanetx.chem_prop]
+    producer: resources/lib/ecspr_atom_pairs.py + notes/build_tier4.py
+    inputs: [metanetx.reac_prop, metanetx.chem_prop, metacyc26.flatfiles]
     determinism: reproducible
     note: >-
-      The atom-atom mapping table. 56,090 resolved / 2,270 diluted / 25,436
-      refused of 83,796 reactions.
+      TIER 4 since 2026-07-20. The atom-atom mapping table, now the tier3
+      predicted table plus the STRICTLY ADDITIVE MetaCyc curated increment
+      (+105,891 pairs over 5,246 reactions). The `_tier4` suffix is on the
+      SOURCE only -- `dest` is unsuffixed, so every consumer keeps its path and
+      the tier is a property of the declaration, not of the filename a
+      consumer reads. The tier3 sibling (atom_pairs.parquet, sha 9e6d4347)
+      stays on disk as the comparison baseline. See
+      ecspr_reference/mnxref-4_5/TIER4_FREEZE.md for the freeze record and the
+      deliberate exclusions (the 15,539-reaction upgrade path, 954 refused,
+      11,389 unextracted) -- tier4 is the additive increment ONLY.
 
   - id: mnxref.direction
     src: ecspr_reference/mnxref-4_5/direction.parquet
@@ -419,7 +427,7 @@ items:
     determinism: reproducible
 
   - id: mnxref.graph
-    src: ecspr_reference/mnxref-4_5/graph
+    src: ecspr_reference/mnxref-4_5/graph_tier4
     dest: derived/mnxref-4_5/graph
     type: ecspr::mnx_bipartite
     tier: derived
@@ -434,7 +442,7 @@ items:
       checked).
 
   - id: mnxref.solve
-    src: ecspr_reference/mnxref-4_5/solve
+    src: ecspr_reference/mnxref-4_5/solve_tier4
     dest: derived/mnxref-4_5/solve
     type: ecspr::base_graphs
     tier: derived
@@ -449,19 +457,26 @@ items:
       canonical solve runs on.
 
   - id: mnxref.solve_directed
-    src: ecspr_reference/mnxref-4_5/solve_directed
+    src: ecspr_reference/mnxref-4_5/solve_directed_tier4
     dest: derived/mnxref-4_5/solve_directed
     type: ecspr::base_graphs
     tier: derived
     kind: derived
-    producer: ecspr solve (directed, softplus diode)
+    producer: ecspr solve (directed, softplus diode) -- SEE `reproducibility` BELOW
     inputs: [mnxref.graph, mnxref.direction]
     determinism: reproducible
     exclude: ["sockeye/**"]
+    reproducibility: ACCEPTED-WITHOUT-PRODUCER
     note: >-
-      The CANONICAL observed reports since 2026-07-18. sockeye/ is excluded:
-      it holds a cluster-side re-run (*_axes_report_S.tsv), not the canonical
-      output.
+      TIER 4 since 2026-07-20. The CANONICAL observed reports. 15,621 cells.
+      ACCEPTED WITHOUT A COMMITTED PRODUCER (an explicit decision, not an
+      oversight): these tables were produced by hand -- local, env `p312`,
+      softplus-diode directed solve, ~82 min serial -- and no script in any
+      tree regenerates them today. They are therefore FROZEN rather than
+      reproducible: the per-file sha256 in this record is the pin, so an
+      unreproducible artifact still cannot silently change. If the solver is
+      ever modified, a re-solve must be diffed against this pin. The tier3
+      sibling (solve_directed/) stays on disk as the comparison baseline.
 
   - id: mnxref.null_undirected
     src: ecspr_reference/mnxref-4_5/null
@@ -483,7 +498,7 @@ items:
       to work around this hazard. Verify by sha256; NEVER by regeneration.
 
   - id: mnxref.null_directed
-    src: ecspr_reference/mnxref-4_5/null_directed
+    src: ecspr_reference/mnxref-4_5/null_directed_tier4
     dest: derived/mnxref-4_5/null_directed
     type: ecspr::frozen_null
     tier: derived
@@ -494,6 +509,13 @@ items:
       - "ieff_null_directed_N{14,25,30,35,43}.tsv"
       - "reff_null_directed_N{14,25,30,35,43}.tsv"
     note: >-
+      TIER 4 since 2026-07-20 (Sockeye 12325885, 20 shards, 316,000-row merge
+      gate passed). The `_tier4` suffix is on the SOURCE only; `dest` is
+      unsuffixed so consumers keep their paths. MUST be the same universe as
+      mnxref.solve_directed -- nothing structural enforces that pairing
+      (direction.parquet and reac_prop.tsv are tier-INVARIANT, so canon's hash
+      pins pass identically on tier3 and tier4 data and are blind to a tier
+      mismatch by construction), so it is checked explicitly instead.
       The CANONICAL null. Draw sizes are the p10/p30/p50/p70/p90 ORF
       percentiles of orfs_199.faa (median 30 ORFs, 0.96 ORF/kb) -- NOT the
       retired (21,28,34,42,51,56) grid. _curated/ is dropped; it additionally
@@ -529,7 +551,7 @@ items:
   # ===================================================================
 
   - id: validation.dual_network
-    src: ecspr_validation
+    src: ecspr_benchmark/ecspr_validation
     dest: validation/dual_network
     type: ecspr::validation_set
     tier: validation
@@ -538,6 +560,11 @@ items:
     determinism: seeded
     exclude: ["_archive/**", "logs/**"]
     note: >-
+      RELOCATED 2026-07-20: the source moved from `ecspr_validation` to
+      `ecspr_benchmark/ecspr_validation`. The declaration was not updated, so
+      the item silently went unresolvable and both check_canon (VALIDATION_DIR
+      not in the manifest) and check_provenance failed against it. Same tree,
+      same 49 MB, same MANIFEST.tsv -- only the parent directory moved.
       THE VALIDATION DATASET. It has landed (49 MB, gathered 2026-07-14) and
       ships its own MANIFEST.tsv with per-file sha256 -- so it arrives with
       provenance already attached; we adopt those hashes rather than
@@ -554,16 +581,24 @@ items:
       validation_summary_gof.tsv.
 
   - id: validation.significance
-    src: ecspr_reference/mnxref-4_5/significance
+    src: ecspr_reference/mnxref-4_5/significance_tier4
     dest: validation/significance
     type: ecspr::significance_table
     tier: validation
     kind: derived
-    producer: 05r_significance_mix.py
+    producer: main/fabfos/reference/finish_t2_significance.py (engine ecspr_significance.py run)
     inputs: [mnxref.solve_directed, mnxref.null_directed]
     determinism: reproducible
     select: [sig_mix_ieff.tsv, sig_mix_reff.tsv]
     note: >-
-      The canonical full-mixture-SF scorer output. The *_undirected.bak files
-      beside these are dropped -- they are the pre-flip outputs, superseded
-      when directed became canonical.
+      TIER 4 since 2026-07-20. The canonical full-mixture-SF scorer output,
+      scored from the tier4 directed solve against the tier4 directed null.
+      THIS RECORD IS THE ONE THAT WAS WRONG: the library carried tier4 graph,
+      solve and null while this member was still the 2026-07-18 tier3 table,
+      so the library was internally MIXED and nothing said so. The pairing is
+      now checked by transforms/build/_stage/check_universe_pair.py, which
+      joins this table's delta_obs back onto the solve it claims to come from
+      -- the check that caught the mixing in the first place (the tier3 table
+      matched a tier3 solve at 100% and the tier4 solve at 13%).
+      The tier3 siblings under significance/ (and the *_undirected.bak beside
+      them, pre-flip outputs) are retained there as the comparison baseline.

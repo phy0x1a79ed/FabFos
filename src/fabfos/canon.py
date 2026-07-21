@@ -114,6 +114,15 @@ ENGINE_LIB = Path(_os.environ.get(
     "/home/tony/agentic_workspace/projects/metasmith-libraries/fabfos",
 ))
 
+# The experiment-side METHOD scripts -- the solve/null/parity/direction spine. Not a
+# library item (it is code, not data) and not importable as a package (the scripts are
+# CLIs that import each other as siblings), so consumers put the relevant subdirectory on
+# sys.path. Named here so they stop doing it with a relative hop: the scripts used to sit
+# in a `main/fabfos/` copy inside each figure scope, and a consumer reached them with
+# `HERE.parents[1] / "fabfos" / "directed"` -- which silently bound to whichever scope's
+# copy the caller happened to live in.
+METHODS_DIR = Path(__file__).resolve().parents[2] / "methods"
+
 _manifest_cache: dict | None = None
 
 
@@ -187,6 +196,12 @@ _PATHS: dict[str, str] = {
     "DIR_TABLE":                   "derived/direction/direction_annotation.parquet",
     "DIR_CALIBRATION":             "derived/direction/calibration.parquet",
     "DIR_CURATED":                 "derived/direction/curated_per_mnxr.parquet",
+    # Network A's OWN direction table -- NOT the thermodynamic ensemble. Network B and
+    # the reference take direction from exp(dG'/RT); Network A was built from a curated
+    # GEM (iECDH10B) whose reactions encode direction NATIVELY as flux bounds, so its
+    # honest directionality is those bounds, not thermodynamics. Two columns
+    # (mnxr, ratio) -- the exact ecspr_network.load_direction_ratios contract.
+    "NETA_DIR_TABLE":              "derived/direction/netA_gem_direction.parquet",
     "METACYC_FLATFILES":           "external/licensed/metacyc26_flatfiles",
     "UNIREF50_DMND":               "derived/uniref50/uniref50.dmnd",
     "ESMC_WEIGHTS":                "external/esmc/esmc_600m.tgz",
@@ -231,6 +246,23 @@ def __getattr__(name: str) -> Path:
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
+def _lib(name: str) -> Path:
+    """Resolve a library-backed symbol FROM INSIDE this module.
+
+    Module-level `__getattr__` is only consulted for attribute access from OUTSIDE
+    (`canon.REFERENCE_SOLVE_DIR`). A bare name in a function body here is an ordinary
+    global lookup, and since these symbols deliberately have no module-level binding --
+    that is the whole point, an assignment would shadow __getattr__ and silently restore
+    a hardcoded path -- the lookup raises NameError.
+
+    Three functions did exactly that and were dead on every call:
+    reference_axes_report(), undirected_axes_report(), assert_canonical_reference().
+    They were never covered, because check_canon.py tests the ATTRIBUTE path
+    (getattr(canon, name)), which works fine. Route internal reads through here.
+    """
+    return __getattr__(name)
+
+
 def __dir__() -> list:
     return sorted(list(globals()) + list(_PATHS) + list(_UNAVAILABLE) + ["REFERENCE_NULL_DIR"])
 
@@ -248,9 +280,50 @@ def __dir__() -> list:
 # no longer the graph+solver the canonical solve runs on. Flip this one constant to revert;
 # every resolver below follows it.
 CANONICAL_ORIENTATION = "directed"
-_ORIENTATIONS = ("undirected", "directed")
-assert CANONICAL_ORIENTATION in _ORIENTATIONS
+ORIENTATIONS = ("undirected", "directed")
+_ORIENTATIONS = ORIENTATIONS          # back-compat alias
+assert CANONICAL_ORIENTATION in ORIENTATIONS
 _DIRECTED = CANONICAL_ORIENTATION == "directed"
+
+# =====================================================================
+# The atom-pair universe TIER
+# =====================================================================
+# Tier 4 = tier 3 (the predicted AAM ensemble) + the strictly ADDITIVE MetaCyc curated
+# increment, frozen 2026-07-20. Recorded here so consumers can NAME the universe they
+# ran on; it is not a switch. The tier is chosen in exactly one place -- the `src:`
+# fields of provenance/data/_declared.yml -- and the library's `dest:` paths are
+# deliberately UN-suffixed, so every path constant above is tier-agnostic and a tier
+# swap moves no code.
+#
+# WHY THAT MATTERS HERE: it means nothing in this module can tell you which tier the
+# library holds. Neither can assert_canonical_reference() -- both hashes it pins
+# (reac_prop.tsv, direction.parquet) are tier-INVARIANT. Use
+# transforms/build/_stage/check_universe_pair.py, which discriminates on g_base.
+#
+# Tier 4 restores one carbon axis that tier 3's graph could not reach, so the testable
+# axis set is the FULL AXES_PER_ELEMENT (79) rather than tier 3's strict subset (78).
+MNXREF_VERSION = "4.5"   # the frozen MetaNetX release the whole basis is bound to
+REFERENCE_TIER = 4
+REFERENCE_TIER_FROZEN = "2026-07-20"
+
+# WHERE PRODUCERS WRITE -- deliberately NOT the library.
+#
+# Every REFERENCE_* path above resolves INTO `.awm/data/ref/`, whose members are
+# HARDLINKS into the scadc data tree. They share inodes, so a producer that "writes into
+# the library" does not write a new file: it mutates the data-tree file the library was
+# built from, in place, with no record. Read paths come from the library; WRITE paths
+# come from here, and the library is rebuilt afterwards to adopt the result.
+#
+# Tier-suffixed for the same reason the inputs are: the tier3 significance tables are the
+# only evidence of what the tier change moved, so a tier4 run must not land on top of
+# them. An un-suffixed output directory is exactly how that would happen -- the producer
+# had one, hardcoded, and it named the tier3 directory.
+REFERENCE_OUT_ROOT = DATA / "ecspr_reference" / f"mnxref-{MNXREF_VERSION.replace('.', '_')}"
+_TIER_SUFFIX = "" if REFERENCE_TIER == 3 else f"_tier{REFERENCE_TIER}"
+REFERENCE_SIGNIFICANCE_DIR = REFERENCE_OUT_ROOT / f"significance{_TIER_SUFFIX}"
+REFERENCE_ATOM_PAIRS_SHA256 = (
+    "7b3b217f91373f3141404767f9be3ad20a87be10d756ccef6a7ecdb1311abe93"
+)
 
 # The per-reaction direction ratios (exp(dG'/RT), MNXR-keyed) the directed solve rectifies
 # each edge with. Frozen beside the reference; ratio 1.0 == no evidence == reversible ==
@@ -261,6 +334,18 @@ _DIRECTED = CANONICAL_ORIENTATION == "directed"
 REFERENCE_DIRECTION_SHA256 = (
     "c80009055601e64342ba56aaf48547f609f2621c47fa4f495abff8c6fd6a8fc5"
 )
+
+# The observed DIRECTED solve, pinned per lane. Every other frozen artifact in this file
+# is pinned so a silent REGENERATE cannot change the answer. This one is pinned for the
+# opposite reason: it has no producer at all. It was made by hand at tier4 (local, env
+# p312, softplus-diode directed solve, ~82 min serial) and accepted on that basis, so
+# there is no run to repeat and no way to re-derive it from the tree today. The pin is
+# what converts "unreproducible" into "unreproducible but immutable and auditable" --
+# the artifact cannot be regenerated, but neither can it drift unnoticed.
+REFERENCE_SOLVE_DIRECTED_SHA256 = {
+    "ieff": "1d1a5c9053faafe2d13b9e3be3171f21cded2303752cf30ee7ff65df5ae99113",
+    "reff": "bfd9c2e09822c78842958993ec066568bf520ba18e165987dbfc93da229e7796",
+}
 
 # The canonical null: the reference-GRAPH null (reference/build_reference_null.py for the
 # undirected referent; directed/build_directed_null.py for the directed canonical), the
@@ -338,6 +423,14 @@ _NULL_STEM = "directed" if _DIRECTED else "canonical"
 FROZEN_NULL_FILES = tuple(
     f"{lane}_null_{_NULL_STEM}_N{n}.tsv" for lane in LANES for n in DRAW_SIZES
 )
+# The two orientations' lists by name, so reference_null_files(orientation=...) can
+# serve a gate that asks for the NON-canonical one without re-deriving the convention.
+FROZEN_NULL_FILES_DIRECTED = tuple(
+    f"{lane}_null_directed_N{n}.tsv" for lane in LANES for n in DRAW_SIZES
+)
+FROZEN_NULL_FILES_UNDIRECTED = tuple(
+    f"{lane}_null_canonical_N{n}.tsv" for lane in LANES for n in DRAW_SIZES
+)
 FROZEN_DRAWS_FILES = tuple(
     f"null_canonical_N{n}_draws.parquet" for n in DRAW_SIZES
 )
@@ -358,7 +451,14 @@ AXIS_SET = "set4"
 RETIRED_AXIS_SETS = ("set2", "set2cat")
 # Lives in the PUBLISH tree while being read as a pipeline INPUT. That inversion
 # is logged in MIGRATION.md; the path is recorded here so nothing has to guess it.
-AXES_TSV = DATA / "figures" / "publish" / "03_model" / "ecspr_scadc" / f"biomass_edges_{AXIS_SET}.tsv"
+# PATH CORRECTED 2026-07-20. This named publish/03_model/ecspr_scadc/, which does not
+# exist -- the table lives under publish/05_scadc/, and that is the only copy on disk.
+# The dangling value survived because no consumer used the symbol: the one loader that
+# reads this table (main/ecspr/method/_inputs.py) transcribed the correct path itself
+# instead of importing the name, so canon's copy was never exercised. That is the exact
+# failure mode this module exists to prevent, inverted -- prose was right, canon was
+# wrong, and the duplicate hid it.
+AXES_TSV = DATA / "figures" / "publish" / "05_scadc" / f"biomass_edges_{AXIS_SET}.tsv"
 # The axis DEFINITIONS (source/sink species per axis). Graph-INDEPENDENT: it is set4
 # itself, so it is exactly AXES_N regardless of which graph the solve runs on. Assert
 # canonical axes against THIS.
@@ -582,22 +682,45 @@ DIR_COLUMNS = ("mnxr", "dG_prime", "sigma", "ratio",
 # =====================================================================
 # The canonical solve reports (the reference graph)
 # =====================================================================
-def reference_axes_report(lane: str = CANONICAL_LANE) -> Path:
+def _require_orientation(orientation: str) -> None:
+    if orientation not in ORIENTATIONS:
+        raise ValueError(
+            f"unknown orientation {orientation!r}; expected one of {ORIENTATIONS}")
+
+
+def reference_axes_report(lane: str = CANONICAL_LANE,
+                          orientation: str | None = None) -> Path:
     """The canonical solve the experiment stages as delta_obs.
 
     The frozen reference solve on the honest reference graph, in the canonical
-    ORIENTATION (CANONICAL_ORIENTATION): the DIRECTED solve
-    (REFERENCE_SOLVE_DIRECTED_DIR/{lane}_axes_report.tsv) since 2026-07-18, the undirected
-    solve (REFERENCE_SOLVE_DIR/...) before. Built at 0 pending and hash-pinned via
-    assert_canonical_reference(); read-only frozen data, never rebuilt by a consumer. This
-    replaced incumbent_axes_report() as the staged solve when the reference graph became
-    canonical (2026-07-17); the orientation flipped to directed once the fixed diode
-    solver's null cleared its gates. For the undirected symmetric-limit referent the parity
-    gates join against, use undirected_axes_report().
+    ORIENTATION (CANONICAL_ORIENTATION, override via `orientation` for a study run or a
+    gate): the DIRECTED solve (REFERENCE_SOLVE_DIRECTED_DIR/{lane}_axes_report.tsv) since
+    2026-07-18, the undirected solve (REFERENCE_SOLVE_DIR/...) before. Read-only frozen
+    data, never rebuilt by a consumer. This replaced incumbent_axes_report() as the staged
+    solve when the reference graph became canonical (2026-07-17); the orientation flipped
+    to directed once the fixed diode solver's null cleared its gates. For the undirected
+    symmetric-limit referent the parity gates join against, use undirected_axes_report()
+    or reference_axes_report(lane, orientation="undirected").
     """
     _require_lane(lane)
-    d = REFERENCE_SOLVE_DIRECTED_DIR if _DIRECTED else REFERENCE_SOLVE_DIR
-    return d / f"{lane}_axes_report.tsv"
+    orientation = orientation or CANONICAL_ORIENTATION
+    _require_orientation(orientation)
+    if orientation == "directed":
+        return reference_axes_report_directed(lane)
+    return _lib("REFERENCE_SOLVE_DIR") / f"{lane}_axes_report.tsv"
+
+
+def reference_axes_report_directed(lane: str = CANONICAL_LANE) -> Path:
+    """The DIRECTED (diode) reference solve -- the canonical delta_obs.
+
+    Its OWN directory (solve_directed), never an alias onto the undirected directory with
+    a `_directed` filename suffix -- an earlier fork tried that, and the suffixed files it
+    named were never produced, so every consumer failed at the point of use. It emits the
+    SAME reff/ieff schema as the undirected solve, so it flows through CANONICAL_LANE and
+    the significance scorer unchanged.
+    """
+    _require_lane(lane)
+    return _lib("REFERENCE_SOLVE_DIRECTED_DIR") / f"{lane}_axes_report.tsv"
 
 
 def undirected_axes_report(lane: str = CANONICAL_LANE) -> Path:
@@ -605,9 +728,52 @@ def undirected_axes_report(lane: str = CANONICAL_LANE) -> Path:
     parity gates join against (directed force-noop must reproduce THIS, cell for cell, to
     ~1e-6). Once CANONICAL_ORIENTATION is 'directed' this is NO LONGER the staged canonical
     solve (that is reference_axes_report()); it is the fixed referent that proves the
-    directed model degrades to the undirected one wherever direction is unknown."""
+    directed model degrades to the undirected one wherever direction is unknown.
+    Equivalent to reference_axes_report(lane, orientation="undirected")."""
     _require_lane(lane)
-    return REFERENCE_SOLVE_DIR / f"{lane}_axes_report.tsv"
+    return _lib("REFERENCE_SOLVE_DIR") / f"{lane}_axes_report.tsv"
+
+
+def reference_null_files(orientation: str | None = None) -> list[Path]:
+    """The frozen null files matched to reference_axes_report(): the SAME graph AND the
+    SAME orientation as the observed solve, so delta_obs and the null it is scored
+    against are never mismatched. Curated from an explicit list -- a glob would silently
+    redefine the draw-size basis, because the scorer reads its grid from directory
+    CONTENTS and both null directories have accumulated retired sizes.
+
+    Note what this does NOT establish: same orientation and same graph DIRECTORY is not
+    the same UNIVERSE. The atom-pair tier is invisible here (the directory names do not
+    carry it, and the two hash pins in assert_canonical_reference are tier-invariant).
+    That is what check_universe_pair.py is for.
+    """
+    orientation = orientation or CANONICAL_ORIENTATION
+    _require_orientation(orientation)
+    if orientation == "directed":
+        return [_lib("REFERENCE_NULL_DIRECTED_DIR") / f
+                for f in FROZEN_NULL_FILES_DIRECTED]
+    return [_lib("REFERENCE_NULL_UNDIRECTED_DIR") / f
+            for f in FROZEN_NULL_FILES_UNDIRECTED]
+
+
+def production_status(orientation: str | None = None) -> dict:
+    """Whether the canonical method's frozen outputs have been PRODUCED yet.
+
+    Canonicity is the declared standard (CANONICAL_ORIENTATION); this reports only
+    whether that standard's outputs exist+frozen on disk, so a consumer can fail with an
+    actionable message ("produce them") instead of a bare file-not-found, and so it is
+    never confused for a statement about whether the standard is canonical. `pending`
+    True means: standard is declared, outputs not produced yet -- run the producer.
+    """
+    orientation = orientation or CANONICAL_ORIENTATION
+    _require_orientation(orientation)
+    obs = {lane: reference_axes_report(lane, orientation).exists() for lane in LANES}
+    nul = {p.name: p.exists() for p in reference_null_files(orientation)}
+    return {
+        "orientation": orientation,
+        "observed_reference": obs,
+        "null": nul,
+        "pending": (not all(obs.values())) or (not all(nul.values())),
+    }
 
 
 # =====================================================================
@@ -822,27 +988,90 @@ def assert_canonical_direction_table(table, *, n_reactions: int | None = None):
     return df
 
 
+ATOM_PAIRS_COLS = ("mnxr", "element", "substrate", "product", "sub_idx", "prod_idx",
+                   "pair_w", "method", "source", "confidence")
+
+# =====================================================================
+# Verdict vocabulary (finite, class-based)
+# =====================================================================
+# Every reaction carries exactly one AAM verdict and one direction verdict. A verdict is
+# one of three STATES; a refusal additionally carries one reason CLASS. This IS the
+# acceptance instrument: "100% adjudicated" means every reaction has a verdict whose
+# state is one of these and none is left pending -- which is what n_pending == 0 asserts
+# in assert_canonical_reference() above.
+#
+# Moved here from the figure-scope `reference.py` during the canon consolidation. It is
+# vocabulary the closure ledger and its consumers share, so it belongs with the rest of
+# the basis rather than in a module that only one tree could import.
+V_RESOLVED = "resolved"            # a confident map / a ratio with evidence
+V_DILUTED = "diluted-ambiguous"    # known but spread (fanout, symmetry, disagreement)
+V_REFUSED = "refused"              # an explicit, reasoned refusal (carries a reason class)
+VERDICT_STATES = (V_RESOLVED, V_DILUTED, V_REFUSED)
+V_PENDING = "pending"              # the one non-verdict the ledger must drive to zero
+
+
 def assert_canonical_reference(*, check_hash: bool = True):
     """Refuse an AAM+direction reference that is not the pinned, closed one.
 
-    The schema, closure, MetaNetX-version, and self-consistency checks belong to the
-    method module -- delegate them to ``reference.assert_reference`` rather than
-    re-listing (a second copy is the drift this file exists to remove). Then add the
-    one experiment-level check the method module cannot make: the reference must be the
-    EXACT frozen universe this basis was validated against
-    (``canon.REFERENCE_REAC_PROP_SHA256``), not merely a self-consistent rebuild
-    against some other release.
+    SELF-CONTAINED as of the canon consolidation. This previously delegated the schema /
+    closure / version checks to ``main/fabfos/reference/reference.py``, imported by
+    sys.path injection from a sibling directory of the CALLER. That module lived in the
+    scadc figure scopes -- the very duplicate this consolidation removes -- so the
+    delegation was a dependency running the wrong way: the single-source canon reaching
+    back into one of the copies it replaces. It was also already dead here, because
+    ``src/fabfos/`` has no ``reference/`` sibling, so every call raised ImportError.
 
-    ``reference`` is the sibling method module (``main/fabfos/reference``); it is
-    experiment-side, NOT the engine library, so importing it here is a consumer reading
-    a method pin -- never the forbidden library->experiment edge. Returns the manifest.
+    The checks are inlined against the frozen MANIFEST.json, which is itself a library
+    member. What was worth keeping from the old module is its ORDER -- most useful error
+    first:
+      * the manifest pins this MetaNetX release;
+      * the reference is CLOSED (0 un-adjudicated reactions);
+      * both tables exist and carry the declared MNXR-keyed schema;
+      * the universe hash is the exact one this basis was validated against;
+      * the direction table is the exact one the directed null was built with.
+
+    Returns the manifest.
     """
-    import sys
-    ref_dir = Path(__file__).resolve().parent / "reference"
-    sys.path.insert(0, str(ref_dir))
-    import reference as ref
+    import json
 
-    man = ref.assert_reference(check_hash=check_hash, require_closed=True)
+    man = json.loads(_lib("REFERENCE_MANIFEST").read_text())
+
+    if man.get("mnxref_version") != MNXREF_VERSION:
+        raise CanonError(
+            f"manifest pins MetaNetX {man.get('mnxref_version')!r} but canon is "
+            f"{MNXREF_VERSION!r}. A reference built against one release does not name "
+            f"the universe of another."
+        )
+
+    n_pending = man.get("n_pending")
+    if n_pending is None:
+        raise CanonError(
+            "manifest does not record n_pending; the closure ledger has not asserted "
+            "completeness. Re-run the ledger and refreeze.")
+    if n_pending != 0:
+        raise CanonError(
+            f"closure ledger reports {n_pending} un-adjudicated reaction(s); the "
+            f"reference is not closed. Every MNXR must carry a verdict (resolved / "
+            f"diluted-ambiguous / refused) before the reference may be trusted.")
+
+    import pandas as pd
+    for path, cols, label in ((_lib("REFERENCE_ATOM_PAIRS"), ATOM_PAIRS_COLS, "atom-pairs"),
+                              (_lib("REFERENCE_DIRECTION"), DIR_COLUMNS, "direction")):
+        if not path.exists():
+            raise CanonError(f"{label} table absent at {path}; reference incomplete.")
+        head = pd.read_parquet(path).head(0)
+        missing = [c for c in cols if c not in head.columns]
+        if missing:
+            raise CanonError(
+                f"{label} table {path.name} missing column(s) {missing}.")
+        if "mnxr" not in head.columns:
+            raise CanonError(f"{label} table is not MNXR-keyed.")
+
+    # NOTE what this does NOT prove. The manifest records the atom-pair table it was
+    # frozen beside as a PATH STRING, and at tier4 that string still reads
+    # "atom_pairs.parquet" -- the tier lives in the library declaration, not the
+    # filename. So none of the checks here can tell tier3 from tier4; the two hashes
+    # pinned below are both tier-invariant by construction. See check_universe_pair.py.
     if man.get("reac_prop_sha256") != REFERENCE_REAC_PROP_SHA256:
         raise CanonError(
             f"the frozen reference pins universe {man.get('reac_prop_sha256')!r}, but "
@@ -856,18 +1085,37 @@ def assert_canonical_reference(*, check_hash: bool = True):
     # graph, so the reac_prop hash alone cannot catch it.
     if _DIRECTED and check_hash:
         import hashlib
-        if not REFERENCE_DIRECTION.exists():
+        direction = _lib("REFERENCE_DIRECTION")
+        if not direction.exists():
             raise CanonError(
                 f"CANONICAL_ORIENTATION is 'directed' but the direction table is missing: "
-                f"{REFERENCE_DIRECTION}. The directed solve is scored against a null built "
+                f"{direction}. The directed solve is scored against a null built "
                 f"with these ratios; without it the canonical answer cannot be trusted."
             )
-        got = hashlib.sha256(REFERENCE_DIRECTION.read_bytes()).hexdigest()
+        got = hashlib.sha256(direction.read_bytes()).hexdigest()
         if got != REFERENCE_DIRECTION_SHA256:
             raise CanonError(
-                f"direction table {REFERENCE_DIRECTION} hashes {got!r}, but this basis "
+                f"direction table {direction} hashes {got!r}, but this basis "
                 f"pins canon.REFERENCE_DIRECTION_SHA256. A different direction table means "
                 f"different directed edges than the canonical directed null was built on; "
                 f"rebuild the directed solve+null or re-pin, do not trust it."
             )
+
+        # THE ACCEPTED SOLVE, FROZEN. solve_directed has no committed producer: it was
+        # made by hand (local, env p312, softplus-diode directed solve, ~82 min serial)
+        # and nothing in any tree regenerates it. That gap was accepted deliberately --
+        # so the countermeasure is immutability rather than reproducibility. These pins
+        # are the whole of it. If a re-solve ever happens, diff it against these; if
+        # this check fires without one, the canonical numbers moved and nobody said so.
+        for lane, pinned in REFERENCE_SOLVE_DIRECTED_SHA256.items():
+            p = reference_axes_report_directed(lane)
+            got = hashlib.sha256(p.read_bytes()).hexdigest()
+            if got != pinned:
+                raise CanonError(
+                    f"observed directed solve {p} hashes {got!r}, but this basis pins "
+                    f"canon.REFERENCE_SOLVE_DIRECTED_SHA256[{lane!r}]. This artifact has "
+                    f"NO producer -- it cannot be legitimately regenerated, so a changed "
+                    f"hash means it was overwritten or the library points somewhere else. "
+                    f"Do not trust it; find out what wrote it."
+                )
     return man

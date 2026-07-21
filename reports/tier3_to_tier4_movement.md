@@ -70,16 +70,39 @@ move wherever the true Δ approaches zero.
 
 **Any per-cell number quoted off tier 3 has to be re-read off tier 4.**
 
-## Rankings hold
+## Rankings "hold" — but this table cannot show that
 
 | | reff | ieff |
 |---|---|---|
-| axis-level effect-size Spearman | **0.954** | **0.965** |
+| axis-level effect-size Spearman | 0.954 | 0.965 |
 | top-10 axis overlap | 8/10 | 9/10 |
 | top-20 axis overlap | 17/20 | 18/20 |
 
-This is the level the paper reads, and it survives both changes. Axis-level conclusions
-stand; the per-cell numbers behind them do not.
+**Do not read this as "the tier change preserved the ranking."** It is inside the solver's
+own run-to-run noise.
+
+Re-running `build_directed_observed.py` on **identical** inputs — same tier-4 base, same
+graph — reproduces neither the frozen tables nor itself to better than:
+
+| two runs of the SAME solve | reff | ieff |
+|---|---|---|
+| axis-level Spearman | **0.965** | **0.951** |
+| top-10 axis overlap | **10/10** | **9/10** |
+| per-cell median relative move in delta | 14.5% | 14.4% |
+| cell-level Spearman | 0.75 | 0.69 |
+
+The axis-level numbers for *re-running the same solve* and for *changing the tier* are the
+same to two decimal places. So the axis-level comparison has no resolving power here: it
+would look like this whether or not the tier changed anything.
+
+What survives: **per-cell**, the tier/base change (median 94–98%) is ~6× the run-to-run
+floor (median 14%), so the per-cell movement is real. The axis-level agreement is simply
+uninformative, not reassuring.
+
+Root cause is a solver convergence floor — `CholmodWarning: Matrix is nearly singular`,
+`rcond` to ~1e-27 — and all three pairwise distances (frozen↔null, rerun↔null,
+frozen↔rerun) sit at the same ~2e-05 median on `g_base`, which is the signature of a
+common noise floor rather than an input difference. See `TIER4_FREEZE.md`.
 
 ## Survivors reshuffle — a diagnostic, not the result
 

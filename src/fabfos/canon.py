@@ -349,12 +349,23 @@ REFERENCE_DIRECTION_SHA256 = (
 )
 
 # The observed DIRECTED solve, pinned per lane. Every other frozen artifact in this file
-# is pinned so a silent REGENERATE cannot change the answer. This one is pinned for the
-# opposite reason: it has no producer at all. It was made by hand at tier4 (local, env
-# p312, softplus-diode directed solve, ~82 min serial) and accepted on that basis, so
-# there is no run to repeat and no way to re-derive it from the tree today. The pin is
-# what converts "unreproducible" into "unreproducible but immutable and auditable" --
-# the artifact cannot be regenerated, but neither can it drift unnoticed.
+# is pinned so a silent REGENERATE cannot change the answer. This one is pinned because
+# a regenerate DOES change the answer.
+#
+# It was believed to have no producer. It has one -- methods/directed/build_directed_observed.py,
+# which takes every input from this module. Re-running it on 2026-07-20 against the same
+# tier-4 base and graph did NOT reproduce these tables: per-cell `delta` moved by a median
+# of 14.4%, with 54% of cells past 10%, on 15,621 cells both times. That is a solver
+# convergence floor rather than a bad run -- frozen<->null, rerun<->null and frozen<->rerun
+# all sit at the same ~2e-05 median distance on g_base, and the solve emits
+# `CholmodWarning: Matrix is nearly singular` with rcond to ~1e-27.
+#
+# So the canonical result is THIS ARTIFACT, not "what the method computes". Any per-cell
+# number is reproducible only by reading these exact bytes, which is what the pin protects.
+# Corollary worth carrying: two runs of the same solve agree at AXIS level to rho
+# 0.951-0.965, which is indistinguishable from tier3-vs-tier4 agreement -- so an
+# axis-level correlation between two solves cannot license a claim about what changed
+# between them. See reports/tier3_to_tier4_movement.md.
 REFERENCE_SOLVE_DIRECTED_SHA256 = {
     "ieff": "1d1a5c9053faafe2d13b9e3be3171f21cded2303752cf30ee7ff65df5ae99113",
     "reff": "bfd9c2e09822c78842958993ec066568bf520ba18e165987dbfc93da229e7796",

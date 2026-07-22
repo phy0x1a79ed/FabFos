@@ -16,7 +16,6 @@ trim_sequences.fasta.*
 /conda_recipe/*
 !/conda_recipe/compile_recipe.py
 !/conda_recipe/meta_template.yaml
-/data
 /scratch
 /secrets
 /lib/tini
@@ -30,3 +29,6 @@ src/fabfos/_library/
 # and ARE tracked.
 transforms/build/benchmark/v3_build/run/
 transforms/build/benchmark/v3_build/run_star_universe_baseline/
+
+/data/*
+!/data/_metadata

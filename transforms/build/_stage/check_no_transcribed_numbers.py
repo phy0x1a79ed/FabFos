@@ -114,7 +114,14 @@ EXEMPT = re.compile(r"#\s*canon-ok:\s*\S")
 # set the panel was built from, which is a RECORD of a value, not a restatement of
 # one; and it is frozen, so the only way to satisfy the gate by editing it would be
 # to break the hash the freeze exists to protect.
-SKIP_DIRS = {"__pycache__", ".runs", "_staged_nulls", ".git", "v3_build"}
+#
+# `_library` is the .runs/ case again, one directory up: `dev.sh -b` bundles
+# src/metasmith_libraries/ into src/fabfos/_library/ for shipping, and that path is
+# gitignored generated output, not source we author. Scanning it charged us 66 of 75
+# strict hits -- every one of them the ENGINE restating its own constants, in files
+# whose originals live in a submodule this gate deliberately does not govern. It also
+# double-counted: the same line is scanned once in the bundle and never in its source.
+SKIP_DIRS = {"__pycache__", ".runs", "_staged_nulls", ".git", "v3_build", "_library"}
 
 
 def _skipped(rel: Path) -> bool:

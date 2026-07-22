@@ -43,7 +43,7 @@ def main(argv=None) -> int:
     ap.add_argument("--ref", required=True)
     ap.add_argument("--element", default="N")
     ap.add_argument("--nperm", type=int, default=6)
-    ap.add_argument("--port-mults", type=float, nargs="*", default=[1.0, 100.0, 1000.0])
+    ap.add_argument("--port-mults", type=float, nargs="*", default=[1.0, 100.0, 1000.0])  # canon-ok: port conductance decades, not a draw count; collides with DRAW_K by value only
     ap.add_argument("--leak-mult", type=float, default=1e-7)
     ap.add_argument("--genes", nargs="*",
                     default=["psd__BEHIND_serine", "lpxCD__BEHIND_set4",

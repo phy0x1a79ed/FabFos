@@ -42,11 +42,13 @@ _old/                   # the previous Snakemake implementation, kept for refere
 
 `src/metasmith_libraries` is pinned to `feat/fabfos`, which is the branch
 carrying the `fosmids/` transform domain and the ECSPr prerequisite chain —
-`release` has neither. `src/metasmith` is pinned to `release`, the only branch
-its remote publishes. Both also carry a secondary `awm` git remote (the sibling
-local bare repos) for push-free local sync during co-development; the commits
-they are pinned to are on the GitHub remotes, so a plain
-`git clone --recurse-submodules` works.
+`release` has neither. `src/metasmith` is likewise pinned to its own
+`feat/fabfos` scope branch (the engine changes the fosmid pipeline depends on,
+e.g. the `RunTransform` / containerized-run fixes) rather than `release`, which
+predates them. Both also carry a secondary `awm` git remote (the sibling local
+bare repos) for push-free local sync during co-development; the commits they are
+pinned to are also published on the GitHub remotes (`feat/fabfos` on each fork),
+so a plain `git clone --recurse-submodules` works.
 
 ## Data dependencies
 
@@ -59,7 +61,14 @@ is described in the tier tables but has never been created — see Known gaps.
 
 `provenance/data/_declared.yml` is the hand-edited source of truth; the records
 beside it are **generated** and carry each item's size, sha256 and per-file
-digests. Build and check the library with:
+digests. The sources it resolves against live in `data/` at the repo root — the
+project's DVC data layer (`data/<chunk>` holds the files, `data/<chunk>.dvc` is
+the git-committed pin; `data/raw/LASER` is the one exception, pinned by
+url+sha256 in `provenance/data/laser.yml` instead, since it's an upstream git
+checkout). `.dvc/config.local` (untracked, per-worktree) points the DVC cache
+at the shared `/home/tony/agentic_workspace/data/.dvc_cache`, so `dvc checkout`
+in a new worktree hardlinks the ~43 GB in rather than copying it. Build and
+check the library with:
 
 ```bash
 python transforms/build/_stage/build_ref_library.py --stage --place --index --verify

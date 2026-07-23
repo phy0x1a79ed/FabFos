@@ -1,0 +1,6 @@
+outs:
+- md5: f5c1999667da6bb5279b9e28fa75e939.dir
+  size: 38023176789
+  nfiles: 2
+  hash: md5
+  path: uniref50

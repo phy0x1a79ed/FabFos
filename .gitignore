@@ -40,3 +40,6 @@ transforms/build/benchmark/v3_build/run_star_universe_baseline/
 # since hashing a tree of git repos as data bytes turns its .git into thousands
 # of cache objects and the checkout stops being a checkout.
 /data/raw/LASER/
+
+# test artifacts: regenerable DAG renders from tests/*.py
+tests/artifacts/

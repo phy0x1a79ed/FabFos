@@ -1,0 +1,6 @@
+outs:
+- md5: 01fe303e0681faa8ab874c05b1bb25a1.dir
+  size: 7173799
+  nfiles: 38
+  hash: md5
+  path: keio

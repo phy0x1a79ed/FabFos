@@ -1,0 +1,1964 @@
+manifest:
+  derived/direction/calibration.parquet:
+    parents:
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mapping.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mappings-smiles.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/classes.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/compounds.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/reactions.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/metanetx/4.5/reac_prop.tsv: ecspr::metanetx_reac_prop
+    type: ecspr::direction_ratios
+  derived/direction/curated_per_mnxr.parquet:
+    parents:
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mapping.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mappings-smiles.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/classes.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/compounds.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/reactions.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/metanetx/4.5/reac_prop.tsv: ecspr::metanetx_reac_prop
+    type: ecspr::direction_ratios
+  derived/direction/direction_annotation.parquet:
+    parents:
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mapping.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mappings-smiles.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/classes.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/compounds.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/reactions.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/metanetx/4.5/reac_prop.tsv: ecspr::metanetx_reac_prop
+    type: ecspr::direction_ratios
+  derived/direction/member_dgbyg_base.parquet:
+    parents:
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mapping.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mappings-smiles.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/classes.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/compounds.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/reactions.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/metanetx/4.5/reac_prop.tsv: ecspr::metanetx_reac_prop
+    type: ecspr::direction_ratios
+  derived/direction/member_eq_base.parquet:
+    parents:
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mapping.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mappings-smiles.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/classes.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/compounds.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/reactions.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/metanetx/4.5/reac_prop.tsv: ecspr::metanetx_reac_prop
+    type: ecspr::direction_ratios
+  derived/direction/netA_gem_direction.parquet:
+    parents:
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mapping.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mappings-smiles.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/classes.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/compounds.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/reactions.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/metanetx/4.5/reac_prop.tsv: ecspr::metanetx_reac_prop
+    type: ecspr::direction_ratios
+  derived/mnxref-4_5/MANIFEST.json:
+    type: ecspr::reference_manifest
+  derived/mnxref-4_5/atom_pairs.parquet:
+    parents:
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mapping.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/atom-mappings-smiles.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/classes.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/compounds.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/licensed/metacyc26_flatfiles/reactions.dat: ref::biocyc_flatfiles
+      eKoNcl80iX85@external/metanetx/4.5/chem_prop.tsv: ecspr::metanetx_chem_prop
+      eKoNcl80iX85@external/metanetx/4.5/reac_prop.tsv: ecspr::metanetx_reac_prop
+    type: ecspr::atom_pairs
+  derived/mnxref-4_5/closure_ledger.parquet:
+    type: ecspr::closure_ledger
+  derived/mnxref-4_5/direction.parquet:
+    parents:
+      eKoNcl80iX85@derived/direction/calibration.parquet: ecspr::direction_ratios
+      eKoNcl80iX85@derived/direction/curated_per_mnxr.parquet: ecspr::direction_ratios
+      eKoNcl80iX85@derived/direction/direction_annotation.parquet: ecspr::direction_ratios
+      eKoNcl80iX85@derived/direction/member_dgbyg_base.parquet: ecspr::direction_ratios
+      eKoNcl80iX85@derived/direction/member_eq_base.parquet: ecspr::direction_ratios
+      eKoNcl80iX85@derived/direction/netA_gem_direction.parquet: ecspr::direction_ratios
+    type: ecspr::direction_ratios
+  derived/mnxref-4_5/graph/mnx_bipartite_C.pkl:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/atom_pairs.parquet: ecspr::atom_pairs
+    type: ecspr::mnx_bipartite
+  derived/mnxref-4_5/graph/mnx_bipartite_N.pkl:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/atom_pairs.parquet: ecspr::atom_pairs
+    type: ecspr::mnx_bipartite
+  derived/mnxref-4_5/graph/mnx_bipartite_P.pkl:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/atom_pairs.parquet: ecspr::atom_pairs
+    type: ecspr::mnx_bipartite
+  derived/mnxref-4_5/graph/mnx_bipartite_S.pkl:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/atom_pairs.parquet: ecspr::atom_pairs
+    type: ecspr::mnx_bipartite
+  derived/mnxref-4_5/null/ieff_null_canonical_N14.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null/ieff_null_canonical_N28.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null/ieff_null_canonical_N34.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null/ieff_null_canonical_N42.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null/ieff_null_canonical_N51.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null/reff_null_canonical_N14.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null/reff_null_canonical_N28.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null/reff_null_canonical_N34.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null/reff_null_canonical_N42.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null/reff_null_canonical_N51.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null_directed/ieff_null_directed_N14.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null_directed/ieff_null_directed_N25.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null_directed/ieff_null_directed_N30.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null_directed/ieff_null_directed_N35.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null_directed/ieff_null_directed_N43.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null_directed/reff_null_directed_N14.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null_directed/reff_null_directed_N25.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null_directed/reff_null_directed_N30.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null_directed/reff_null_directed_N35.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/null_directed/reff_null_directed_N43.tsv:
+    type: ecspr::frozen_null
+  derived/mnxref-4_5/solve/axes_testable.json:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_C.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_N.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_P.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_S.pkl: ecspr::mnx_bipartite
+    type: ecspr::base_graphs
+  derived/mnxref-4_5/solve/base_C.pkl:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_C.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_N.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_P.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_S.pkl: ecspr::mnx_bipartite
+    type: ecspr::base_graphs
+  derived/mnxref-4_5/solve/base_N.pkl:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_C.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_N.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_P.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_S.pkl: ecspr::mnx_bipartite
+    type: ecspr::base_graphs
+  derived/mnxref-4_5/solve/base_P.pkl:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_C.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_N.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_P.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_S.pkl: ecspr::mnx_bipartite
+    type: ecspr::base_graphs
+  derived/mnxref-4_5/solve/base_S.pkl:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_C.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_N.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_P.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_S.pkl: ecspr::mnx_bipartite
+    type: ecspr::base_graphs
+  derived/mnxref-4_5/solve/ieff_axes_report.tsv:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_C.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_N.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_P.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_S.pkl: ecspr::mnx_bipartite
+    type: ecspr::base_graphs
+  derived/mnxref-4_5/solve/reff_axes_report.tsv:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_C.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_N.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_P.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_S.pkl: ecspr::mnx_bipartite
+    type: ecspr::base_graphs
+  derived/mnxref-4_5/solve_directed/ieff_axes_report.tsv:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/direction.parquet: ecspr::direction_ratios
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_C.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_N.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_P.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_S.pkl: ecspr::mnx_bipartite
+    type: ecspr::base_graphs
+  derived/mnxref-4_5/solve_directed/reff_axes_report.tsv:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/direction.parquet: ecspr::direction_ratios
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_C.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_N.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_P.pkl: ecspr::mnx_bipartite
+      eKoNcl80iX85@derived/mnxref-4_5/graph/mnx_bipartite_S.pkl: ecspr::mnx_bipartite
+    type: ecspr::base_graphs
+  derived/mnxref-4_5/worklist.tsv:
+    type: ecspr::worklist
+  derived/mnxref-4_5/worklist_aam.tsv:
+    type: ecspr::worklist
+  derived/uniref50/uniref50.dmnd:
+    parents:
+      eKoNcl80iX85@external/uniref50/uniref50.fasta.gz: ref::protein_fasta_gz
+    type: ref::diamond_db
+  external/bigg/bigg_models_metabolites.txt:
+    type: ref::reference_database
+  external/chebi/compounds.tsv.gz:
+    type: ref::reference_database
+  external/chebi/names.tsv.gz:
+    type: ref::reference_database
+  external/chebi/structures.tsv.gz:
+    type: ref::reference_database
+  external/esmc/esmc_600m.tgz:
+    type: ref::model_weights_archive
+  external/gem/iECDH10B_1368.json:
+    type: ecspr::curated_gem
+  external/genomes/e_coli_dh10b/annotations/dh10b.clean.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_dh10b/annotations/dh10b.deepec.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_dh10b/annotations/dh10b.ecpred.parquet:
+    type: ref::genome_bundle
+  external/genomes/e_coli_dh10b/annotations/dh10b.esmc.index.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_dh10b/annotations/dh10b.esmc.parquet:
+    type: ref::genome_bundle
+  external/genomes/e_coli_dh10b/annotations/dh10b.faa:
+    type: ref::genome_bundle
+  external/genomes/e_coli_dh10b/annotations/dh10b.kofam.detail.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_dh10b/annotations/dh10b.pbert.index.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_dh10b/annotations/dh10b.pbert.parquet:
+    type: ref::genome_bundle
+  external/genomes/e_coli_dh10b/annotations/dh10b.uniref50.blast6.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_dh10b/annotations/dh10b.uniref90.blast6.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.cazy.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.clean.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.deepec.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.deepec.tsv.pre_scored.bak:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.esmc.index.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.esmc.parquet:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.kofam.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.kofam_brite.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.metacyc.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.orfs.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.pbert.index.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.pbert.npy:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.swissprot.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.uniref50.blast6.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/epi300.uniref90.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/016.epi300_ips.2024-09-27-18-23/_internals/2403670.slurm_stats:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/016.epi300_ips.2024-09-27-18-23/_internals/context.json:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/016.epi300_ips.2024-09-27-18-23/_internals/notes.016.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/016.epi300_ips.2024-09-27-18-23/_logs/err.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/016.epi300_ips.2024-09-27-18-23/_logs/out.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/016.epi300_ips.2024-09-27-18-23/epi300/orfs.faa.gff3:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/016.epi300_ips.2024-09-27-18-23/epi300/orfs.faa.json:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/159.ecoli_kofam.2024-09-27-18-24/_internals/context.json:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/159.ecoli_kofam.2024-09-27-18-24/_internals/notes.159.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/159.ecoli_kofam.2024-09-27-18-24/_logs/err.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/159.ecoli_kofam.2024-09-27-18-24/_logs/out.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/159.ecoli_kofam.2024-09-27-18-24/epi300.out:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/_internals/context.json:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/_internals/notes.52c.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/_logs/err.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/_logs/out.log:
+    type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/blast_results/epi300.cazy.FASTout
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/blast_results/epi300.cazy.FASTout.parsed.txt
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/blast_results/epi300.metacyc.FASTout
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/blast_results/epi300.metacyc.FASTout.parsed.txt
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/blast_results/epi300.refscores.FAST
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/blast_results/epi300.swissprot.FASTout
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/blast_results/epi300.swissprot.FASTout.parsed.txt
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/blast_results/epi300.uniref90.FASTout
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/blast_results/epi300.uniref90.FASTout.parsed.txt
+  : type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/errors_warnings_log.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/metapathways_run_log.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/metapathways_steps_log.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/orf_prediction/epi300.faa:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/orf_prediction/epi300.fna:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/orf_prediction/epi300.qced.faa:
+    type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/orf_prediction/epi300.unannot.gff
+  : type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/preprocessed/epi300.fasta:
+    type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/preprocessed/epi300.mapping.txt
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/run_statistics/epi300.amino.stats
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/run_statistics/epi300.contig.lengths.txt
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/run_statistics/epi300.nuc.stats
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/run_statistics/epi300.orf.lengths.txt
+  : type: ref::genome_bundle
+  ? external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/epi300/run_statistics/epi300.run.stats.txt
+  : type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/52c.ecoli_mp3.2024-09-27-18-24/epi300/global_errors_warnings.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/592.ecoli_pbert.2024-09-27-18-24/_internals/context.json:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/592.ecoli_pbert.2024-09-27-18-24/_internals/notes.592.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/592.ecoli_pbert.2024-09-27-18-24/_logs/err.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/592.ecoli_pbert.2024-09-27-18-24/_logs/out.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/592.ecoli_pbert.2024-09-27-18-24/epi300/epi300.1.embedding.npy:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/592.ecoli_pbert.2024-09-27-18-24/epi300/epi300.2.embedding.npy:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/592.ecoli_pbert.2024-09-27-18-24/epi300/epi300.3.embedding.npy:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/annotations/raw/592.ecoli_pbert.2024-09-27-18-24/epi300/epi300.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/assembly/epi300.fna:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/assembly/epi300.goldrush.fna:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/assembly/epi300.tar.gz:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/assembly_qc/epi300.cov_per_contig.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/assembly_qc/epi300.coverage.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/assembly_qc/epi300.quast.tar.gz:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/assembly_qc/epi300.quast.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/assembly_qc/epi300.stats.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/ncbi_reference/CP189566.gbk:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/notes.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/orf_prediction/epi300.faa:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/orf_prediction/epi300.faa.pdb:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/orf_prediction/epi300.faa.phr:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/orf_prediction/epi300.faa.pin:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/orf_prediction/epi300.faa.pjs:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/orf_prediction/epi300.faa.pot:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/orf_prediction/epi300.faa.psq:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/orf_prediction/epi300.faa.ptf:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/orf_prediction/epi300.faa.pto:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/orf_prediction/epi300.gff:
+    type: ref::genome_bundle
+  external/genomes/e_coli_epi300/orf_prediction/epi300.prodigal.faa:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/GCF_000005845.2_ASM584v2_genomic.fna:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/GCF_000005845.2_ASM584v2_protein.faa:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/k12.clean.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/k12.kofam.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/k12.kofam_brite.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/k12.pbert.index.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/k12.pbert.npy:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/k12.pfam.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/k12.pfam_clan.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/k12.scop.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/k12.scop_class.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/k12.uniref50.blast6.tsv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/a5f.ecoli_pbert.2024-04-28-15-20/_internals/context.json:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/a5f.ecoli_pbert.2024-04-28-15-20/_internals/notes.a5f.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/a5f.ecoli_pbert.2024-04-28-15-20/_logs/err.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/a5f.ecoli_pbert.2024-04-28-15-20/_logs/out.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/a5f.ecoli_pbert.2024-04-28-15-20/ecoli/ecoli.1.embedding.npy:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/a5f.ecoli_pbert.2024-04-28-15-20/ecoli/ecoli.2.embedding.npy:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/a5f.ecoli_pbert.2024-04-28-15-20/ecoli/ecoli.3.embedding.npy:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/a5f.ecoli_pbert.2024-04-28-15-20/ecoli/ecoli.csv:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/bb5.ecoli_ips.2024-04-28-15-19/_internals/context.json:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/bb5.ecoli_ips.2024-04-28-15-19/_internals/notes.bb5.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/bb5.ecoli_ips.2024-04-28-15-19/_logs/err.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/bb5.ecoli_ips.2024-04-28-15-19/_logs/out.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/bb5.ecoli_ips.2024-04-28-15-19/ecoli/orfs.faa.gff3:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/bb5.ecoli_ips.2024-04-28-15-19/ecoli/orfs.faa.json:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/ea1.ecoli_kofam.2024-04-28-15-19/_internals/context.json:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/ea1.ecoli_kofam.2024-04-28-15-19/_internals/notes.ea1.txt:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/ea1.ecoli_kofam.2024-04-28-15-19/_logs/err.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/ea1.ecoli_kofam.2024-04-28-15-19/_logs/out.log:
+    type: ref::genome_bundle
+  external/genomes/e_coli_k12/annotations/raw/ea1.ecoli_kofam.2024-04-28-15-19/ecoli.out:
+    type: ref::genome_bundle
+  external/genomes/p_putida_dot_t1e/GCF_026183455.1/GCF_026183455.1_ASM2618345v1_genomic.fna:
+    type: ref::genome_bundle
+  external/genomes/p_putida_dot_t1e/GCF_026183455.1/genomic.gff:
+    type: ref::genome_bundle
+  external/genomes/p_putida_dot_t1e/GCF_026183455.1/protein.faa:
+    type: ref::genome_bundle
+  external/genomes/p_putida_dot_t1e/assembly_data_report.jsonl:
+    type: ref::genome_bundle
+  external/genomes/p_putida_dot_t1e/data_summary.tsv:
+    type: ref::genome_bundle
+  external/genomes/p_putida_dot_t1e/dataset_catalog.json:
+    type: ref::genome_bundle
+  external/interproscan/dir.cla.scop.txt_1.75:
+    type: ref::reference_database
+  external/interproscan/dir.des.scop.txt_1.75:
+    type: ref::reference_database
+  external/interproscan/notes.txt:
+    type: ref::reference_database
+  external/interproscan/pfam_a.dat:
+    type: ref::reference_database
+  external/interproscan/pfam_clans:
+    type: ref::reference_database
+  external/keio/baba2006-s3.pdf:
+    type: ref::reference_database
+  external/keio/baba2006-s4.xls:
+    type: ref::reference_database
+  external/keio/baba2006-s5.xls:
+    type: ref::reference_database
+  external/keio/baba2006-s8.xls:
+    type: ref::reference_database
+  external/keio/fulltext/keio_baba2006_PMC1681482.xml:
+    type: ref::reference_database
+  external/keio/keio_baba2006_supplementary.zip:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f1.gif:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f1.jpg:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f2.gif:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f2.jpg:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f3.gif:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f3.jpg:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f4.gif:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f4.jpg:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f5.gif:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f5.jpg:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f6.gif:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f6.jpg:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f7.gif:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f7.jpg:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f8.gif:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-f8.jpg:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-s1.pdf:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-s10.xls:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-s2.doc:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-s3.pdf:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-s4.xls:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-s5.xls:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-s6.xls:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-s7.xls:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-s8.xls:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-s9.xls:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-t1.gif:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-t1.jpg:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-t2.gif:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-t2.jpg:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-t3.gif:
+    type: ref::reference_database
+  external/keio/supp/msb4100050-t3.jpg:
+    type: ref::reference_database
+  external/kofam/ko_list:
+    type: ref::kofam_release
+  external/kofam/profiles.tar.gz:
+    type: ref::kofam_release
+  external/laser/.git/HEAD:
+    type: ref::reference_database
+  external/laser/.git/config:
+    type: ref::reference_database
+  external/laser/.git/config.worktree:
+    type: ref::reference_database
+  external/laser/.git/description:
+    type: ref::reference_database
+  external/laser/.git/gitdir:
+    type: ref::reference_database
+  external/laser/.git/hooks/applypatch-msg.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/commit-msg.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/fsmonitor-watchman.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/post-update.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/pre-applypatch.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/pre-commit.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/pre-merge-commit.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/pre-push.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/pre-rebase.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/pre-receive.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/prepare-commit-msg.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/push-to-checkout.sample:
+    type: ref::reference_database
+  external/laser/.git/hooks/update.sample:
+    type: ref::reference_database
+  external/laser/.git/index:
+    type: ref::reference_database
+  external/laser/.git/info/exclude:
+    type: ref::reference_database
+  external/laser/.git/logs/HEAD:
+    type: ref::reference_database
+  external/laser/.git/logs/refs/heads/master:
+    type: ref::reference_database
+  external/laser/.git/logs/refs/remotes/origin/HEAD:
+    type: ref::reference_database
+  external/laser/.git/objects/pack/pack-bb5bfe3d582730bdb3f641a02854b6f7d079f995.idx:
+    type: ref::reference_database
+  external/laser/.git/objects/pack/pack-bb5bfe3d582730bdb3f641a02854b6f7d079f995.pack:
+    type: ref::reference_database
+  external/laser/.git/packed-refs:
+    type: ref::reference_database
+  external/laser/.git/refs/heads/master:
+    type: ref::reference_database
+  external/laser/.git/refs/remotes/origin/HEAD:
+    type: ref::reference_database
+  external/laser/.git/shallow:
+    type: ref::reference_database
+  external/laser/BiocycParser.py:
+    type: ref::reference_database
+  external/laser/ComplexityStatistics_New.py:
+    type: ref::reference_database
+  external/laser/CurationErrorDetector.py:
+    type: ref::reference_database
+  external/laser/DatabaseUtils.py:
+    type: ref::reference_database
+  external/laser/DescriptiveStatistics.py:
+    type: ref::reference_database
+  external/laser/GraphUtils.py:
+    type: ref::reference_database
+  external/laser/MetEngDatabase.py:
+    type: ref::reference_database
+  external/laser/ModelLogger.py:
+    type: ref::reference_database
+  external/laser/ProductAnnotator.py:
+    type: ref::reference_database
+  external/laser/README.md:
+    type: ref::reference_database
+  external/laser/ReactionBuilder.py:
+    type: ref::reference_database
+  external/laser/RegulatoryBuilder.py:
+    type: ref::reference_database
+  external/laser/Standardization.py:
+    type: ref::reference_database
+  external/laser/TopologyAnalyzer.py:
+    type: ref::reference_database
+  external/laser/circos/readme.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419611157.49.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419612180.15.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419612292.57.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419612901.79.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419614251.13.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419616116.02.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419616868.41.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419618019.85.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419618777.21.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419619800.99.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419620881.8.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419621892.51.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419622531.88.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419649319.67.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419649687.93.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419698709.04.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419699514.81.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419700122.69.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419700635.39.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419701018.21.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419702544.12.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419791540.71.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419793323.41.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419794824.74.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419795505.77.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419820798.43.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419821789.3.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419871302.73.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419872698.65.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419873211.93.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419875667.49.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419876193.51.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419878974.42.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419880094.39.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419881312.59.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419881987.32.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419882895.74.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419894789.9.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419895342.52.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419895893.83.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419961348.75.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419961937.08.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419962624.37.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419966947.93.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419967666.69.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419968290.81.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419970134.81.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419971010.72.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419972199.27.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419972819.09.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419973694.76.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419984843.51.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1419990077.57.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420064034.84.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420065439.92.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420070785.47.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420071627.26.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420072418.09.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420427157.34.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420480006.97.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420480571.45.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420481324.26.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420482048.36.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420483083.91.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420483763.95.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420484294.11.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420484655.86.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420485313.6.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420489880.3.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420490889.88.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420491349.3.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420492326.31.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420492799.27.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420493402.6.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420495375.31.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420495922.75.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420496457.95.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420496841.37.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420497445.19.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420563570.49.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420563952.75.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420564498.19.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420565747.74.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420566469.5.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420566816.84.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420567233.18.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420573320.25.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420573872.64.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420574295.8.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420574938.8.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420577327.79.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420577835.79.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420578608.34.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420579970.27.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420580456.47.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420580799.33.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420580867.62.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420581833.49.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420648993.48.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420650199.17.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420650909.42.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420651529.08.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420652749.05.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420654803.48.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420655176.75.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420655787.75.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420656004.54.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420656296.98.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420657266.85.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420657746.71.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420661189.03.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420661854.69.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420662507.61.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420663037.56.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420663496.29.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420663835.25.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420664268.13.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420664509.43.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420665209.51.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420666912.41.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420735510.26.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420736845.03.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420737179.43.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420740444.8.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420741181.58.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420741999.5.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420742748.66.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420743618.36.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420747725.42.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420748395.53.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420749401.91.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420750119.54.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420750749.96.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420751097.38.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420751487.42.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420751900.53.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420753530.76.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420754173.95.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420754551.36.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420823481.59.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420823985.3.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420824342.15.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420825424.73.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420826403.27.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420827149.96.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420828112.09.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420828539.55.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420829050.3.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420829472.92.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420832581.12.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420833813.83.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420834051.14.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420834914.48.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420835415.16.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420837062.12.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420838387.61.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420839191.1.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420839441.98.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420839726.61.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1420839954.89.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421080561.57.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421119882.29.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421120315.73.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421121002.3.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421121904.17.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421124957.35.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421179017.79.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421180213.04.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421180812.45.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421181248.73.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421181891.77.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421182118.03.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421182693.51.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421182892.96.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421183458.72.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421184041.08.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421184694.45.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421185161.49.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421185694.69.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421186443.95.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421187298.98.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421187600.83.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421188447.64.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421189364.58.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421190099.66.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421190742.29.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421339423.18.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421340194.69.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421340999.95.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421341418.21.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421341942.82.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421342498.95.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421346421.63.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421355174.03.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421355950.68.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421356526.98.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421357675.33.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421358274.81.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421359559.42.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421360315.24.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421361586.89.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421362283.55.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421362933.52.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421364365.33.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421365017.9.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421366778.23.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421434706.45.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421435623.97.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421436127.08.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421436723.73.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421437523.94.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421440121.35.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421440689.75.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421443228.15.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421444007.74.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421444676.74.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421445371.58.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421446126.52.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421446895.87.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421447593.41.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421772342.56.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421772997.87.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421774883.99.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421775241.44.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421775590.35.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421776071.14.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421777629.52.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421778191.31.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421779669.5.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421780275.96.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421781130.3.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421781530.5.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421785132.02.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421785580.23.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421786424.18.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421786735.35.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421787050.46.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421787438.34.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421791993.11.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421792358.4.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421793665.37.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421858745.07.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421859371.25.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421859759.0.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421860298.47.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421861601.87.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421863724.69.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421864031.09.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421864220.19.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421864891.17.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421877984.11.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421878418.59.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421878817.18.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421879083.37.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421880330.1.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421880931.71.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421942943.05.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421943291.77.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421943862.49.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421944127.17.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421944615.78.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421948159.03.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421948860.31.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421949244.85.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421950197.56.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421950457.42.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421950894.83.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421951104.95.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421951435.69.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421951890.88.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421952117.4.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421952483.53.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421952746.79.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421953016.56.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421953190.15.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421954218.59.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421954885.77.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421955056.3.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421955283.2.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421955568.66.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421955846.36.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421956141.96.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421956751.02.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421962105.58.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421962335.93.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421962486.51.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421963011.05.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421963344.57.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421963621.54.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421963924.85.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421964429.7.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421964701.87.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421964867.93.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421965375.23.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421965570.73.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421965997.92.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421967182.89.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421967370.49.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421967651.47.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1421968309.55.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422030186.44.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422030619.68.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422030889.23.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422031154.03.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422031353.57.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422031566.57.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422031758.31.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422032162.14.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422032401.0.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422032590.01.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422032668.96.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422032712.16.txt:
+    type: ref::reference_database
+  external/laser/database_store/2014/Record1422032863.75.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1423246634.26.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445326599.9.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445327759.27.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445330168.98.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445332284.92.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445407841.78.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445408957.51.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445409885.24.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445411109.2.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445493164.91.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445494730.2.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445496993.81.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445497569.24.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445579670.04.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445581702.36.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445582555.1.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445583566.62.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445843295.79.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445845113.42.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445847706.42.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445848934.32.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445924852.85.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445925852.59.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445926619.88.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1445928204.93.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446014884.48.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446016635.48.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446017475.49.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446018258.3.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446177836.98.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446179017.02.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446183606.86.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446186204.92.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446187861.12.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446188933.12.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446189740.63.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446444418.26.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446445758.55.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446446685.84.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446447307.29.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446448923.19.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446531696.33.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446532566.22.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446533170.13.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446533955.78.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446534595.78.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446614935.04.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446615477.57.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446616153.28.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446617184.73.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446618162.52.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446706951.94.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446707827.7.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446708226.78.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446708767.69.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446710043.36.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446791390.55.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446986791.92.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1446987246.74.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447317125.79.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447319640.88.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447394668.35.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447395944.73.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447396968.96.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447398171.48.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447654226.12.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447655008.32.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447657780.0.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447658659.44.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447664396.08.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447747215.56.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447748908.34.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447749536.66.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447750290.02.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447752243.55.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1447998153.11.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449036135.73.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449036887.89.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449048863.44.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449050713.56.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449201641.39.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449205404.94.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449207168.8.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449209053.61.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449210616.38.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449552601.91.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449554092.27.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449555380.13.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449557277.68.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449558427.52.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449560226.93.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449641331.14.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449642554.79.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449643772.58.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449645287.76.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449647007.8.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449648014.32.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449726897.09.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449727708.82.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449729846.5.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449731661.54.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449738367.61.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449738882.59.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449802719.04.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449804206.92.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449805187.29.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449806335.95.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449807401.65.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449808152.1.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1449812234.15.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450060464.98.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450061765.2.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450062712.23.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450063334.13.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450065069.79.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450066966.79.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450067707.6.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450068203.67.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450073286.05.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450074655.33.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450145811.55.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450146760.69.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450147481.55.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450148490.46.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450149314.53.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450150280.38.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450151363.01.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450152197.59.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450153062.56.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450153624.72.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450233386.0.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450234731.36.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450235866.81.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450236589.64.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450237558.23.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450238255.03.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450238773.81.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450239058.45.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450240375.41.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450241335.51.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1450246570.66.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record1456533229.17.txt:
+    type: ref::reference_database
+  external/laser/database_store/2015/Record_Gonzalez_BetaOxidation.txt:
+    type: ref::reference_database
+  external/laser/fulltext/laser_winkler2015_PMC8193242.xml:
+    type: ref::reference_database
+  external/laser/gene_ontology.py:
+    type: ref::reference_database
+  external/laser/inputs/Annotation Grammar_typed.txt:
+    type: ref::reference_database
+  external/laser/inputs/Compound Information.txt:
+    type: ref::reference_database
+  external/laser/inputs/EMiLIO Strain Designs.txt:
+    type: ref::reference_database
+  external/laser/inputs/EcAccession.txt:
+    type: ref::reference_database
+  external/laser/inputs/Ecoli Currency Metabolites.txt:
+    type: ref::reference_database
+  external/laser/inputs/Ecoli iJO1366 LASER Added Reactions.txt:
+    type: ref::reference_database
+  external/laser/inputs/Gene Name Mapping.txt:
+    type: ref::reference_database
+  external/laser/inputs/Gene-Reaction Pairings.txt:
+    type: ref::reference_database
+  external/laser/inputs/ID-Accession Mapping.txt:
+    type: ref::reference_database
+  external/laser/inputs/InputFields_typed.txt:
+    type: ref::reference_database
+  external/laser/inputs/Metacyc-Ecoli Metabolite (Compartments).txt:
+    type: ref::reference_database
+  external/laser/inputs/Metacyc-Yeast Metabolite Names Synonym Matching.txt:
+    type: ref::reference_database
+  external/laser/inputs/Product Information.txt:
+    type: ref::reference_database
+  external/laser/inputs/Product Name Converter.txt:
+    type: ref::reference_database
+  external/laser/inputs/Product Ontology.txt:
+    type: ref::reference_database
+  external/laser/inputs/Species-Metacyc Mapping.txt:
+    type: ref::reference_database
+  external/laser/inputs/Term Usage.txt:
+    type: ref::reference_database
+  external/laser/inputs/Yeast Currency Metabolites.txt:
+    type: ref::reference_database
+  external/laser/inputs/ecoli_genome_annotations.txt:
+    type: ref::reference_database
+  external/laser/inputs/etas.txt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001133.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001134.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001135.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001136.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001137.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001138.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001139.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001140.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001141.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001142.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001143.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001144.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001145.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001146.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001147.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001148.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/NC_001224.ptt:
+    type: ref::reference_database
+  external/laser/inputs/yeast/ScAccession.txt:
+    type: ref::reference_database
+  external/laser/laser_dois.tsv:
+    type: ref::reference_database
+  external/laser/laser_epmc.tsv:
+    type: ref::reference_database
+  external/laser/laser_idmap.tsv:
+    type: ref::reference_database
+  external/laser/metabolic_models/Ec_iJR904.xml:
+    type: ref::reference_database
+  external/laser/metabolic_models/ecoli_core_model.xml:
+    type: ref::reference_database
+  external/laser/metabolic_models/iJO1366.xml:
+    type: ref::reference_database
+  external/laser/metabolic_models/yeast5.xml:
+    type: ref::reference_database
+  external/laser/reaction_ecoli/readme.txt:
+    type: ref::reference_database
+  external/laser/reaction_ecoliw/readme.txt:
+    type: ref::reference_database
+  external/laser/reaction_metacyc/readme.txt:
+    type: ref::reference_database
+  external/laser/reaction_yeast/readme.txt:
+    type: ref::reference_database
+  external/laser/regulondb/network_renamedsigma_gene.txt:
+    type: ref::reference_database
+  external/laser/regulondb/network_sigma_gene.txt:
+    type: ref::reference_database
+  external/laser/regulondb/network_tf_gene.txt:
+    type: ref::reference_database
+  external/laser/regulondb/network_tf_operon.txt:
+    type: ref::reference_database
+  external/laser/regulondb/network_tf_tu.txt:
+    type: ref::reference_database
+  external/laser/regulondb/yeast_regulatory_network.txt:
+    type: ref::reference_database
+  external/laser/time_complexity_correlations.xlsx:
+    type: ref::reference_database
+  external/licensed/metacyc26_flatfiles/atom-mapping.dat:
+    type: ref::biocyc_flatfiles
+  external/licensed/metacyc26_flatfiles/atom-mappings-smiles.dat:
+    type: ref::biocyc_flatfiles
+  external/licensed/metacyc26_flatfiles/classes.dat:
+    type: ref::biocyc_flatfiles
+  external/licensed/metacyc26_flatfiles/compounds.dat:
+    type: ref::biocyc_flatfiles
+  external/licensed/metacyc26_flatfiles/reactions.dat:
+    type: ref::biocyc_flatfiles
+  external/metanetx/4.5/chem_prop.tsv:
+    type: ecspr::metanetx_chem_prop
+  external/metanetx/4.5/chem_xref.tsv:
+    type: ref::metanetx_chem_xref
+  external/metanetx/4.5/reac_prop.tsv:
+    type: ecspr::metanetx_reac_prop
+  external/metanetx/4.5/reac_xref.tsv:
+    type: ecspr::metanetx_reac_xref
+  external/modelseed/compounds.tsv:
+    type: ref::reference_database
+  external/pathways_2026/fosmid_embedding_topk.tsv:
+    type: ref::reference_database
+  external/pathways_2026/fosmid_vs_reference.m8:
+    type: ref::reference_database
+  external/pathways_2026/fosmid_vs_reference.tsv:
+    type: ref::reference_database
+  external/pathways_2026/fosmids.pbert.v2026.index.csv:
+    type: ref::reference_database
+  external/pathways_2026/fosmids.pbert.v2026.npy:
+    type: ref::reference_database
+  external/pathways_2026/ko_genes.tsv.gz:
+    type: ref::reference_database
+  external/pathways_2026/ko_representatives.tsv:
+    type: ref::reference_database
+  external/pathways_2026/metabolism_kos.tsv:
+    type: ref::reference_database
+  external/pathways_2026/missed_embedding.tsv:
+    type: ref::reference_database
+  external/pathways_2026/missed_seqsim.tsv:
+    type: ref::reference_database
+  external/pathways_2026/missed_summary.tsv:
+    type: ref::reference_database
+  external/pathways_2026/mmd_metag_vs_fosmid/mmd_results.csv:
+    type: ref::reference_database
+  external/pathways_2026/mmd_metag_vs_fosmid/mmd_summary.json:
+    type: ref::reference_database
+  external/pathways_2026/mmd_metag_vs_fosmid/mmd_summary.png:
+    type: ref::reference_database
+  external/pathways_2026/mmd_metag_vs_fosmid/sigma.npy:
+    type: ref::reference_database
+  external/pathways_2026/mmd_rff_metag_vs_fosmid/mmd_rff_null_adjacent30.csv:
+    type: ref::reference_database
+  external/pathways_2026/mmd_rff_metag_vs_fosmid/mmd_rff_null_longcontig.csv:
+    type: ref::reference_database
+  external/pathways_2026/mmd_rff_metag_vs_fosmid/mmd_rff_null_patches.csv:
+    type: ref::reference_database
+  external/pathways_2026/mmd_rff_metag_vs_fosmid/mmd_rff_null_random.csv:
+    type: ref::reference_database
+  external/pathways_2026/mmd_rff_metag_vs_fosmid/mmd_rff_summary.json:
+    type: ref::reference_database
+  external/pathways_2026/mmd_rff_metag_vs_fosmid/mmd_rff_summary.png:
+    type: ref::reference_database
+  external/pathways_2026/mmd_rff_metag_vs_fosmid/mu_M.npy:
+    type: ref::reference_database
+  external/pathways_2026/mmd_rff_metag_vs_fosmid/mu_M_long.npy:
+    type: ref::reference_database
+  external/pathways_2026/mmd_rff_metag_vs_fosmid/rff_params.npz:
+    type: ref::reference_database
+  external/pathways_2026/mmd_rff_triangulate/mmd_triangulate_draws.csv:
+    type: ref::reference_database
+  external/pathways_2026/mmd_rff_triangulate/mmd_triangulate_summary.json:
+    type: ref::reference_database
+  external/pathways_2026/reference_proteins.faa:
+    type: ref::reference_database
+  external/pathways_2026/reference_proteins.pbert.index.csv:
+    type: ref::reference_database
+  external/pathways_2026/reference_proteins.pbert.npy:
+    type: ref::reference_database
+  external/pathways_2026/reference_proteins.tsv:
+    type: ref::reference_database
+  external/rhea/rhea-directions.tsv:
+    type: ref::reference_database
+  external/rhea/rhea-reaction-smiles.tsv:
+    type: ref::reference_database
+  external/rhea/rhea-rxn.tar.gz:
+    type: ref::reference_database
+  external/rhea/rhea2ec.tsv:
+    type: ref::reference_database
+  external/rhea/rhea2kegg_reaction.tsv:
+    type: ref::reference_database
+  external/rhea/rhea2uniprot.tsv:
+    type: ref::reference_database
+  external/rhea/rhea2uniprot_trembl.tsv.gz:
+    type: ref::reference_database
+  external/rhea/rhea2xrefs.tsv:
+    type: ref::reference_database
+  external/uniref50/uniref50.fasta.gz:
+    type: ref::protein_fasta_gz
+  external/vector/epi300_pcc1.fna:
+    type: ref::nucleotide_fasta
+  validation/dual_network/MANIFEST.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/README.md:
+    type: ecspr::validation_set
+  validation/dual_network/SOP.md:
+    type: ecspr::validation_set
+  validation/dual_network/aam/crosswalk_iECDH10B_report.md:
+    type: ecspr::validation_set
+  validation/dual_network/aam/crosswalk_iML1515_report.md:
+    type: ecspr::validation_set
+  validation/dual_network/aam/netA_iECDH10B_aam_coverage.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/aam/netA_iML1515_aam_coverage.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/comparison/AvB_comparison.md:
+    type: ecspr::validation_set
+  validation/dual_network/comparison/AvB_lof_detection.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/comparison/AvB_neg_control.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/comparison/anabolic_gof_summary.md:
+    type: ecspr::validation_set
+  validation/dual_network/comparison/gof_fa_supply.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/comparison/gof_fa_supply_significance.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/comparison/gof_mmc.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/comparison/gof_mmc_significance.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/comparison/gof_pg_anionic.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/comparison/gof_pg_anionic_dualnet.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/comparison/gof_setA_sink_audit.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/conditions_manifest.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/gof_aromatic.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/gof_candidates.md:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/gof_candidates.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/gof_coercion_alias.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/gof_fa_supply.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/gof_forsberg.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/gof_latent.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/gof_mmc.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/gof_pg_anionic.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/gof_precision_summary.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/lof_ground_truth.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/lof_ground_truth_notes.md:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/pheno_edges.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/phenotype_table.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/proxy_fit_table.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/validation_summary.md:
+    type: ecspr::validation_set
+  validation/dual_network/ground_truth/validation_summary_gof.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iECDH10B/dark_orfs.txt:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iECDH10B/evidence_3lane.parquet:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iECDH10B/evidence_table.parquet:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iECDH10B/evidence_weights.parquet:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iECDH10B/netB_base_report.md:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iECDH10B/netB_evidence_report.md:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iECDH10B/pbert_candidates.parquet:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iML1515/dark_orfs.txt:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iML1515/evidence_3lane.parquet:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iML1515/evidence_table.parquet:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iML1515/evidence_weights.parquet:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iML1515/netB_base_report.md:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iML1515/netB_evidence_report.md:
+    type: ecspr::validation_set
+  validation/dual_network/lanes/iML1515/pbert_candidates.parquet:
+    type: ecspr::validation_set
+  validation/dual_network/netA/gof_matrix_scored.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/netA/gof_null_draws.npz:
+    type: ecspr::validation_set
+  validation/dual_network/netA/gof_precision_byedge.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/netA/gof_precision_cells.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/netA/lof_matrix_scored.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/netA/lof_null_meta.json:
+    type: ecspr::validation_set
+  validation/dual_network/netA/lof_null_retain.parquet:
+    type: ecspr::validation_set
+  validation/dual_network/netA/netA_iECDH10B_coverage.md:
+    type: ecspr::validation_set
+  validation/dual_network/netA/netA_iML1515_coverage.md:
+    type: ecspr::validation_set
+  validation/dual_network/netA/validation_matrix.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/netB/gof_matrix_scored.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/netB/gof_null_draws.npz:
+    type: ecspr::validation_set
+  validation/dual_network/netB/gof_precision_byedge.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/netB/gof_precision_cells.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/netB/lof_matrix_scored.tsv:
+    type: ecspr::validation_set
+  validation/dual_network/netB/lof_null_meta.json:
+    type: ecspr::validation_set
+  validation/dual_network/netB/lof_null_retain.parquet:
+    type: ecspr::validation_set
+  validation/dual_network/netB/netB_iECDH10B_base_report.md:
+    type: ecspr::validation_set
+  validation/dual_network/netB/netB_iECDH10B_evidence_report.md:
+    type: ecspr::validation_set
+  validation/dual_network/netB/netB_iML1515_base_report.md:
+    type: ecspr::validation_set
+  validation/dual_network/netB/netB_iML1515_evidence_report.md:
+    type: ecspr::validation_set
+  validation/dual_network/netB/validation_matrix.tsv:
+    type: ecspr::validation_set
+  validation/significance/sig_mix_ieff.tsv:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/ieff_null_directed_N14.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/ieff_null_directed_N25.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/ieff_null_directed_N30.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/ieff_null_directed_N35.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/ieff_null_directed_N43.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/reff_null_directed_N14.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/reff_null_directed_N25.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/reff_null_directed_N30.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/reff_null_directed_N35.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/reff_null_directed_N43.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/solve_directed/ieff_axes_report.tsv: ecspr::base_graphs
+      eKoNcl80iX85@derived/mnxref-4_5/solve_directed/reff_axes_report.tsv: ecspr::base_graphs
+    type: ecspr::significance_table
+  validation/significance/sig_mix_reff.tsv:
+    parents:
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/ieff_null_directed_N14.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/ieff_null_directed_N25.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/ieff_null_directed_N30.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/ieff_null_directed_N35.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/ieff_null_directed_N43.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/reff_null_directed_N14.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/reff_null_directed_N25.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/reff_null_directed_N30.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/reff_null_directed_N35.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/null_directed/reff_null_directed_N43.tsv: ecspr::frozen_null
+      eKoNcl80iX85@derived/mnxref-4_5/solve_directed/ieff_axes_report.tsv: ecspr::base_graphs
+      eKoNcl80iX85@derived/mnxref-4_5/solve_directed/reff_axes_report.tsv: ecspr::base_graphs
+    type: ecspr::significance_table
+schema: v1

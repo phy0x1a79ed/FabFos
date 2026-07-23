@@ -30,19 +30,13 @@ src/fabfos/_library/
 transforms/build/benchmark/v3_build/run/
 transforms/build/benchmark/v3_build/run_star_universe_baseline/
 
-# The data-dependency library root. The bytes are DVC's job; git carries only the
-# metasmith indexes, which are what a fresh checkout reads to know what the library
-# is supposed to contain before any bytes exist.
-#
-# The directory re-include on the second line is load-bearing: git does not descend
-# into an excluded directory, so a bare `/data/*` + `!/data/_metadata` cannot reach
-# an index nested under a tier -- the negation matches nothing and silently drops it.
-# Written level by level rather than with `**`: a blanket `!/data/**/` re-include
-# reaches nested checkouts too (data/validation/LASER is an upstream git repo), and
-# `git add` turns an un-ignored directory holding a .git into a gitlink with no
-# .gitmodules entry -- a broken submodule reference nobody asked for.
-/data/*
-!/data/*/
-/data/*/*
-!/data/_metadata/
-!/data/*/_metadata/
+# /data is the project's DATA FOLDER, tracked via DVC: `data/<chunk>` holds the
+# files and `data/<chunk>.dvc` is the pin that this repo commits. Do NOT ignore
+# it -- DVC writes its own `data/.gitignore` per directory to keep the bulk out;
+# only the pins (and small manifest dirs like `_metadata/`) are tracked.
+
+# raw/LASER is an upstream git checkout (bitbucket.org/jdwinkler/laser_release),
+# already pinned by url+sha256 in provenance/data/laser.yml -- not DVC-tracked,
+# since hashing a tree of git repos as data bytes turns its .git into thousands
+# of cache objects and the checkout stops being a checkout.
+/data/raw/LASER/

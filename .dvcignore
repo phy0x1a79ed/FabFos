@@ -1,0 +1,27 @@
+# AWM-managed. Paths here are never hashed into the DVC cache, so they never
+# reach the shared store and never leave this machine via the nightly mirror.
+# An exclusion must be in place BEFORE the first `dvc add`: content added once
+# is in the cache, and the cache is what the off-site mirror carries.
+
+# --- secrets ---------------------------------------------------------------
+secrets/
+**/secrets/
+.env
+.env.*
+**/.env
+**/.env.*
+**/.credentials.json
+
+# --- nested third-party checkouts ------------------------------------------
+# You never hash a tree of git repos as data: the inner .git becomes thousands
+# of cache objects and the checkout stops being a checkout. Pin by URL+commit.
+**/.git/
+
+# --- awm's own metadata ----------------------------------------------------
+.awm/
+**/.awm/
+
+# --- machine-local noise ---------------------------------------------------
+.DS_Store
+__pycache__/
+*.pyc

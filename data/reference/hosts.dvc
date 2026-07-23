@@ -1,0 +1,6 @@
+outs:
+- md5: 67c09dcfe79ae300b75d9653bcb42fe2.dir
+  size: 622901352
+  nfiles: 134
+  hash: md5
+  path: hosts

@@ -1,0 +1,6 @@
+outs:
+- md5: d733b7c627f1e68aa1c15b6551b625c6.dir
+  size: 21980393
+  nfiles: 4
+  hash: md5
+  path: e_coli_k12

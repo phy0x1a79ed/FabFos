@@ -1,0 +1,6 @@
+outs:
+- md5: 6a75dabd366f533f394890accb7dd960.dir
+  size: 18765635
+  nfiles: 3
+  hash: md5
+  path: e_coli_epi300

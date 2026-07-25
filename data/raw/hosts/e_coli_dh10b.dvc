@@ -1,0 +1,6 @@
+outs:
+- md5: 51675dae0c57dc47974d2e421464404d.dir
+  size: 22228818
+  nfiles: 4
+  hash: md5
+  path: e_coli_dh10b

@@ -1,0 +1,140 @@
+# Per (host, lane) annotation-lane declaration for build_host_denovo_gpr.py.
+#
+# ONE ENTRY PER (HOST, LANE), NEVER A GLOB. The lane files are genuinely heterogeneous
+# across hosts and a tolerant reader on the wrong shape does not raise -- it yields a
+# frame with the wrong columns, an empty inner join, and a table that is MISSING A LANE
+# rather than an error. Concretely, in this repo right now:
+#
+#   * kofam       dh10b ships HMMER --detail text; k12 and epi300 ship CSV
+#   * uniref50    dh10b and k12 ship 13-column BLAST6; epi300 ships 14, with BSR
+#   * orf ids     ECDH10B_0001 / NP_414542.1 / C1_1 -- three different id spaces
+#
+# `reader` names an explicit function in build_host_denovo_gpr.py. Adding a host means
+# naming its files and its reader here; it must never mean loosening a reader.
+
+# ---------------------------------------------------------------------------
+# The lanes themselves: what each one projects through, and on what scale it scores.
+lanes:
+  kofam:
+    channel: kofam
+    bridge: ko_to_mnxr
+    projection_via: kegg.reaction
+    score_kind: hmm_score
+    note: >-
+      KOfam HMM hits at or above the family's own reported threshold. The KO -> MNXR
+      bridge is built from the ko_list EC tags (see build_bridges.py), so a KO with no
+      complete EC in its definition cannot project.
+
+  clean_ec:
+    channel: clean_ec
+    bridge: ec_to_mnxr
+    projection_via: ec
+    score_kind: clean_score
+    score_floor: 0.01
+    note: >-
+      CLEAN EC predictions. The 0.01 floor is the deployed netB lane's floor, kept so
+      this table and the incumbent describe the same evidence.
+
+  uniref50_dr:
+    channel: uniref50_dr
+    bridge: uniprot_to_mnxr
+    projection_via: rhea
+    score_kind: per-host, see below
+    note: >-
+      Best DIAMOND hit per ORF against UniRef50, projected UniProt -> Rhea -> MNXR.
+      score_kind differs by host because only epi300's file carries a BSR column. It
+      does not affect the downstream weighting: the reader keeps exactly one hit per
+      ORF, so there is one nomination per (orf, channel) and the belief-conservation
+      weight is 1.0 whatever the score. It is carried as reported metadata, on a scale
+      the host declares, and never compared across hosts.
+
+  pbert_transfer:
+    channel: pbert_transfer
+    bridge: reference_label_pool
+    projection_via: embedding_knn
+    score_kind: knn_vote_fraction
+    score_floor: 0.20
+    note: >-
+      kNN label transfer from a labelled reference embedding pool. NOT BUILDABLE HERE:
+      reference_label_pool has no producer and no staged file in this repo, and it
+      cannot be derived from the reference data that is here -- it needs a reference
+      proteome embedded with the same model as the query. The hosts' *.pbert.* files
+      are raw query embeddings, not the pool. build_host_denovo_gpr.py reports this
+      lane as unavailable by name rather than quietly emitting a smaller table.
+
+# ---------------------------------------------------------------------------
+# Bridges. Built by build_bridges.py except where marked.
+bridges:
+  ko_to_mnxr:
+    path: data/reference/functional_annotation/bridges/ko_to_mnxr.tsv
+  ec_to_mnxr:
+    path: data/reference/functional_annotation/bridges/ec_to_mnxr.tsv
+  uniprot_to_mnxr:
+    path: data/reference/functional_annotation/bridges/uniprot_to_mnxr.parquet
+  reference_label_pool:
+    path: null
+    available: false
+    reason: >-
+      no producer transform, no staged file, and not derivable from the reference data
+      in this repo
+
+# ---------------------------------------------------------------------------
+# Hosts. `unit_id` is what the ORF ids are carried on -- the assembly for epi300, the
+# reference chromosome for the two that were annotated against one.
+hosts:
+  e_coli_dh10b:
+    unit_id: NC_010473.1
+    orf_id_space: locus_tag
+    lanes:
+      kofam:
+        file: annotations/dh10b.kofam.detail.txt
+        reader: kofam_hmmer_detail
+      clean_ec:
+        file: annotations/dh10b.clean.tsv
+        reader: clean_tsv
+      uniref50_dr:
+        file: annotations/dh10b.uniref50.blast6.tsv
+        reader: blast6_no_bsr
+        score_kind: bitscore
+      pbert_transfer:
+        file: annotations/dh10b.pbert.parquet
+        reader: embed_transfer
+        requires: reference_label_pool
+
+  e_coli_k12:
+    unit_id: NC_000913.3
+    orf_id_space: protein_accession
+    lanes:
+      kofam:
+        file: annotations/k12.kofam.csv
+        reader: kofam_csv
+      clean_ec:
+        file: annotations/k12.clean.tsv
+        reader: clean_tsv
+      uniref50_dr:
+        file: annotations/k12.uniref50.blast6.tsv
+        reader: blast6_no_bsr
+        score_kind: bitscore
+      pbert_transfer:
+        file: annotations/k12.pbert.npy
+        reader: embed_transfer
+        requires: reference_label_pool
+
+  e_coli_epi300:
+    unit_id: epi300_assembly
+    orf_id_space: contig_orf
+    lanes:
+      kofam:
+        file: annotations/epi300.kofam.csv
+        reader: kofam_csv
+      clean_ec:
+        file: annotations/epi300.clean.tsv
+        reader: clean_tsv
+      uniref50_dr:
+        file: annotations/epi300.uniref50.blast6.tsv
+        reader: blast6_bsr
+        score_kind: bsr
+      pbert_transfer:
+        file: annotations/epi300.pbert.npy
+        reader: embed_transfer
+        requires: reference_label_pool

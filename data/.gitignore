@@ -1,1 +1,72 @@
-/_old
+# The ONE ignore file for the whole data layer. There are deliberately no
+# nested .gitignore files under data/ -- if one appears, something below was
+# not followed.
+#
+# DVC appends an entry to a .gitignore in the PARENT DIRECTORY of every output
+# it adds or checks out, unless the path is already ignored: scmrepo's
+# Git.ignore() early-returns on is_ignored(). Listing a chunk here therefore
+# suppresses the nested file DVC would otherwise create for it.
+#
+# Three rules, all load-bearing:
+#
+#   1. NO TRAILING SLASH. git check-ignore matches "/reference/metabolism/"
+#      against the directory, but DVC tests a bare path string with no trailing
+#      slash, the dir-only pattern misses, and DVC writes the nested file
+#      anyway. Measured, not assumed.
+#   2. ONE LINE PER `dvc add` TARGET, added when you add the chunk. Forget it
+#      and DVC recreates a nested .gitignore -- visible, not silent. The check
+#      is: `find data -name .gitignore | wc -l` must be 1.
+#   3. POINT AT THE LEAF CHUNK, NEVER A CONTAINER THAT HOLDS PINS. Ignoring the
+#      container hides the .dvc files sitting inside it and they can never be
+#      committed. This is why hosts/ is listed per host, not once.
+#
+# Only bulk is ignored. The pins (data/**/*.dvc), the curated tier, and the two
+# tracked documents stay in git and must not be matched here.
+#
+# Tier rule (see build_references/REFERENCES.md):
+#   raw/        acquired only -- a download or a licensed drop-in
+#   reference/  compiled here, from raw/ only -- the direct refs
+#   benchmark/  compiled here -- the evaluation set
+#   curated/    hand-authored judgement, no producer. Small TEXT, git-tracked,
+#               never a chunk -- so it appears nowhere below.
+
+# -- raw/ ---------------------------------------------------------------------
+/raw/hosts/e_coli_dh10b
+/raw/hosts/e_coli_epi300
+/raw/hosts/e_coli_k12
+/raw/vector/pcc1.fna
+/raw/kofam
+/raw/metacyc
+/raw/metanetx
+/raw/rhea
+/raw/uniref
+/raw/kegg
+/raw/equilibrator
+/raw/literature/keio
+/raw/literature/eydallin
+/raw/literature/het_screen
+
+# Not DVC-tracked: an upstream git checkout (bitbucket.org/jdwinkler/laser_release)
+# pinned by url+sha256. Hashing a tree of git repos as data bytes turns its .git
+# into thousands of cache objects and the checkout stops being a checkout.
+/raw/literature/laser
+
+# -- reference/ ---------------------------------------------------------------
+/reference/hosts.fna
+/reference/vector.fna
+/reference/kofam
+/reference/uniref50.dmnd
+/reference/mnxr_lookup.parquet
+/reference/metabolism
+/reference/proteinBERT
+
+# -- benchmark/ ---------------------------------------------------------------
+# conditions.tsv (336 K) and Y/ (3.3 M) are small enough to stay in git, so they
+# are deliberately absent here.
+/benchmark/gpr.parquet
+# hosts is a CONTAINER, not a chunk: one chunk per host, so the lines point at
+# the leaf directories (rule 3). Ignoring /benchmark/hosts itself would hide the
+# per-host pins sitting beside them.
+/benchmark/hosts/e_coli_dh10b
+/benchmark/hosts/e_coli_epi300
+/benchmark/hosts/e_coli_k12

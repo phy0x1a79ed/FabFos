@@ -1,6 +1,6 @@
 outs:
-- md5: 48d6f104b6378e179aee1ca68c10190c.dir
-  size: 1796395821
-  nfiles: 23
+- md5: bfeb0429ba25f39efd617320dc6297e4.dir
+  size: 10701328
+  nfiles: 3
   hash: md5
   path: metabolism

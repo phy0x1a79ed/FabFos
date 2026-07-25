@@ -1,0 +1,6 @@
+outs:
+- md5: d2e2ff59b81928f24b60915d9eb53a8a.dir
+  size: 1579222292
+  nfiles: 4
+  hash: md5
+  path: metanetx

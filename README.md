@@ -30,16 +30,20 @@ contigs rather than the raw assembly.
 setup.py  dev.sh  envs/  conda_recipe/   # project files (src-layout: the package is in src/)
 src/
   fabfos/               # THE package: CLI front end + canon.py
-  metasmith/            # submodule → Metasmith @ release (the framework)
-  metasmith_libraries/  # submodule → MetasmithLibraries @ feat/fabfos (the fosmid transforms)
-transforms/{build,run}/ # build = compile data dependencies; run = consume them
-build_references/       # bakes the compiled reference tables into data/reference/ (see run.sh)
-containers/<name>/      # only images WE build; public ones are pinned, not vendored
-examples/               # worked templates for calling metasmith directly
-reports/dag/            # rendered workflow DAGs (from the planner, not hand-drawn)
-provenance/             # declarations: where every dependency came from + its sha256
-_old/                   # the previous Snakemake implementation, kept for reference
+  metasmith/            # submodule → Metasmith @ feat/fabfos (the framework)
+  metasmith_libraries/  # submodule → MetasmithLibraries @ feat/fabfos* (the RUN transforms)
+build_references/       # the BUILD transform library: acquire raw data, compile the references
+data/                   # raw/ (acquired) · reference/ (compiled) · benchmark/ · curated/
+examples/               # worked templates + the reference-build DAG driver
+tests/                  # plan-only compile checks; renders DAGs to tests/artifacts/
+docs/legacy/            # the pre-metasmith documentation
 ```
+
+**Sections below this point predate the 2026-07-25 clean-slate rebuild and have not
+been re-verified.** `transforms/{build,run}/`, `provenance/`, `containers/`,
+`reports/` and `_old/` were all removed by that rebuild; the previous tree is kept
+whole in the `archive` worktree. Where this README and `AGENTS.md` disagree about
+layout, `AGENTS.md` is current.
 
 `src/metasmith_libraries` is pinned to `feat/fabfos`, which is the branch
 carrying the `fosmids/` transform domain and the ECSPr prerequisite chain —

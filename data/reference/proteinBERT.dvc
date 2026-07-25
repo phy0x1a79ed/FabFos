@@ -1,0 +1,6 @@
+outs:
+- md5: 7f8ed11c3b8e8d21c8cb0c7b4b267007.dir
+  size: 566894999
+  nfiles: 3
+  hash: md5
+  path: proteinBERT

@@ -1,0 +1,158 @@
+gene	species	decision	mnxr_or_ec	evidence	decided_by
+# Hand-resolved gene->reaction calls. One row per (gene, GeneSource) that the automatic
+# resolver cannot settle on its own. `species` is the LASER GeneSource verbatim, or `*`
+# for any source. Decisions:
+#   union          -- the gene is genuinely multifunctional; take ALL candidate reactions
+#   select_ec      -- keep only candidates carrying this EC; if none, resolve the EC
+#                     directly against MetaNetX reac_prop classifs
+#   accept_homolog -- species preference missed, but the fallback pairing is the same
+#                     chemistry in a different organism; use it (this is the common case)
+#   reject         -- the only available pairing is a NAME COLLISION with unrelated
+#                     chemistry; emit no reaction and record the gene as unmapped
+#
+# `decided_by` records WHO made the call, and every value in this column is an AI:
+#   ai:mapping-review  -- the first pass, reading the pairings file's own evidence
+#   ai:chemistry-audit -- the second pass, reading each mapping against the enzymology
+# NO HUMAN WET-LAB CURATOR HAS REVIEWED THESE ROWS. The column is named `decided_by`
+# rather than `curator` for exactly that reason -- a benchmark that implies human
+# curation it did not receive is making a provenance claim it cannot support.
+#
+# The `reject` rows are the reason this pass exists: a foreign gene whose name collides
+# with an E. coli gene silently acquired the native reaction in v2.
+#
+# ---- name collisions: wrong chemistry, must not be mapped by name ----------------
+cadA	Aspergillus terreus	select_ec	4.1.1.6	A. terreus CadA is cis-aconitate decarboxylase (itaconate pathway). The only pairing under this name is E. coli cadA, lysine decarboxylase EC 4.1.1.18 -- unrelated substrate and product.	ai:mapping-review
+alkB	Pseudomonas putida	select_ec	1.14.15.3	P. putida AlkB is alkane 1-monooxygenase. E. coli alkB is a DNA-repair 2-oxoglutarate dioxygenase acting on alkylated bases -- not a metabolic reaction at all.	ai:mapping-review
+# ---- genuinely multifunctional: every listed reaction is real -------------------
+mvaE	*	union	-	Enterococcus MvaE is a bifunctional acetoacetyl-CoA thiolase (2.3.1.9) + HMG-CoA reductase (1.1.1.34); both reactions are introduced by expressing the one gene.	ai:mapping-review
+tps-LAS	*	union	-	Levopimaradiene/abietadiene synthase is a bifunctional class I/class II diterpene synthase; the 4.2.3 and 5.5.1 entries are the two halves of one catalytic cycle.	ai:mapping-review
+ADE3	*	union	-	Yeast Ade3 is C1-tetrahydrofolate synthase: methylene-THF dehydrogenase (1.5.1.5) and formate-THF ligase (6.3.4.3) are domains of the same protein.	ai:mapping-review
+pheA	*	union	-	Bifunctional chorismate mutase / prephenate dehydratase.	ai:mapping-review
+thrA	*	union	-	Bifunctional aspartokinase I / homoserine dehydrogenase I.	ai:mapping-review
+fadB	*	union	-	Fatty-acid oxidation multienzyme alpha subunit: hydratase + 3-hydroxyacyl-CoA dehydrogenase + epimerase.	ai:mapping-review
+aceK	*	union	-	Bifunctional isocitrate dehydrogenase kinase/phosphatase; the 2.7.11.5 and 3.1.3 entries are its two activities.	ai:mapping-review
+eda	*	select_ec	4.1.2.14	Entner-Doudoroff aldolase. The OXALODECARB-RXN pairing (4.1.1.3 oxaloacetate decarboxylase) is a MetaCyc side-activity annotation, not what eda expression is engineered for.	ai:mapping-review
+sucD	*	select_ec	1.2.1.76	SucD is succinate-semialdehyde dehydrogenase (CoA-acylating). The 6.x pairing is the succinyl-CoA synthetase name collision.	ai:mapping-review
+GPPS	*	select_ec	2.5.1.1	Geranyl diphosphate synthase; the class-4 candidate is a terpene-cyclase annotation carried on the same name.	ai:mapping-review
+# ---- species preference missed; reviewed and accepted as the same chemistry ------
+# (organism renamed since the pairings file was curated)
+crtE	*	accept_homolog	-	Erwinia uredovora / E. herbicola / P. agglomerans are all now Pantoea; same carotenoid GGPP synthase.	ai:mapping-review
+crtB	*	accept_homolog	-	Erwinia = Pantoea rename; same phytoene synthase.	ai:mapping-review
+crtI	*	accept_homolog	-	Erwinia = Pantoea rename; same phytoene desaturase.	ai:mapping-review
+crtY	*	accept_homolog	-	Lycopene beta-cyclase; the Xanthophyllomyces pairing is the same reaction.	ai:mapping-review
+bktB	Cupriavidus necator	accept_homolog	-	Cupriavidus necator = Ralstonia eutropha (renamed); same beta-ketothiolase.	ai:mapping-review
+# (true cross-species homolog: same EC, different organism)
+zwf	Zymomonas mobilis	accept_homolog	-	Z. mobilis Zwf is glucose-6-phosphate dehydrogenase, identical EC 1.1.1.49 to the E. coli pairing.	ai:mapping-review
+pgi	Zymomonas mobilis	accept_homolog	-	Same glucose-6-phosphate isomerase reaction.	ai:mapping-review
+edd	Zymomonas mobilis	accept_homolog	-	Same 6-phosphogluconate dehydratase reaction.	ai:mapping-review
+acnA	Corynebacterium glutamicum	accept_homolog	-	Aconitase, same EC 4.2.1.3.	ai:mapping-review
+gltA	Corynebacterium glutamicum	accept_homolog	-	Citrate synthase, same EC 2.3.3.16.	ai:mapping-review
+lpd	K. pneumoniae	accept_homolog	-	Dihydrolipoamide dehydrogenase, same EC 1.8.1.4.	ai:mapping-review
+fabH	Staphylcoccus aureus	accept_homolog	-	Beta-ketoacyl-ACP synthase III, same EC 2.3.1.180.	ai:mapping-review
+adhE	Clostridium beijerinckii	accept_homolog	-	Bifunctional aldehyde/alcohol dehydrogenase, same chemistry as the E. coli pairing.	ai:mapping-review
+accA	Photorhabdus luminescens	accept_homolog	-	Acetyl-CoA carboxylase alpha subunit, same complex.	ai:mapping-review
+accD	Photorhabdus luminescens	accept_homolog	-	Acetyl-CoA carboxylase beta subunit, same complex.	ai:mapping-review
+dhaK	Citrobacter freundii	accept_homolog	-	Dihydroxyacetone kinase; the Klebsiella pairing is the same reaction.	ai:mapping-review
+dhaB	Salmonella typhimurium	accept_homolog	-	Glycerol dehydratase; the Klebsiella pairing is the same reaction.	ai:mapping-review
+vioD	Chromobacterium violaceum	accept_homolog	-	Violacein-pathway VioD; the Janthinobacterium pairing is the same enzyme.	ai:mapping-review
+budA	Serratia marcescens	accept_homolog	-	Alpha-acetolactate decarboxylase, same EC 4.1.1.5.	ai:mapping-review
+cat2	Not specified	accept_homolog	-	4-hydroxybutyryl-CoA transferase; the P. gingivalis pairing is the intended enzyme.	ai:mapping-review
+taxadiene synthase	Taxus brevifolia	accept_homolog	-	Same enzyme, congeneric species (T. chinensis pairing).	ai:mapping-review
+GGPPS	Taxus brevifolia	accept_homolog	-	Geranylgeranyl diphosphate synthase; pairings are congeneric or same-EC.	ai:mapping-review
+HMGS	Staphylococcus aureus	accept_homolog	-	HMG-CoA synthase, same EC 2.3.3.10 as the S. cerevisiae pairing.	ai:mapping-review
+3-hydroxy-3-methylglutaryl-coenzyme A reductase	Saccharomyces cerevisiae	accept_homolog	-	Same EC 1.1.1.34.	ai:mapping-review
+phosphomevalonate kinase	Saccharomyces cerevisiae	accept_homolog	-	Same EC 2.7.4.2.	ai:mapping-review
+mevalonate diphosphate decarboxylase	Saccharomyces cerevisiae	accept_homolog	-	Same EC 4.1.1.33.	ai:mapping-review
+pyruvate carboxylase	*	accept_homolog	-	Same EC 6.4.1.1 across all listed source organisms.	ai:mapping-review
+butanol dehydrogenase	Clostridium saccharoperbutylacetonicum	accept_homolog	-	Same enzyme, congeneric Clostridium.	ai:mapping-review
+4-coumarate-CoA ligase	Streptomyces coelicolor	accept_homolog	-	Same EC 6.2.1.12.	ai:mapping-review
+PAL1	Petroselinum crispum	accept_homolog	-	Phenylalanine ammonia-lyase, same EC 4.3.1.24.	ai:mapping-review
+chalcone synthase	Citrus maxima	accept_homolog	-	Same EC 2.3.1.74.	ai:mapping-review
+chalcone isomerase	Citrus maxima	accept_homolog	-	Same EC 5.5.1.6.	ai:mapping-review
+sts2	Pinus strobus	accept_homolog	-	Pine stilbene synthase (nickname in the record is "stilbene synthase"); the fallback pairing is the same EC 2.3.1.95 chemistry in another plant.	ai:mapping-review
+#
+# ============================================================================
+# CORRECTIONS FROM THE MANUAL CHEMISTRY AUDIT (mapping_audit.tsv, 2026-07-19).
+# 424 resolved gene->reaction claims were read row by row against the enzymology
+# of the named gene IN ITS NAMED SOURCE ORGANISM. 53 were judged wrong. The
+# recurring failure classes, in descending frequency:
+#   (a) NAME COLLISION -- the pairings file's only entry under that name is a
+#       different enzyme from a different organism (adc, sucA, casA/casB, vioA,
+#       methanol dehydrogenase, matB).
+#   (b) STEREOCHEMISTRY -- (R) vs (S) product on an otherwise correct reaction.
+#       Load-bearing: PhaC only polymerises (R)-3HB-CoA, so an (S) PhaB breaks
+#       the PHB pathway it is there to build.
+#   (c) COFACTOR / ELECTRON ACCEPTOR -- NADH vs NADPH, or a quinoprotein
+#       reaction standing in for the soluble NAD(H) enzyme (adhA/adhB, mvaA).
+#   (d) CHAIN LENGTH / PHOSPHORYLATION STATE -- C10 where C20 is needed (GGPPS),
+#       one phosphate short (mvaD).
+# ============================================================================
+#
+# ---- (a) name collisions ---------------------------------------------------
+vioA	Chromobacterium violaceum	select_mnxr	MNXR149189	Violacein VioA is an FAD L-tryptophan oxidase. The only pairing under the name is the UNRELATED dTDP-4-amino-4,6-dideoxy-glucose transaminase (EC 2.6.1.33) of viosamine biosynthesis. No dTDP-sugar chemistry exists in violacein.	ai:chemistry-audit
+casB	K. oxytoca	select_ec	3.2.1.86	Ingram-lab casAB is the cellobiose PTS operon; CasB is the phospho-beta-glucosidase. It was mapped to a CRISPR `cas` crRNA-processing pseudo-reaction.	ai:chemistry-audit
+casA	K. oxytoca	reject	-	CasA is the cellobiose-specific PTS EIIC permease -- a transporter, with no metabolic reaction in this network -- and was mapped to a CRISPR `cas` pseudo-reaction. No defensible mapping.	ai:chemistry-audit
+Pea Metallothionein	Pisum sativum	reject	-	Metallothionein is a cysteine-rich metal-chelating PROTEIN, not an enzyme. Present for Hg binding (target: intracellular Hg2+). It was mapped to putrescine N-methyltransferase.	ai:chemistry-audit
+6-carboxyhexanoate-CoA ligase	Rhizobium trifolii	select_ec	6.2.1.76	The R. trifolii ligase in flavonoid strains is matB, malonyl-CoA synthetase, feeding malonyl-CoA to chalcone synthase. It was mapped to BioW pimeloyl-CoA synthetase, a biotin-pathway enzyme with no role here.	ai:chemistry-audit
+EC-6.2.1.3	Rhizobium trifolii	select_ec	6.2.1.76	Same matB gene under its EC-string name; mapped to generic long-chain acyl-CoA synthetase.	ai:chemistry-audit
+# ---- (b) stereochemistry ---------------------------------------------------
+phaB	*	select_mnxr	MNXR197706	PhaB is the (R)-specific NADPH acetoacetyl-CoA reductase, EC 1.1.1.36. It was mapped to the (S) product under the clostridial Hbd EC. PhaC polymerises ONLY (R)-3HB-CoA, so the (S) mapping breaks the PHB pathway the strain exists to run.	ai:chemistry-audit
+R-3HB-CoA dehydrogenase	*	select_mnxr	MNXR197706	Same enzyme as phaB under a descriptive name; same (S)/(R) inversion.	ai:chemistry-audit
+hydroxybutyryl-coA dehydrogenase	Ralstonia eutropha	select_mnxr	MNXR197706	Same enzyme as phaB; the mapped reaction was NADH-dependent and (S)-specific, i.e. the Clostridium Hbd.	ai:chemistry-audit
+ldhA	Cupriavidus necator	select_ec	1.1.1.28	ldhA denotes D-lactate dehydrogenase ((R)-lactate); it was mapped to the (S)-lactate reaction, EC 1.1.1.27.	ai:chemistry-audit
+Limonene synthase	Mentha spicata	select_mnxr	MNXR147490	Spearmint limonene synthase makes (4S)-(-)-limonene; the mapped reaction produced (4R)-limonene (the Citrus enzyme). The strain's own target column says (4S).	ai:chemistry-audit
+limonene synthase	Mentha spicata	select_mnxr	MNXR147490	Same enzyme, lowercase name variant.	ai:chemistry-audit
+# ---- (c) cofactor / electron acceptor --------------------------------------
+adhB	Zymomonas mobilis	select_mnxr	MNXR95725	Z. mobilis AdhB is the cytoplasmic Fe-containing NAD(H)-dependent ADH of the Pdc-AdhB ethanol route. It was mapped to a membrane quinoprotein ADH (EC 1.1.5.5) -- wrong electron acceptor and wrong bioenergetics.	ai:chemistry-audit
+adhB	Z. mobilis	select_mnxr	MNXR95725	Same gene, abbreviated genus.	ai:chemistry-audit
+adhA	Zymomonas mobilis	select_mnxr	MNXR95725	Z. mobilis AdhA is likewise an NAD+-dependent iron-containing ADH, mapped to the quinoprotein reaction.	ai:chemistry-audit
+adhA	Z. mobilis	select_mnxr	MNXR95725	Same gene, abbreviated genus.	ai:chemistry-audit
+mvaA	Staphylococcus aureus	select_mnxr	MNXR145221	S. aureus MvaA is the NADPH-dependent class-II HMG-CoA reductase (EC 1.1.1.34) -- its NADPH preference is why it is chosen for isoprenoid strains. It was mapped to the NAD-linked P. mevalonii type, EC 1.1.1.88.	ai:chemistry-audit
+mvaA	S. aureus	select_mnxr	MNXR145221	Same gene, abbreviated genus.	ai:chemistry-audit
+lpdA	K. pneumoniae	select_mnxr	MNXR115001	Dihydrolipoyl dehydrogenase acts only on protein-bound lipoyl-lysine. It had picked up a generic 3-mercaptopropanoate/dithiodipropionate thiol oxidation alongside the correct reaction.	ai:chemistry-audit
+# ---- (d) chain length / phosphorylation state ------------------------------
+# ---- other confirmed mis-mappings ------------------------------------------
+eda	Zymomonas mobilis	select_ec	4.1.2.14	Z. mobilis Eda is the Entner-Doudoroff KDPG aldolase. It had additionally acquired an oxaloacetate-decarboxylase/malic-enzyme reaction through the EC bundle on the shared name. REPLACES an earlier accept_homolog call, which was shadowing the wildcard select_ec row.	ai:chemistry-audit
+gabT	Pseudomonas putida	select_ec	2.6.1.19	GabT is 4-aminobutyrate aminotransferase; it had also picked up a 3-aminopropanesulfonate (homotaurine) transaminase, a distinct sulfonate-utilisation enzyme.	ai:chemistry-audit
+thiolase	Ralstonia eutropha	select_ec	2.3.1.9	PhaA is a dedicated acetoacetyl-CoA thiolase (2 acetyl-CoA <=> acetoacetyl-CoA + CoA); it was mapped to the C4+C2 condensation giving 3-oxohexanoyl-CoA, and the strain's R-3HB target confirms the C4 product is what is needed.	ai:chemistry-audit
+adh	T. brocki	select_ec	1.1.1.80	Thermoanaerobacter brockii ADH is an NADP-dependent SECONDARY alcohol dehydrogenase (ketone <=> sec-alcohol). It was mapped to a carboxylic-acid reduction, which this enzyme does not do.	ai:chemistry-audit
+adh	C. beijerinckii	select_ec	1.1.1.80	C. beijerinckii primary/secondary ADH reduces acetone to isopropanol -- the strain's stated target -- not acetate to acetaldehyde.	ai:chemistry-audit
+AF157307	C. acetobutylicum	select_ec	1.1.1.80	GenBank AF157307 is the C. beijerinckii NRRL B593 secondary alcohol dehydrogenase (acetone -> isopropanol), which is what the isopropanol strain needs. It was mapped to an aldehyde dehydrogenase.	ai:chemistry-audit
+nudF	Bacillus subtilis	reject	-	In an isoprenol strain NudF is used as an IPP/DMAPP diphosphatase, but only its housekeeping Nudix annotations (ADP-sugar / ADP-ribose pyrophosphatase) exist in the pairings. No reaction here can produce the target; mapping it to the housekeeping activity is worse than mapping nothing.	ai:chemistry-audit
+budC	K. pneumoniae	select_mnxr	MNXR113841	K. pneumoniae BudC is a MESO-2,3-butanediol dehydrogenase; the (S,S) enzyme is from Brevibacterium/Clostridium. Restricts to the meso reaction already present.	ai:chemistry-audit
+epoxide hydrolase	Agrobacterium radiobacter	reject	-	A. radiobacter AD1 EchA acts on small epoxyalkanes and aryl epoxides. It was mapped to the MAMMALIAN soluble epoxide hydrolase reaction on a fatty-acid epoxide -- a same-name/different-organism pull with no correct alternative available.	ai:chemistry-audit
+# ---- corrections whose EC is too coarse to select with; reaction named explicitly ----
+# (the resolver refuses an EC that fans out past EC_FANOUT_CAP reactions -- unioning
+#  17 lactate-dehydrogenase reactions would be a bigger fabrication than the collision)
+alkB	Pseudomonas putida	select_mnxr	MNXR147892/MNXR107427	Rubredoxin-dependent alkane 1-monooxygenase (octane -> octan-1-ol, plus the generic alkane form). EC 1.14.15.3 alone also matches a cyclohexane/NADH P450 reaction, a flavoprotein donor variant, and a deuterated arachidonate LC-MS tracer entry -- none of which AlkB catalyses.	ai:chemistry-audit
+ldh	Lactobacillus casei	select_mnxr	MNXR101037	D-lactate dehydrogenase: pyruvate + NADH -> (R)-lactate. The strain target is D-lactate.	ai:chemistry-audit
+ldhD	Lactobacillus pentosus	select_mnxr	MNXR101037	Soluble NAD-dependent D-LDH, not the membrane cytochrome-linked Dld.	ai:chemistry-audit
+thiolase	Ralstonia eutropha	select_mnxr	MNXR190494	PhaA acetoacetyl-CoA thiolase, the C4 condensation.	ai:chemistry-audit
+casB	K. oxytoca	select_mnxr	MNXR151153	6-phospho-beta-glucosidase on cellobiose-6-phosphate (written in the condensation direction in MetaNetX).	ai:chemistry-audit
+# ---- second audit pass: selections that a coarse pairing EC had let back in --------
+gabT	Pseudomonas putida	select_mnxr	MNXR95186	4-aminobutyrate aminotransferase. The homotaurine transaminase candidate is annotated only `2.6.1`, which satisfied a prefix match against 2.6.1.19; naming the reaction removes the ambiguity.	ai:chemistry-audit
+mvaD	*	select_mnxr	MNXR153392	Diphosphomevalonate decarboxylase: (R)-5-diphosphomevalonate + ATP -> IPP + CO2 + ADP + Pi. The EC also matched the archaeal monophosphate variant and a trinitrophenyl-ATP assay entry.	ai:chemistry-audit
+sucA	*	select_mnxr	MNXR102243	2-oxoglutarate decarboxylase to succinate semialdehyde. EC 4.1.1.71 also matched thiamine-diphosphate half-reactions and isochorismate entries.	ai:chemistry-audit
+hbd	P. gingivalis	select_mnxr	MNXR145013	4-hydroxybutyrate dehydrogenase (succinate semialdehyde + NADH -> 4-hydroxybutyrate). The other 1.1.1.61 candidate is a 3-sulfopropanediol reaction.	ai:chemistry-audit
+4-hydroxybutyrate dehydrogenase	*	select_mnxr	MNXR145013	Same enzyme under its descriptive name.	ai:chemistry-audit
+methanol dehydrogenase	Bacillus methanolicus	select_mnxr	MNXR95708	NAD-dependent methanol/formaldehyde interconversion. NOTE: MetaNetX writes this entry with a DEUTERATED methanol id (methanol-d4) -- a curation artifact in the reference, not a modelling choice. It is nonetheless the right chemistry, where the previous mapping was E. coli MALATE dehydrogenase.	ai:chemistry-audit
+hydA	*	select_mnxr	MNXR186540	Ferredoxin-only [FeFe] hydrogenase. The previous mapping was the NADH/ferredoxin electron-bifurcating HydABC reaction.	ai:chemistry-audit
+adc	*	select_ec	4.1.1.4	Acetoacetate decarboxylase (written in the carboxylation direction in MetaNetX). Replaces the arginine-decarboxylase collision.	ai:chemistry-audit
+GGPPS	*	select_ec	2.5.1.29	A GGPP synthase makes the C20 chain (FPP + IPP -> GGPP). Every source organism had been mapped to the C10 geranyl-diphosphate-synthase step, EC 2.5.1.1.	ai:chemistry-audit
+EFE	*	select_mnxr	MNXR113188/MNXR196253	Ethylene-forming enzyme's two genuine activities. Applied at the wildcard because LASER writes the source as "Pseudomonas syringae pv. phaseolicola".	ai:chemistry-audit
+efe	*	select_mnxr	MNXR113188/MNXR196253	Same gene, lowercase.	ai:chemistry-audit
+acyl-coa thioesterase	*	reject	-	The only candidate is a CoA LIGATION (and is not ATP-balanced); a thioesterase does the hydrolytic reverse. No correct candidate exists under this name, and EC 3.1.2.14 fans out to 58 reactions.	ai:chemistry-audit
+adhA	L. lactis	reject	-	L. lactis AdhA reduces isobutyraldehyde to isobutanol (NADH). MetaNetX carries no NAD-dependent isobutyraldehyde ADH, and the only candidate is a membrane quinoprotein ADH -- wrong electron acceptor and wrong substrate. Better absent than wrong.	ai:chemistry-audit
+
+mvaA	Saureus	select_mnxr	MNXR145221	Same gene; LASER writes the source with the space dropped, which no normalization recovers.	ai:chemistry-audit
+
+# ---- third pass: a correction that was itself wrong -------------------------
+# The select_ec(1.1.1.157) call above fixed the (R)/(S) stereochemistry but pulled in
+# four reactions sharing that EC in a promiscuous MetaNetX bundle -- two NADPH forms
+# and two C6 3-oxoadipyl-CoA (PaaH/beta-ketoadipate) reactions -- and NONE of them was
+# Hbd's own reaction. An EC is only a safe selector when the EC is narrow; here it was
+# not. Named explicitly instead.
+3-hydroxybutyryl-CoA dehydrogenase	*	select_mnxr	MNXR189650	Clostridial Hbd is strictly NADH-specific and (S)-forming: acetoacetyl-CoA + NADH -> (S)-3-hydroxybutanoyl-CoA. Contrast phaB above, which is the NADPH/(R) mirror image -- the two are routinely conflated by name.	ai:chemistry-audit
+hbd	Clostridium beijerinckii	select_mnxr	MNXR189650	Same gene, short name.	ai:chemistry-audit
+hbd	C. beijerinckii	select_mnxr	MNXR189650	Same gene, abbreviated genus.	ai:chemistry-audit
+hbd	*	select_mnxr	MNXR189650	Clostridial Hbd, unified to the C4 (acetoacetyl-CoA) step. Without this the same enzyme resolved to the C4 reaction under its descriptive name and to the C6 3-oxohexanoyl-CoA variant under `hbd` -- internally inconsistent. The P. gingivalis row above still wins for that source, where `hbd` is really 4hbd.	ai:chemistry-audit

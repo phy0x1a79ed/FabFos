@@ -1,0 +1,16 @@
+manifest:
+  aam_ensemble.py:
+    type: transforms::transform
+  bake_metabolism.py:
+    type: transforms::transform
+  direction_ensemble.py:
+    type: transforms::transform
+  kofam_ref.py:
+    type: transforms::transform
+  mnxr_lookup.py:
+    type: transforms::transform
+  reference_label_pool.py:
+    type: transforms::transform
+  uniref50_dmnd.py:
+    type: transforms::transform
+schema: v1

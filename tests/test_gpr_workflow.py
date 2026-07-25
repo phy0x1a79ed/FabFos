@@ -67,17 +67,20 @@ EXPECTED_TRANSFORMS = {
 }
 
 # Staged ``ref::*`` inputs the run tools + mappers consume. Type-only stand-ins:
-# planning only needs the type, not the bytes. The bridges / pool have no
-# producer transform (deferred), so they must be supplied as inputs.
+# planning only needs the type, not the bytes. They are supplied as inputs here
+# because this test loads only functionalAnnotation; their producers live in
+# build_references/ and are exercised by examples/build_references_dag.py.
+#
+# ``mnxr_lookup`` replaced the ko/ec/uniprot bridge trio -- one table, one
+# producer. See src/metasmith_libraries/data_types/ref.yml for why that is
+# behaviour-preserving.
 STAGED_REFS = [
     "ref::kofamscan_profiles",
     "ref::kofamscan_ko_list",
     "ref::uniref50_diamond_db",
     "ref::esm_c_600m_weights",
     "ref::ezpred_model",
-    "ref::ko_to_mnxr",
-    "ref::ec_to_mnxr",
-    "ref::uniprot_to_mnxr",
+    "ref::mnxr_lookup",
     "ref::reference_label_pool",
 ]
 

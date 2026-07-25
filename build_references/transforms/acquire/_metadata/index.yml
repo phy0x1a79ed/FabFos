@@ -1,0 +1,24 @@
+manifest:
+  equilibrator_cache.py:
+    type: transforms::transform
+  host_accessions.py:
+    type: transforms::transform
+  host_gem.py:
+    type: transforms::transform
+  host_genome.py:
+    type: transforms::transform
+  kegg_ko_reactions.py:
+    type: transforms::transform
+  kofam.py:
+    type: transforms::transform
+  literature.py:
+    type: transforms::transform
+  metacyc_licensed.py:
+    type: transforms::transform
+  metanetx.py:
+    type: transforms::transform
+  rhea.py:
+    type: transforms::transform
+  uniref50.py:
+    type: transforms::transform
+schema: v1

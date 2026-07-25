@@ -1,0 +1,69 @@
+host_key	lineage	gem	is_proxy	note
+# Every E. coli host appearing in LASER, classified by ACTUAL lineage rather than by
+# membership in a hardcoded literal set. `host_key` is the normalized form: uppercased,
+# all whitespace removed, any "(DE3)" stripped -- so "BL21 (DE3)", "BL21(DE3)" and
+# "BL21(DE3) Star" reduce to BL21 / BL21STAR. is_proxy=1 means the assigned GEM is from
+# a different lineage than the strain and is standing in for a model that does not exist.
+# lineage `non_strain` and `unresolved` are dropped by the builder under their own blocker.
+MG1655	K12/MG1655	iML1515	0	K-12 reference strain; iML1515 is built on it
+MG1655*	K12/MG1655	iML1515	0	asterisk is a LASER annotation artifact
+K-12MG1655	K12/MG1655	iML1515	0
+BW25113	K12/MG1655	iML1515	0	Keio parent; K-12, MG1655 lineage
+BW25141	K12/MG1655	iML1515	0	Datsenko/Wanner BW series
+BW27784	K12/MG1655	iML1515	0	Datsenko/Wanner BW series; araE constitutive
+BW18302	K12/MG1655	iML1515	0	Datsenko/Wanner BW series
+W3110	K12/MG1655	iML1515	0	K-12; sibling of MG1655
+K-12	K12/MG1655	iML1515	0	unspecified K-12; iML1515 is the K-12 reference model
+K12	K12/MG1655	iML1515	0	unspecified K-12
+MC4100	K12/MG1655	iML1515	0	K-12 derivative
+JM109	K12/MG1655	iML1515	0	K-12 (JM101 lineage), NOT DH lineage
+JM101	K12/MG1655	iML1515	0	K-12
+JM110	K12/MG1655	iML1515	0	K-12, dam/dcm
+XL1-BLUE	K12/MG1655	iML1515	0	K-12
+AM102	K12/MG1655	iML1515	0	K-12 derivative
+AM94	K12/MG1655	iML1515	0	K-12 derivative
+W1485	K12/MG1655	iML1515	0	K-12 -- the W is a historical label, NOT E. coli W
+NZN111	K12/MG1655	iML1515	0	W1485 derivative; engineered ldhA- pflAB- (base is wild-type)
+VW4000	K12/MG1655	iML1515	0	LJ110/W3110 derivative; all PTS+glucose uptake systems deleted
+CLM24	K12/MG1655	iML1515	0	W3110 derivative, waaL-
+EcNR2	K12/MG1655	iML1515	0	MG1655 MAGE strain; mutS-, bioA/bioB-, lambda-Red
+S17-1	K12/MG1655	iML1515	0	E. coli 294 (K-12) derivative, RP4 conjugative
+DHB4	K12/MG1655	iML1515	0	Dana Boyd strain, MC1000 lineage -- the DH prefix is a FALSE FRIEND, not DH5a/DH10B
+DHB10	K12/MG1655	iML1515	0	Dana Boyd strain, K-12; same false-friend prefix as DHB4
+HB101	K12/hybrid	iML1515	1	K-12 x B hybrid (recA13); genome is mostly K-12, proxy flagged
+C600	K12/MG1655	iML1515	0	K-12
+AB2847	K12/MG1655	iML1515	0	K-12, aroB-
+MG-105	K12/MG1655	iML1515	0	MG1655 derivative
+NST74	K12/MG1655	iML1515	0	aromatic overproducer (feedback-resistant aroG/pheA); SAME STRAIN as ATCC31884
+ATCC31884	K12/MG1655	iML1515	0	= NST74; deposited separately, not an independent observation
+ATCC31882	K12/MG1655	iML1515	0	aromatic-pathway overproducer, K-12 lineage
+DH10B	K12/DH	iECDH10B	0
+DH10BETA	K12/DH	iECDH10B	0
+NEB10BETA	K12/DH	iECDH10B	0	DH10B derivative
+DH5ALPHA	K12/DH	iECDH10B	0
+DH5A	K12/DH	iECDH10B	0
+DH1	K12/DH	iECDH10B	0
+AG1	K12/DH	iECDH10B	0	recA+ DH1 derivative
+TOP10	K12/DH	iECDH10B	0	DH10B derivative
+BL21	B	iML1515	1	B lineage; no B-lineage GEM exists -- iML1515 stands in
+BL21STAR	B	iML1515	1	BL21 rne131 derivative
+C41	B	iML1515	1	BL21(DE3) walker derivative
+C41OVEREXPRESS	B	iML1515	1	C41(DE3) as annotated in LASER
+BAP1	B	iML1515	1	BL21(DE3) sfp+ prpE+ derivative
+B	B	iML1515	1	unspecified E. coli B
+ATCC11303	B	iML1515	1	E. coli B type deposit
+B0016	B	iML1515	1	B-lineage industrial succinate strain
+W	W	iML1515	1	E. coli W (ATCC 9637); no W GEM exists
+C	C	iML1515	1	E. coli C; no C GEM exists
+ATCC8739	C	iML1515	1	E. coli C (Crooks)
+KJ122	C	iML1515	1	Ingram-lab ATCC 8739 derivative
+IJO1366	non_strain	-	0	a MODEL identifier, not a strain -- in-silico record
+IJ10366	non_strain	-	0	typo of iJO1366; a model identifier, not a strain
+SIMULATED	non_strain	-	0	explicitly in-silico
+YH19	unresolved	-	0	no parent strain recoverable from the record
+TC4	unresolved	-	0	no parent strain recoverable from the record
+ATCC879	unresolved	-	0	ATCC deposit not resolvable to a lineage with confidence
+DSM14335	unresolved	-	0	DSMZ deposit not resolvable to a lineage with confidence
+CL111	unresolved	-	0	no parent strain recoverable from the record
+BW2	unresolved	-	0	ambiguous label; not confidently a Datsenko/Wanner BW strain
+BW3	unresolved	-	0	ambiguous label; not confidently a Datsenko/Wanner BW strain

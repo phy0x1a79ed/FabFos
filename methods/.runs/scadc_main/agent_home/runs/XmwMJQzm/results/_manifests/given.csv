@@ -1,8 +1,0 @@
-instance_key,instance_index,instance_id,type_name,path
-Ip5yo1fu,706496068017274183,cUDb4jBLIw,ecspr::frozen_null,/home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/refs/ecspr_frozen_null
-vNAT43RD,939339087586825539,6wf8PutMlb,ecspr::ieff_axes_report,/home/tony/agentic_workspace/projects/fabfos/scadc/.awm/data/ref/derived/mnxref-4_5/solve_directed/ieff_axes_report.tsv
-xdeUzdZ4,727968464493146190,t4wguhK7rA,containers::ecspr.oci,/msm_home/runs/XmwMJQzm/_metasmith/task/data/IvyoACq9xkYX/ecspr.oci
-aT5KCaxc,525025134430777892,79eubv3FJa,fosmids::recovery_experiment,/msm_home/runs/XmwMJQzm/_metasmith/task/data/Ymf7qCbcMqFp/scadc_main.txt
-vohFRHsV,288073750975865022,W2hwLkxsql,ecspr::reff_axes_report,/home/tony/agentic_workspace/projects/fabfos/scadc/.awm/data/ref/derived/mnxref-4_5/solve_directed/reff_axes_report.tsv
-mIlFiO6w,998115530373274444,VLihte7Frh,sequences::open_reading_frames,/home/tony/agentic_workspace/data/scadc/fabfos_2026/orfs_199.faa
-CS92or1c,720626292830168825,m0nH8nP0l5,lib::ecspr_significance.py,/msm_home/runs/XmwMJQzm/_metasmith/task/data/GWVC6WPW1X1W/ecspr_significance.py

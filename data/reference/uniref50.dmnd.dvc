@@ -1,0 +1,5 @@
+outs:
+- md5: 943f855c2955dd8d356227212e318aef
+  size: 25345024406
+  hash: md5
+  path: uniref50.dmnd

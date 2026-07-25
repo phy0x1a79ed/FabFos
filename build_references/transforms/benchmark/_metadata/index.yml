@@ -1,0 +1,10 @@
+manifest:
+  condition_gpr.py:
+    type: transforms::transform
+  conditions.py:
+    type: transforms::transform
+  host_gpr_denovo.py:
+    type: transforms::transform
+  host_gpr_gem.py:
+    type: transforms::transform
+schema: v1

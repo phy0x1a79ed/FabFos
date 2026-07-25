@@ -32,14 +32,11 @@ transforms/build/benchmark/v3_build/run_star_universe_baseline/
 
 # /data is the project's DATA FOLDER, tracked via DVC: `data/<chunk>` holds the
 # files and `data/<chunk>.dvc` is the pin that this repo commits. Do NOT ignore
-# it -- DVC writes its own `data/.gitignore` per directory to keep the bulk out;
-# only the pins (and small manifest dirs like `_metadata/`) are tracked.
-
-# raw/LASER is an upstream git checkout (bitbucket.org/jdwinkler/laser_release),
-# already pinned by url+sha256 in provenance/data/laser.yml -- not DVC-tracked,
-# since hashing a tree of git repos as data bytes turns its .git into thousands
-# of cache objects and the checkout stops being a checkout.
-/data/raw/LASER/
+# it here -- the whole data layer is governed by the single `data/.gitignore`,
+# which lists one line per DVC chunk (including raw/LASER) and by existing
+# suppresses the per-directory files DVC would otherwise scatter. Add a chunk
+# there when you `dvc add` it; only the pins and the small `_metadata/`
+# manifests are tracked.
 
 # test artifacts: regenerable DAG renders from tests/*.py
 tests/artifacts/

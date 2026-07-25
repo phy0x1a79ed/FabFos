@@ -1,9 +1,0 @@
-element	facet	auc_essential_vs_not	n_essential	n_nonessential	n_essential_total	n_nonessential_total
-C	netA_iML1515	0.7511927480916031	131	32	131	32
-S	netA_iML1515		2	0	2	0
-C	netA_iECDH10B	0.7608540076335878	131	32	131	32
-S	netA_iECDH10B		2	0	2	0
-C	netB_iML1515	0.7767175572519084	131	32	131	32
-S	netB_iML1515		2	0	2	0
-C	netB_iECDH10B	0.7655057251908397	131	32	131	32
-S	netB_iECDH10B		2	0	2	0

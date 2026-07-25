@@ -1,2 +1,0 @@
-2026-07-20_19-31-55 E| FATAL:   Unable to handle docker://quay.io/hallamlab/external_ecspr:2026.07.14 uri: failed to get checksum for docker://quay.io/hallamlab/external_ecspr:2026.07.14: reading manifest 2026.07.14 in quay.io/hallamlab/external_ecspr: unauthorized: access to the requested resource is not authorized
-2026-07-20_19-31-56 E| a non-zero exit code ocurred while running script in container

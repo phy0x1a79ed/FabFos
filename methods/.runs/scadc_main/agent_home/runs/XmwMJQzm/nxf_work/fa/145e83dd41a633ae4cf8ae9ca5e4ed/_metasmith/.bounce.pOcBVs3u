@@ -1,7 +1,0 @@
-cd /ws
-on_exit() {
-    echo $? > exitcode.UG4DcD6pPekc
-}
-trap on_exit EXIT
-set -e
-python /msm_home/runs/XmwMJQzm/_metasmith/task/data/GWVC6WPW1X1W/ecspr_significance.py run --lane reff             --report /home/tony/agentic_workspace/projects/fabfos/scadc/.awm/data/ref/derived/mnxref-4_5/solve_directed/reff_axes_report.tsv --nulls-dir /home/tony/agentic_workspace/projects/fabfos/scadc/methods/.runs/scadc_main/refs/ecspr_frozen_null             --faa /home/tony/agentic_workspace/data/scadc/fabfos_2026/orfs_199.faa --out /ws/1-1-1.UEMn65K6guS9cpWl-pKixB8Yw.tsv

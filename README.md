@@ -33,6 +33,7 @@ src/
   metasmith/            # submodule → Metasmith @ release (the framework)
   metasmith_libraries/  # submodule → MetasmithLibraries @ feat/fabfos (the fosmid transforms)
 transforms/{build,run}/ # build = compile data dependencies; run = consume them
+build_references/       # bakes the compiled reference tables into data/reference/ (see run.sh)
 containers/<name>/      # only images WE build; public ones are pinned, not vendored
 examples/               # worked templates for calling metasmith directly
 reports/dag/            # rendered workflow DAGs (from the planner, not hand-drawn)
@@ -193,6 +194,27 @@ tiebreak. `library.domains_for()` drops the unselected lanes.
   reference inserts. `examples/ecspr_full_dag.py` prints this list every run.
   Each one is a reason the method is not yet portable, and closing them is the
   next revision's main work.
+  **Half-closed.** `build_references/` now produces in-repo, declared, DVC-pinned
+  equivalents of the atom mapping, `direction_ratios`, `ko_to_mnxr` and the
+  Rhea-derived `uniprot_to_mnxr`, plus a per-host GPR table for each of the two
+  evidence lanes — 14 new items in `provenance/data/_declared.yml`. What remains
+  is rewiring: the transforms still name the absolute paths, so the artifacts
+  exist here but nothing consumes them from here yet. `build_references/run.sh`
+  rebuilds all of it; `build_references/check_references.py` is the gate.
+- **`reference_label_pool` has no producer and cannot be derived here**, so the
+  `pbert_transfer` lane is absent from all three hosts' `gpr_denovo.parquet` and
+  each ships three of its four declared lanes. It needs a reference proteome
+  embedded with the same model as the query; the hosts' `*.pbert.*` files are
+  query embeddings, not the pool. The lane is declared in
+  `build_references/lanes.yml` and reported unavailable **by name** on every
+  build, so the gap reads as a gap rather than as a smaller table.
+- **`kegg.requests_db` is declared `MISSING` at a path where it does not exist.**
+  The declaration points at `references/kegg/kegg_requests.db` (empty); the
+  185 MB file is at `cache/kegg_requests.db` in the same data root, and
+  `build_references/build_bridges.py` reads it there to source the KO flat-files.
+  Left alone deliberately: the item is `kind: licensed`,
+  `redistributable: false`, so repointing `src` would stage licensed KEGG data
+  into the library. That is a licensing decision, not a path fix.
 - **The ground null has a producer but has not been produced.**
   `ecsprGround/null.py` is the transform that closes the long-standing
   "`ecspr::frozen_null` has no producer" gap, but it is build-side and expensive

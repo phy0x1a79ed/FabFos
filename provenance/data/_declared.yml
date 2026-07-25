@@ -1041,3 +1041,215 @@ items:
       provenance gate now, rather than discovered at score time as a confusing
       empty join. Filled by the v3 answer-key build; frozen and hashed BEFORE
       any solve runs, which is the property that makes it an answer key at all.
+
+  # ===================================================================
+  # compiled/ -- this repo made it, from the frozen inputs above
+  # (build_references/, see build_references/run.sh)
+  # ===================================================================
+
+  # The three metabolism files are ONE artifact split across three, and are declared as
+  # three because each is separately readable. They carry a byte-identical bake-identity
+  # block and refs.assert_same_bake() refuses a mismatched set -- reading atom_pairs
+  # against another bake's vocab decodes every node to the wrong metabolite and raises
+  # nothing at all.
+  - id: metabolism.compiled.vocab
+    src: repo/data/reference/metabolism/vocab.parquet
+    dest: compiled/metabolism/vocab.parquet
+    type: ref::metabolism_vocab
+    tier: reference
+    kind: derived
+    producer: build_references/bake_metabolism.py
+    inputs: [metanetx.reac_prop]
+    determinism: reproducible
+    note: >-
+      Five id spaces (element, met, rxn, method, source), each densely coded WITHIN its
+      kind. The reaction space is the UNION of the atom-pair and direction tables:
+      20,175 reactions carry direction evidence and no atom pairs, and coding against
+      the smaller set would drop them into the ratio 1.0 default -- fully reversible,
+      i.e. more conductance than the evidence supports.
+
+  - id: metabolism.compiled.atom_pairs
+    src: repo/data/reference/metabolism/atom_pairs.parquet
+    dest: compiled/metabolism/atom_pairs.parquet
+    type: ref::atom_pairs
+    tier: reference
+    kind: derived
+    producer: build_references/bake_metabolism.py
+    inputs: [metabolism.compiled.vocab]
+    determinism: reproducible
+    note: >-
+      2,455,235 atom correspondences, int-coded against vocab, sorted, one parquet row
+      group per element so the element filter prunes row groups. Metabolite and atom
+      rank are stored as SEPARATE columns and packed into a node code at load time:
+      packing at rest destroys parquet's dictionary encoding on the metabolite column
+      (16.75 MB against 9.51 MB) and packing at load costs 4 ms. Orientation is stored
+      as written -- the ratio > 1 edge flip stays a consumer-side operation, because a
+      bake that pre-flipped would double-apply against a consumer that also flips.
+
+  - id: metabolism.compiled.direction
+    src: repo/data/reference/metabolism/direction.parquet
+    dest: compiled/metabolism/direction.parquet
+    type: ref::direction_ratios
+    tier: reference
+    kind: derived
+    producer: build_references/bake_metabolism.py
+    inputs: [metabolism.compiled.vocab]
+    determinism: reproducible
+    note: >-
+      ratio = g_rev/g_fwd = exp(dG'/RT), against the direction the equation is WRITTEN
+      in, so ratio > 1 FLIPS the edge rather than amplifying it. Kept at float64 while
+      pair_w narrows to float32: the consumer's test is a threshold at exactly 1.0, and
+      four reactions sit within float32 epsilon of it, so narrowing silently reorients
+      four edges. dir_tier is what distinguishes "no directional evidence" from
+      "evidence says reversible", which ratio == 1.0 alone cannot.
+
+  # -------------------------------------------------------------------
+  # intermediate -> MNXR bridges
+  - id: bridges.ec_to_mnxr
+    src: repo/data/reference/functional_annotation/bridges/ec_to_mnxr.tsv
+    dest: compiled/bridges/ec_to_mnxr.tsv
+    type: ref::ec_to_mnxr
+    tier: reference
+    kind: derived
+    producer: build_references/build_bridges.py
+    inputs: [metanetx.reac_prop]
+    determinism: reproducible
+
+  - id: bridges.ko_to_kegg_r
+    src: repo/data/reference/functional_annotation/bridges/ko_to_kegg_r.tsv
+    dest: compiled/bridges/ko_to_kegg_r.tsv
+    type: ref::ko_to_kegg_r
+    tier: reference
+    kind: derived
+    producer: build_references/build_bridges.py
+    determinism: >-
+      network-dependent on first build, reproducible thereafter
+    note: >-
+      Lifted from each KO's KEGG flat-file REACTION block, sourced from the scadc KEGG
+      request cache plus a one-time live REST fetch for the 329 KOs it lacked. Declared
+      separately from ko_to_mnxr precisely so that network step is a recorded, hashed
+      artifact rather than a hidden dependency of every rebuild. Scoped to the KOs the
+      declared hosts call plus everything already cached; a new host whose KOs fall
+      outside re-runs the fetch rather than projecting through a narrower bridge.
+
+  - id: bridges.ko_to_mnxr
+    src: repo/data/reference/functional_annotation/bridges/ko_to_mnxr.tsv
+    dest: compiled/bridges/ko_to_mnxr.tsv
+    type: ref::ko_to_mnxr
+    tier: reference
+    kind: derived
+    producer: build_references/build_bridges.py
+    inputs: [bridges.ko_to_kegg_r, metanetx.reac_xref]
+    determinism: reproducible
+    note: >-
+      Agrees with the deployed bridge on all 1,282 (KO, reaction) pairs over the 675
+      KOs both cover. Routing KO through its [EC:...] tag instead would have been easy
+      and wrong: it takes the kofam lane from 646 to 8,548 reactions and makes 91% of
+      them reactions clean_ec already reaches, so the two lanes stop being independent.
+
+  - id: bridges.uniprot_to_mnxr
+    src: repo/data/reference/functional_annotation/bridges/uniprot_to_mnxr.parquet
+    dest: compiled/bridges/uniprot_to_mnxr.parquet
+    type: ref::uniprot_to_mnxr
+    tier: reference
+    kind: derived
+    producer: build_references/build_bridges.py (lib/fabfos_evidence.py build-uniprot-bridge)
+    inputs: [metanetx.reac_xref]
+    determinism: reproducible
+
+  # -------------------------------------------------------------------
+  # per-host GPR tables. Two lanes per host, deliberately separate files so the curated
+  # and the inferred lines of evidence can be compared rather than conflated.
+  - id: hosts.e_coli_dh10b.gpr_gem
+    src: repo/data/reference/hosts/e_coli_dh10b/gpr_gem.parquet
+    dest: compiled/hosts/e_coli_dh10b/gpr_gem.parquet
+    type: ref::gpr_table_gem
+    tier: reference
+    kind: derived
+    producer: build_references/build_host_gem_gpr.py
+    inputs: [metanetx.reac_xref, metabolism.compiled.atom_pairs]
+    determinism: reproducible
+
+  - id: hosts.e_coli_k12.gpr_gem
+    src: repo/data/reference/hosts/e_coli_k12/gpr_gem.parquet
+    dest: compiled/hosts/e_coli_k12/gpr_gem.parquet
+    type: ref::gpr_table_gem
+    tier: reference
+    kind: derived
+    producer: build_references/build_host_gem_gpr.py
+    inputs: [metanetx.reac_xref, metabolism.compiled.atom_pairs]
+    determinism: reproducible
+
+  - id: hosts.e_coli_epi300.gem_identity
+    src: repo/data/reference/hosts/e_coli_epi300/gem_identity_report.md
+    dest: compiled/hosts/e_coli_epi300/gem_identity_report.md
+    type: ref::host_gem_identity_report
+    tier: reference
+    kind: derived
+    producer: build_references/check_epi300_identity.py
+    determinism: reproducible
+    note: >-
+      EPI300 has no curated model of its own and needs none. Measured against the genome
+      announcement (doi 10.1128/mra.01124-25) and both genomes, the EPI300<->DH10B delta
+      is three genes lost (yfdH, rhsA, ypjCB) and three gained (araC, dfrA1, trfA), and
+      none of the six is a model gene; no model gene is absent from EPI300. This report
+      is that measurement, re-run on every build. It is declared because it is what
+      makes two hosts' GEM tables legitimately identical rather than accidentally so.
+
+  - id: hosts.e_coli_epi300.gpr_gem
+    src: repo/data/reference/hosts/e_coli_epi300/gpr_gem.parquet
+    dest: compiled/hosts/e_coli_epi300/gpr_gem.parquet
+    type: ref::gpr_table_gem
+    tier: reference
+    kind: derived
+    producer: build_references/build_host_gem_gpr.py
+    inputs: [hosts.e_coli_epi300.gem_identity, metanetx.reac_xref, metabolism.compiled.atom_pairs]
+    determinism: reproducible
+    note: >-
+      iECDH10B_1368 under the EPI300 host tag. Identical to hosts.e_coli_dh10b.gpr_gem
+      in every column but `host`, and check_references.py asserts that. Any GEM-side
+      comparison between the two strains is therefore null by construction; the real
+      difference lives entirely in gpr_denovo.
+
+  - id: hosts.e_coli_dh10b.gpr_denovo
+    src: repo/data/reference/hosts/e_coli_dh10b/gpr_denovo.parquet
+    dest: compiled/hosts/e_coli_dh10b/gpr_denovo.parquet
+    type: ref::gpr_table_denovo
+    tier: reference
+    kind: derived
+    producer: build_references/build_host_denovo_gpr.py
+    inputs: [bridges.ko_to_mnxr, bridges.ec_to_mnxr, bridges.uniprot_to_mnxr, metabolism.compiled.atom_pairs]
+    determinism: reproducible
+
+  - id: hosts.e_coli_k12.gpr_denovo
+    src: repo/data/reference/hosts/e_coli_k12/gpr_denovo.parquet
+    dest: compiled/hosts/e_coli_k12/gpr_denovo.parquet
+    type: ref::gpr_table_denovo
+    tier: reference
+    kind: derived
+    producer: build_references/build_host_denovo_gpr.py
+    inputs: [bridges.ko_to_mnxr, bridges.ec_to_mnxr, bridges.uniprot_to_mnxr, metabolism.compiled.atom_pairs]
+    determinism: reproducible
+    note: >-
+      K-12's CLEAN file carries a writer defect on 350 lines: a protein description
+      leaked into the EC field and got quoted, leaving the real prediction's ORF id
+      reading `"NP_414593.1`. Left alone that is not a parse error but an identity
+      split -- the deployed table ships 3,879 gene ids for 3,792 real ORFs because of
+      it. The reader disables quoting, strips the stray quotes and reports the count.
+
+  - id: hosts.e_coli_epi300.gpr_denovo
+    src: repo/data/reference/hosts/e_coli_epi300/gpr_denovo.parquet
+    dest: compiled/hosts/e_coli_epi300/gpr_denovo.parquet
+    type: ref::gpr_table_denovo
+    tier: reference
+    kind: derived
+    producer: build_references/build_host_denovo_gpr.py
+    inputs: [bridges.ko_to_mnxr, bridges.ec_to_mnxr, bridges.uniprot_to_mnxr, metabolism.compiled.atom_pairs]
+    determinism: reproducible
+    degraded_mode: >-
+      All three de-novo tables carry three of their four declared lanes. The fourth,
+      pbert_transfer, needs reference_label_pool -- a labelled reference proteome
+      embedded with the same model as the query -- which has no producer and no staged
+      file here and cannot be derived from the reference data that is. The lane is
+      declared in build_references/lanes.yml and reported unavailable by name on every
+      build, so the gap is visible rather than read as a smaller table.

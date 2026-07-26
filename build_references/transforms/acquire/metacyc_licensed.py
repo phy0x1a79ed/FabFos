@@ -52,6 +52,41 @@ MEMBERS = {
 }
 
 
+def _complete(at: Path) -> bool:
+    return all((at / n).exists() and (at / n).stat().st_size > 0 for n in MEMBERS)
+
+
+def _resolve_members(drop_in: Path) -> Path:
+    """Where the members actually are. Two drop-in shapes are both legitimate.
+
+    A distribution unpacked exactly as downloaded keeps its files under a versioned
+    tree -- `<drop_in>/27.1/data/reactions.dat` -- while a hand-flattened drop-in puts
+    them at the top. Requiring the flattened shape makes an undocumented manual step
+    load-bearing on every clean machine that follows the licensing instructions
+    literally, so accept both and say which was used.
+
+    Flattened wins when both are complete: it is the explicit act. Several versioned
+    trees with no flattened copy is a refusal rather than a guess -- picking the
+    highest version silently would decide which MetaCyc release the references were
+    built from, and that belongs to the operator.
+    """
+    if _complete(drop_in):
+        return drop_in
+    versioned = sorted(p for p in drop_in.glob("*/data") if p.is_dir() and _complete(p))
+    if len(versioned) == 1:
+        Log.Info(f"drop-in is an unpacked distribution; reading members from {versioned[0]}")
+        return versioned[0]
+    if len(versioned) > 1:
+        found = "\n".join(f"    {p.relative_to(drop_in)}" for p in versioned)
+        raise SystemExit(
+            f"the MetaCyc drop-in at {drop_in} holds more than one complete "
+            f"distribution:\n{found}\n\n"
+            f"Which release the references are built from is a provenance decision, so "
+            f"this refuses rather than picking one. Keep one, or copy the members of the "
+            f"intended release to {drop_in}/ directly.")
+    return drop_in       # incomplete: fall through to the missing-member report below
+
+
 def protocol(context: ExecutionContext):
     """Verify the drop-in and split it. NEVER fetches -- see the module docstring.
 
@@ -59,7 +94,7 @@ def protocol(context: ExecutionContext):
     failure mode here is a refusal with instructions, which is the correct behaviour on a
     machine whose operator has not licensed MetaCyc.
     """
-    drop_in = Path(context.Input(flatfiles).local)
+    drop_in = _resolve_members(Path(context.Input(flatfiles).local))
 
     present = {name: (drop_in / name) for name in MEMBERS}
     missing = {n: p for n, p in present.items() if not p.exists() or p.stat().st_size == 0}

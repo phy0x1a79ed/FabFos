@@ -136,18 +136,37 @@ TYPE_LIBRARIES = (
 )
 
 
-def new_inputs(work: Path) -> DataInstanceLibrary:
-    """An input library carrying every type library and the one given."""
+def new_inputs(work: Path, *, require_given: bool = True) -> DataInstanceLibrary:
+    """An input library carrying every type library and the one given.
+
+    `require_given` is the difference between planning and running, and it exists
+    because planning is type-driven and never opens an input -- the plan-only gate
+    resolves this same graph against an empty directory it makes itself. Demanding
+    the licensed bytes before printing a plan therefore refuses work that would
+    have succeeded, which is what it did on a clean machine: the drivers stopped
+    before planning while the gate over the same graph resolved fine.
+
+    A RUN still refuses outright. A stand-in that reached execution would hand
+    `metacyc_licensed` an empty drop-in to verify, and the ensembles would lose
+    the one member that can break a tie between two correlated ones.
+    """
     inputs = DataInstanceLibrary(work / "inputs.xgdb")
     for tl in TYPE_LIBRARIES:
         inputs.AddTypeLibrary(tl)
-    if not METACYC_GIVEN.exists():
-        raise SystemExit(
-            f"the MetaCyc drop-in is not at {METACYC_GIVEN}.\n"
-            f"  MetaCyc/BioCyc flat-files are licensed and not redistributable; place "
-            f"the distribution there manually. It is the ONE given of this graph, and "
-            f"without it neither ensemble has its independent member.")
-    inputs.AddItem(METACYC_GIVEN, "raw::metacyc_flatfiles")
+    given = METACYC_GIVEN
+    if not given.exists():
+        if require_given:
+            raise SystemExit(
+                f"the MetaCyc drop-in is not at {METACYC_GIVEN}.\n"
+                f"  MetaCyc/BioCyc flat-files are licensed and not redistributable; place "
+                f"the distribution there manually. It is the ONE given of this graph, and "
+                f"without it neither ensemble has its independent member.\n"
+                f"  (Planning does not need it -- drop --run to see the plan.)")
+        given = work / "metacyc_standin"
+        given.mkdir(parents=True, exist_ok=True)
+        print(f"NOTE: no MetaCyc drop-in at {METACYC_GIVEN}; standing in an empty "
+              f"directory so the plan can resolve. --run refuses without the real one.")
+    inputs.AddItem(given, "raw::metacyc_flatfiles")
     return inputs
 
 

@@ -129,7 +129,8 @@ def main() -> int:
             "--standins with --run would hand a transform an empty file, and most of "
             "them would produce an empty output and SUCCEED. Plan-only.")
 
-    inputs = new_inputs(a.work)
+    # plan-only never opens the given; only --run needs the licensed bytes
+    inputs = new_inputs(a.work, require_given=a.run)
     n, missing, staged_types = stage_raw(inputs)
     print(f"inputs: {n + 1} staged item(s) from data/raw/")
     if a.standins and missing:

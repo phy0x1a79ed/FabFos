@@ -75,29 +75,44 @@ runtime.
 ### The `msm-fabfos` agent env
 
 `Agent.container` is read as a *conda environment name* under MAMBA, so the agent
-needs an env holding the pinned metasmith. To rebuild it:
+needs an env holding the pinned metasmith — and each step resolves its own env the
+same way, from the `conda:` key of its `env::*.env` declaration. Nothing creates
+these on demand. Build all of them with:
 
 ```bash
-mamba env create -n msm-fabfos -f src/metasmith/envs/base.yml
-E=$(conda info --base)/envs/msm-fabfos; mkdir -p $E/etc/conda/activate.d
-echo 'export PYTHONPATH="'$PWD'/src/metasmith/src${PYTHONPATH:+:$PYTHONPATH}"' \
-  > $E/etc/conda/activate.d/msm_pinned.sh
+bash envs/setup_agent_env.sh
 ```
 
-The activation hook is not optional and not a `.pth`: this machine exports
-`PYTHONPATH=~/lib/locals`, whose `metasmith` symlink points into the metasmith
-`dev` worktree — the one *without* the mamba executor — and PYTHONPATH is placed
-ahead of site-packages, so only an activation-time prepend wins.
+It is idempotent; re-run it after a `git pull` to repoint the hook at the pinned
+engine. Two parts of it are not obvious and are why this is a script rather than
+two commands:
 
-### Known blocker: staging under MAMBA
+- **`base.yml` never installs metasmith.** It is metasmith's *dependency* env and
+  carries a standing comment that it can hold no pip dependencies, so the env has
+  no `metasmith` console script. The MAMBA launcher runs `mamba run -n <env>
+  metasmith api …`, so every step's bootstrap would die on `metasmith: not found`.
+  The script installs `metasmith`/`msm` shims (`exec python -m metasmith "$@"`)
+  rather than `pip install -e`, which would write `*.egg-info` into the pinned
+  submodule and dirty it.
+- **The activation hook is not optional and not a `.pth`.** This machine exports
+  `PYTHONPATH=~/lib/locals`, whose `metasmith` symlink points into the metasmith
+  `dev` worktree — the one *without* the mamba executor — and PYTHONPATH is placed
+  ahead of site-packages, so only an activation-time prepend wins. The script
+  verifies afterwards that `import metasmith` resolves inside `src/metasmith`.
 
-`Deploy` works; `StageWorkflow` does not. The staged-agent API reads
-`AgentPaths.HOME_ROOT` (`/msm_home`) and `WORK_ROOT` (`/ws`) unconditionally, and
-both are *container bind* paths. The MAMBA launcher is `mamba run -n msm-fabfos
-metasmith $@` with no binds, so neither exists and staging dies on
-`FileNotFoundError: /msm_home/lib/agent.yml`. The generated launcher already
-exports `AGENT_HOME` with the real path; nothing on the Python side reads it.
-Fixing it is metasmith engine work, not fabfos work.
+### Staging under MAMBA — fixed
+
+This used to be a hard blocker: `Deploy` worked and `StageWorkflow` did not, because
+the staged-agent API read `AgentPaths.HOME_ROOT` (`/msm_home`) and `WORK_ROOT`
+(`/ws`) unconditionally, and both are *container bind* paths that the relay-free
+MAMBA launcher never creates.
+
+Fixed upstream in the engine (`metasmith` `feat/mamba-executor`, merged here):
+those two roots now resolve from `METASMITH_HOME_ROOT` / `METASMITH_WORK_ROOT`,
+which the relay-free `msm` / `msm_bootstrap` scripts export with the real host
+paths. Container runtimes are byte-identical — the defaults are unchanged, and
+separate immutable `CONTAINER_*` literals are used for shell text that runs
+*inside* a container and must not follow a host override.
 
 Run directories go under `data/scratch/`, which is gitignored and safe to delete.
 

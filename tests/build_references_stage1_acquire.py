@@ -121,7 +121,8 @@ def main() -> int:
             print(f"    dvc add data/{chunk}")
         return 0 if n else 1
 
-    inputs = new_inputs(a.work)
+    # plan-only never opens the given; only --run needs the licensed bytes
+    inputs = new_inputs(a.work, require_given=a.run)
     if a.refetch:
         print("--refetch: nothing staged; every acquisition runs")
         wanted = list(TARGETS)

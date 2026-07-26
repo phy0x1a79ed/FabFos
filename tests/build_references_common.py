@@ -266,6 +266,20 @@ def transform_libraries(with_curation: bool) -> list:
     return libs
 
 
+# The conda env metasmith ITSELF runs in, as against the envs the tools run in.
+#
+# `Agent.container` defaults to a docker:// URI, and under MAMBA that field is read as a
+# conda environment NAME -- both name "the thing this runs in", which is why they share a
+# field. Leaving the default makes staging try `conda run -n docker://quay.io/...` and
+# fail on the characters in the URI, several steps after the runtime was chosen.
+#
+# Built from metasmith's own envs/base.yml plus a .pth onto src/metasmith/src, so the
+# agent runs the PINNED engine. The `msm` env on this machine resolves metasmith through
+# a global symlink into a different worktree, which is the one without the mamba
+# executor -- exactly the version that cannot run this.
+AGENT_ENV = "msm-fabfos"
+
+
 def make_agent(work: Path) -> Agent:
     """MAMBA, not a container runtime.
 
@@ -275,7 +289,8 @@ def make_agent(work: Path) -> Agent:
     global setting -- so the runtime that can run all of them is the only one that can run
     any of this. Both stages use it, so a step cannot mean different things in each.
     """
-    return Agent(home=Source.FromLocal(work / "agent_home"), runtime=Runtime.MAMBA)
+    return Agent(home=Source.FromLocal(work / "agent_home"),
+                 runtime=Runtime.MAMBA, container=AGENT_ENV)
 
 
 def generate(work: Path, inputs: DataInstanceLibrary, targets: list[str],

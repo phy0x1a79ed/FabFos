@@ -109,6 +109,27 @@ environments with no published image, so the runtime that can run all of them is
 that resolves an env declaration's `conda:` key. That is why `src/metasmith` is pinned to
 a `feat/fabfos` carrying the mamba executor.
 
+Choosing MAMBA makes two things the caller's problem that a container runtime handles by
+itself:
+
+- **Every env a step touches needs a `conda:` key.** `Agent.runtime` is one global
+  setting, so this is whole-workflow, not per step, and the assert lands at execution on
+  whichever step's declaration lacks it. `python_for_data_science` and `ncbi-datasets` are
+  specced in `envs/`; `proteinbert` and `clean` are **still container-only** and will
+  block stage 2 the same way.
+- **`Agent.container` is read as a conda environment NAME**, not an image URI. Both stages
+  pass `msm-fabfos` — metasmith's own `envs/base.yml` plus an activation hook putting the
+  pinned `src/metasmith/src` ahead of this machine's `PYTHONPATH`. `tests/README.md`
+  carries the recipe and why a `.pth` cannot do it.
+
+**Staging under MAMBA does not work yet**, and it is an engine gap rather than a wiring
+one: the staged-agent API reads `AgentPaths.HOME_ROOT` (`/msm_home`) and `WORK_ROOT`
+(`/ws`) unconditionally, and both are container *bind* paths that no MAMBA launcher
+creates. `Deploy` succeeds; `StageWorkflow` dies on `FileNotFoundError:
+/msm_home/lib/agent.yml`. The generated launcher already exports `AGENT_HOME` with the
+real path and nothing on the Python side reads it. Until that is fixed in the metasmith
+submodule, both stages plan and render but cannot execute.
+
 ## Data tiers
 
 `build_references/REFERENCES.md` is the contract: every compiled reference, the raw

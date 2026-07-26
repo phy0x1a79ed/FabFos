@@ -104,9 +104,14 @@ already retains the stronger claim.
 **Requires:**
 - `raw/metanetx/4.5/reac_prop.tsv` — EC → MNXR, from the classifs column
 - `raw/metanetx/4.5/reac_xref.tsv` — `kegg.reaction:` → MNXR, and Rhea → MNXR
-- `raw/kegg/ko_to_kegg_r.tsv` — KO → KEGG reaction, from each KO's flat-file `REACTION`
-  block. **Fetched from KEGG REST**, which is why it is a `raw/` acquisition and not a
+- `raw/kegg/ko_to_kegg_r.tsv` — KO → KEGG reaction, from **one call** to KEGG REST's bulk
+  `link/reaction/ko` endpoint (~2 s), which is why it is a `raw/` acquisition and not a
   compiled intermediate. This retires the dependency on scadc's `kegg_requests.db`.
+  It is deliberately **not** the deployed method, which crawled `get/<ko>` per KO and was
+  only ever run over a cached, host-scoped subset: 12,238 rows over 6,220 KOs against the
+  deployed 2,738 over 1,356, verified 99.6% identical per KO on the 3,854 KOs where both
+  exist. **The kofam lane therefore reaches ~6.5× the reactions it did in the deployed
+  build, so its numbers are not comparable to the archived ones.**
 - `raw/rhea/rhea2uniprot.tsv` + `raw/rhea/rhea2uniprot_trembl.tsv.gz` — UniProt → Rhea
 
 *Not* routed KO → EC → MNXR: measured on these three hosts that takes the kofam lane from

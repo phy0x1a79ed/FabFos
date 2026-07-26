@@ -154,7 +154,9 @@ def protocol(context: ExecutionContext):
 
     # Both halves run in the ProteinBERT image. It carries numpy/pandas, and running the
     # slice somewhere else would mean staging a 12 GB gzip across two environments.
-    context.ExecWithContainer(image=image, cmd="python3 _pool_select.py")
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd="python3 _pool_select.py") \
+        .ifVirtualEnvDo(env=image, cmd="python3 _pool_select.py")
 
     threads = context.params.get("cpus", 4)
     # SAME MODEL as the query. A pool embedded with a different model from the one the
@@ -162,15 +164,20 @@ def protocol(context: ExecutionContext):
     # between two embedding spaces is a number with no referent. That is enforced by
     # sharing `env::proteinbert.env` with functionalAnnotation/proteinbert.py, and the
     # flags below are that transform's, verbatim.
-    context.ExecWithContainer(image=image, cmd=f"""
+    _cmd = f"""
         pbert run -i _pool.faa -o pbert_output \
             --threads {threads} --protein_size 512 --model_batch 1024 -x 1
-    """)
+    """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
 
     assemble = ASSEMBLE.format(pool=ipool.container, index_name=INDEX_NAME,
                                stack_name=STACK_NAME)
     context.LocalShell("cat > _pool_assemble.py << 'PYEOF'\n" + assemble + "\nPYEOF\n")
-    context.ExecWithContainer(image=image, cmd="python3 _pool_assemble.py")
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd="python3 _pool_assemble.py") \
+        .ifVirtualEnvDo(env=image, cmd="python3 _pool_assemble.py")
 
     ok = (ipool.local / INDEX_NAME).exists() and (ipool.local / STACK_NAME).exists()
     return ExecutionResult(

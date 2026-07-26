@@ -51,12 +51,12 @@ from metasmith.python_api import (                                      # noqa: 
     TransformInstanceLibrary,
 )
 
-# The runtime enum was renamed ContainerRuntime -> Runtime when the mamba executor
+# The runtime enum was renamed Runtime -> Runtime when the mamba executor
 # landed (a container runtime is no longer the only kind).
 try:
     from metasmith.python_api import Runtime                            # noqa: E402
 except ImportError:                                            # pragma: no cover
-    from metasmith.python_api import ContainerRuntime as Runtime
+    from metasmith.python_api import Runtime as Runtime
 if not hasattr(Runtime, "MAMBA"):                              # pragma: no cover
     import metasmith
     raise SystemExit(
@@ -260,6 +260,9 @@ def transform_libraries(with_curation: bool) -> list:
     if with_curation:
         libs += [
             TransformInstanceLibrary.Load(MLIB / "transforms" / "functionalAnnotation"),
+            # the GPR mappers live here since the fosmids -> fabfos rename;
+            # benchmark/host_gpr_denovo needs gpr_4lane's annotation::gpr_table
+            TransformInstanceLibrary.Load(MLIB / "transforms" / "fabfos"),
             TransformInstanceLibrary.Load(BREF / "transforms" / "compile"),
             TransformInstanceLibrary.Load(BREF / "transforms" / "benchmark"),
         ]

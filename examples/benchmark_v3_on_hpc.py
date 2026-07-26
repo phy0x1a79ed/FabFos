@@ -96,7 +96,7 @@ from fabfos import canon  # noqa: E402
 from fabfos.library import domains_for, resolve_library_root  # noqa: E402
 
 from metasmith.python_api import (  # noqa: E402
-    Agent, ContainerRuntime, DataInstanceLibrary, DataTypeLibrary, Source,
+    Agent, Runtime, DataInstanceLibrary, DataTypeLibrary, Source,
     SshSource, TargetBuilder, TransformInstanceLibrary,
 )
 
@@ -418,7 +418,7 @@ def main() -> int:
 
     if a.plan_only:
         agent = Agent(home=Source.FromLocal(staging / "agent_home"),
-                      runtime=ContainerRuntime.APPTAINER)
+                      runtime=Runtime.APPTAINER)
     else:
         print(f"=== engine pin: {assert_pinned_engine()} ===", flush=True)
         agent_path = f"{a.scratch_root}/{a.user}/ecspr_bench_v3_{ts}"
@@ -437,7 +437,7 @@ def main() -> int:
         prepull_images(a.host, cache_dir, REQUIRED_IMAGES, local_sifs)
 
         agent = Agent(home=SshSource(host=a.host, path=agent_path).AsSource(),
-                      runtime=ContainerRuntime.APPTAINER,
+                      runtime=Runtime.APPTAINER,
                       container=container,
                       setup_commands=SETUP_COMMANDS +
                                      [f"export APPTAINER_CACHEDIR={cache_dir}"])

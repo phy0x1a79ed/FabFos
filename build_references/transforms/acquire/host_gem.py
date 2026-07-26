@@ -51,9 +51,12 @@ def protocol(context: ExecutionContext):
 
     igem = context.Output(gem)
     Log.Info(f"accession {accession} -> BiGG model {bigg_model}")
-    context.ExecWithContainer(image=image, cmd=f"""
+    _cmd = f"""
         wget -q {BIGG_URL.format(bigg_model=bigg_model)} -O {igem.container}
-    """)
+    """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
     return ExecutionResult(
         manifest=[{gem: igem.local}],
         success=igem.local.exists() and igem.local.stat().st_size > 0,

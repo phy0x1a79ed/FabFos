@@ -14,7 +14,11 @@ lib   = TransformInstanceLibrary.ResolveParentLibrary(__file__)
 model = Transform()
 
 image = model.AddRequirement(lib.GetType("env::python_for_data_science.env"))
-gpr   = model.AddRequirement(lib.GetType("annotation::gpr_table_4lane"))
+# The chosen-4 lane set IS `annotation::gpr_table` -- `gpr_4lane` produces the
+# type directly rather than a subtype, so there is exactly one producer and no
+# tiebreak to express here. (This was `gpr_table_4lane` before the lane sets
+# were made canonical; `gpr_table_7lane` remains a subtype.)
+gpr   = model.AddRequirement(lib.GetType("annotation::gpr_table"))
 # The proteome this table describes, only so its accession can name the host. The mapper
 # upstream is host-agnostic by design -- it runs on a fosmid ORF set exactly the same way
 # -- so the attribution has to be attached here rather than inside it.
@@ -102,7 +106,9 @@ def protocol(context: ExecutionContext):
     driver = DRIVER.format(gpr=igpr.container, host=host, prefix=CHANNEL_PREFIX,
                            gpr_cols=repr(GPR_COLS), out=iout.container)
     context.LocalShell("cat > _host_gpr_denovo.py << 'PYEOF'\n" + driver + "\nPYEOF\n")
-    context.ExecWithContainer(image=image, cmd="python3 _host_gpr_denovo.py")
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd="python3 _host_gpr_denovo.py") \
+        .ifVirtualEnvDo(env=image, cmd="python3 _host_gpr_denovo.py")
 
     return ExecutionResult(
         manifest=[{out: iout.local}],

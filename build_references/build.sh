@@ -6,7 +6,7 @@
 # the shipped library's. The split falls out of that:
 #
 #   src/metasmith_libraries/data_types/   env:: lib:: ncbi:: sequences:: annotation::
-#                                         ref:: fosmids::   -- shared, run-side too
+#                                         ref:: fabfos::    -- shared, run-side too
 #   build_references/data_types/          raw:: interm:: bench:: buildlib::
 #                                                            -- build-only
 #

@@ -56,18 +56,21 @@ def protocol(context: ExecutionContext):
     # agreement the combiner discounts: measuring disagreement between two mappers is only
     # meaningful if it is not partly disagreement between two SMILES builders.
     for member in ("rxnmapper", "localmapper"):
-        context.ExecWithContainer(image=image, cmd=f"""
+        _cmd = f"""
             PYTHONPATH={libdir} python3 {libdir}/aam_neural_members.py \
                 --member {member} \
                 --reac-prop {irp.container} \
                 --chem-prop {icp.container} \
                 --out _aam_{member}.tsv
-        """)
+        """
+        context.ExecWithEnv() \
+            .ifContainerDo(env=image, cmd=_cmd) \
+            .ifVirtualEnvDo(env=image, cmd=_cmd)
 
     # Fuse. MetaCyc joins as the third, INDEPENDENT member -- it is a curated database
     # rather than a transformer, so a MetaCyc-inclusive consensus fuses undiscounted and
     # MetaCyc breaks ties the two neural members cannot break between themselves.
-    context.ExecWithContainer(image=image, cmd=f"""
+    _cmd = f"""
         PYTHONPATH={libdir} python3 {libdir}/aam_combine.py \
             --rxnmapper _aam_rxnmapper.tsv \
             --localmapper _aam_localmapper.tsv \
@@ -76,7 +79,10 @@ def protocol(context: ExecutionContext):
             --reac-prop {irp.container} \
             --chem-prop {icp.container} \
             --out {iout.container}
-    """)
+    """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
 
     return ExecutionResult(
         manifest=[{pairs: iout.local}],

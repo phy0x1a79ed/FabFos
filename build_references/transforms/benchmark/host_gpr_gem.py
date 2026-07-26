@@ -173,7 +173,9 @@ def protocol(context: ExecutionContext):
         host=host, channel=CHANNEL, gpr_cols=repr(GPR_COLS), out=iout.container,
     )
     context.LocalShell("cat > _host_gpr_gem.py << 'PYEOF'\n" + driver + "\nPYEOF\n")
-    context.ExecWithContainer(image=image, cmd="python3 _host_gpr_gem.py")
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd="python3 _host_gpr_gem.py") \
+        .ifVirtualEnvDo(env=image, cmd="python3 _host_gpr_gem.py")
 
     return ExecutionResult(
         manifest=[{out: iout.local}],

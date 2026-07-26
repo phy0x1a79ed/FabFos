@@ -25,7 +25,7 @@ def protocol(context: ExecutionContext):
     # Instantiating ComponentContribution is what triggers the download; there is no
     # public "just fetch" entry point, and calling one reaction through it is the
     # cheapest way to prove the cache is complete rather than half-written.
-    context.ExecWithContainer(image=image, cmd=f"""
+    _cmd = f"""
         export {CACHE_ENV}={icache.container}
         export XDG_CACHE_HOME={icache.container}
         python3 - <<'PY'
@@ -35,7 +35,10 @@ w = cc.get_compound("kegg:C00001")
 print("[equilibrator] cache primed;", "water resolved" if w is not None else "water MISSING")
 raise SystemExit(0 if w is not None else 1)
 PY
-    """)
+    """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
     ok = icache.local.exists() and any(icache.local.rglob("*"))
     return ExecutionResult(
         manifest=[{cache: icache.local}],

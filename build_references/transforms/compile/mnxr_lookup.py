@@ -174,7 +174,9 @@ def protocol(context: ExecutionContext):
         out=iout.container,
     )
     context.LocalShell("cat > _mnxr_lookup.py << 'PYEOF'\n" + driver + "\nPYEOF\n")
-    context.ExecWithContainer(image=image, cmd="python3 _mnxr_lookup.py")
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd="python3 _mnxr_lookup.py") \
+        .ifVirtualEnvDo(env=image, cmd="python3 _mnxr_lookup.py")
 
     return ExecutionResult(
         manifest=[{bridge: iout.local}],

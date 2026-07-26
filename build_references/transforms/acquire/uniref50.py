@@ -20,9 +20,12 @@ def protocol(context: ExecutionContext):
     # -c so an interrupted 12 GB transfer resumes rather than restarting, and the file
     # lands gzipped: `diamond makedb` reads .gz directly and the label pool streams it,
     # so decompressing would add 60 GB to the acquisition tier for nothing.
-    context.ExecWithContainer(image=image, cmd=f"""
+    _cmd = f"""
         wget -q -c {UNIREF50_URL} -O {ifasta.container}
-    """)
+    """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
     return ExecutionResult(
         manifest=[{fasta: ifasta.local}],
         success=ifasta.local.exists() and ifasta.local.stat().st_size > 0,

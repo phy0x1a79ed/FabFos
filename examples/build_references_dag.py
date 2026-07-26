@@ -66,13 +66,13 @@ from metasmith.python_api import (
     TargetBuilder,
 )
 
-# The runtime enum was renamed ContainerRuntime -> Runtime when the mamba executor
+# The runtime enum was renamed Runtime -> Runtime when the mamba executor
 # landed (a container runtime is no longer the only kind). Accept either, so this runs
 # against the pinned submodule engine and against an older installed one.
 try:
     from metasmith.python_api import Runtime
 except ImportError:                                            # pragma: no cover
-    from metasmith.python_api import ContainerRuntime as Runtime
+    from metasmith.python_api import Runtime as Runtime
 
 REPO = Path(__file__).resolve().parent.parent
 MLIB = REPO / "src" / "metasmith_libraries"
@@ -147,8 +147,13 @@ def plan(work: Path):
     # functionalAnnotation only, from the shipped library. Its logistics/ sibling
     # carries downloaders that produce the same ref:: types compile/ does, and two
     # producers for one reference is a tiebreak deciding provenance.
+    # fabfos/ carries the GPR mappers, which moved out of functionalAnnotation/
+    # with the namespace rename. host_gpr_denovo consumes annotation::gpr_table,
+    # and gpr_4lane is its only producer, so without this the benchmark lane
+    # dead-ends.
     transforms = [
         TransformInstanceLibrary.Load(MLIB / "transforms" / "functionalAnnotation"),
+        TransformInstanceLibrary.Load(MLIB / "transforms" / "fabfos"),
         TransformInstanceLibrary.Load(BREF / "transforms" / "acquire"),
         TransformInstanceLibrary.Load(BREF / "transforms" / "compile"),
         TransformInstanceLibrary.Load(BREF / "transforms" / "benchmark"),

@@ -10,7 +10,7 @@ import multiprocessing
 import sys
 from pathlib import Path
 
-from metasmith.python_api import ContainerRuntime
+from metasmith.python_api import Runtime
 
 from . import __version__, NAME, SHORT_SUMMARY
 from .pipeline import FabFosInputs, generate_workflow, run_pipeline
@@ -51,8 +51,8 @@ def _build_parser() -> argparse.ArgumentParser:
                     help="reference dir with reactions.dmnd + bridge.tsv")
 
     run = p.add_argument_group("execution")
-    run.add_argument("--runtime", choices=[r.value for r in ContainerRuntime],
-                     default=ContainerRuntime.APPTAINER.value,
+    run.add_argument("--runtime", choices=[r.value for r in Runtime],
+                     default=Runtime.APPTAINER.value,
                      help="container runtime (default: apptainer)")
     run.add_argument("--solve-lane", choices=["directed", "undirected"], default=None,
                      help="which ECSPr solve lane to offer the planner; both produce "
@@ -103,7 +103,7 @@ def _inputs_from_args(a: argparse.Namespace) -> FabFosInputs:
         end_forward=Path(a.endf).resolve() if a.endf else None,
         end_reverse=Path(a.endr).resolve() if a.endr else None,
         ends_facing=a.ends_facing,
-        runtime=ContainerRuntime(a.runtime),
+        runtime=Runtime(a.runtime),
         threads=a.threads,
         solve_lane=a.solve_lane,
         network_lane=a.network_lane,

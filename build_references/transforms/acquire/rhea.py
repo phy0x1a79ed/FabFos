@@ -23,10 +23,13 @@ def protocol(context: ExecutionContext):
     # The TrEMBL half stays GZIPPED. It is the bulk of the 35.7M bridge rows and the
     # consumer reads it compressed; decompressing here would put ~1 GB of TSV in the
     # acquisition tier to save one pandas argument.
-    context.ExecWithContainer(image=image, cmd=f"""
+    _cmd = f"""
         wget -q {BASE_URL}/rhea2uniprot.tsv -O {isw.container}
         wget -q {BASE_URL}/rhea2uniprot_trembl.tsv.gz -O {itr.container}
-    """)
+    """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
     return ExecutionResult(
         manifest=[{swiss: isw.local, trembl: itr.local}],
         success=isw.local.exists() and itr.local.exists(),

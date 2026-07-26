@@ -32,7 +32,7 @@ from pathlib import Path
 from metasmith.python_api import (
     Agent,
     Source,
-    ContainerRuntime,
+    Runtime,
     DataTypeLibrary,
     DataInstanceLibrary,
     TransformInstanceLibrary,
@@ -56,7 +56,7 @@ class FabFosInputs:
     end_forward: Path | None = None
     end_reverse: Path | None = None
     ends_facing: bool = False
-    runtime: ContainerRuntime = ContainerRuntime.APPTAINER
+    runtime: Runtime = Runtime.APPTAINER
     threads: int = 8
     # Which ECSPr lanes to offer the planner. Both members of each pair produce
     # the same type, so handing over both would let the planner pick by
@@ -121,12 +121,12 @@ def build_inputs(inp: FabFosInputs, staging: Path, lib_root: Path):
     if inp.background is not None:
         res.AddItem(str(inp.background), "sequences::background_genome")
     if inp.vector is not None:
-        res.AddItem(str(inp.vector), "fosmids::vector_backbone")
+        res.AddItem(str(inp.vector), "fabfos::vector_backbone")
     if inp.end_forward is not None and inp.end_reverse is not None:
         table = _write_ends_table(staging, inp)
-        table_p = res.AddItem(str(table), "fosmids::end_sequences_table")
-        res.AddItem(str(inp.end_forward), "fosmids::end_sequences_forward", parents={table_p})
-        res.AddItem(str(inp.end_reverse), "fosmids::end_sequences_reverse", parents={table_p})
+        table_p = res.AddItem(str(table), "fabfos::end_sequences_table")
+        res.AddItem(str(inp.end_forward), "fabfos::end_sequences_forward", parents={table_p})
+        res.AddItem(str(inp.end_reverse), "fabfos::end_sequences_reverse", parents={table_p})
 
     if inp.ecspr:
         met_types = DataTypeLibrary.Load(lib_root / "data_types/metabolic.yml")
@@ -161,9 +161,9 @@ def _targets(inp: FabFosInputs) -> TargetBuilder:
 
     nrc = targets.Add("sequences::length_filtered_assembly", parents=reads_parent)
     if inp.vector is not None:
-        targets.Add("fosmids::pool_size_estimate", parents=reads_parent)
+        targets.Add("fabfos::pool_size_estimate", parents=reads_parent)
     if inp.end_forward is not None and inp.end_reverse is not None:
-        targets.Add("fosmids::end_tags", parents={nrc})
+        targets.Add("fabfos::end_tags", parents={nrc})
     if inp.ecspr:
         targets.Add("metabolic::fosmid_bipartite_graph", parents={nrc})
     return targets

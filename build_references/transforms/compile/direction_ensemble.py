@@ -122,14 +122,16 @@ def protocol(context: ExecutionContext):
     ev = EVAL.format(reac_prop=irp.container, chem_prop=icp.container)
     context.LocalShell("cat > _dir_eval.py << 'PYEOF'\n" + ev + "\nPYEOF\n")
 
-    context.ExecWithContainer(image=image, cmd=f"python3 _dir_universe.py")
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=f"python3 _dir_universe.py") \
+        .ifVirtualEnvDo(env=image, cmd=f"python3 _dir_universe.py")
 
     # T2 -- the curated member, orientation-aligned. This is the load-bearing step: a
     # naive metacyc->MNXR join INVERTS the curated call on ~60% of reactions, because
     # REACTION-DIRECTION is stated in MetaCyc's equation orientation and MNXref
     # re-canonicalises orientation on import. dir_curated re-expresses every call by
     # comparing compound sets, and records undecidable cases rather than guessing.
-    context.ExecWithContainer(image=image, cmd=f"""
+    _cmd = f"""
         {env}
         PYTHONPATH={libdir} python3 {libdir}/dir_curated.py \
             --metacyc-reactions {icur.container} \
@@ -138,21 +140,27 @@ def protocol(context: ExecutionContext):
             --chem-xref {icx.container} \
             --out _curated_per_mnxr.parquet \
             --out-per-reaction _curated_per_reaction.parquet
-    """)
+    """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
 
     # The two thermo members. Correlated (both TECRDB-fitted), which is why the combiner
     # floors their fused uncertainty rather than treating them as two independent votes.
     for member in ("eq", "dgbyg"):
-        context.ExecWithContainer(image=image, cmd=f"""
+        _cmd = f"""
             {env}
             PYTHONPATH={libdir} python3 _dir_eval.py {member}
-        """)
+        """
+        context.ExecWithEnv() \
+            .ifContainerDo(env=image, cmd=_cmd) \
+            .ifVirtualEnvDo(env=image, cmd=_cmd)
 
     # T3 -- calibrate category -> dG' on the eQuilibrator MEASURED arm only. The
     # group-contribution arm returns identically zero for group-conserving chemistry,
     # which is exactly what dominates the REVERSIBLE bin, so including it manufactures a
     # fictitiously tight zero-centred bin.
-    context.ExecWithContainer(image=image, cmd=f"""
+    _cmd = f"""
         {env}
         PYTHONPATH={libdir} python3 {libdir}/dir_calibrate.py \
             --curated _curated_per_mnxr.parquet \
@@ -160,11 +168,14 @@ def protocol(context: ExecutionContext):
             --chem-prop {icp.container} \
             --out-calibration _calibration.parquet \
             --out-points _calibration_points.parquet
-    """)
+    """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
 
     # T4 -- fuse. No evidence shrinks toward dG'=0 giving ratio 1.0, so a reaction the
     # ensemble is silent on is a provable no-op rather than an if-branch.
-    context.ExecWithContainer(image=image, cmd=f"""
+    _cmd = f"""
         {env}
         PYTHONPATH={libdir} python3 {libdir}/dir_combine.py \
             --base-mnxrs _universe.json \
@@ -173,7 +184,10 @@ def protocol(context: ExecutionContext):
             --curated _curated_per_mnxr.parquet \
             --calibration _calibration.parquet \
             --out {iout.container}
-    """)
+    """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
 
     return ExecutionResult(
         manifest=[{annotation: iout.local}],

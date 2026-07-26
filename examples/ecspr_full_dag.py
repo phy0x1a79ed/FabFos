@@ -46,7 +46,7 @@ from fabfos import canon  # noqa: E402
 from fabfos.library import resolve_library_root  # noqa: E402
 
 from metasmith.python_api import (  # noqa: E402
-    Agent, ContainerRuntime, DataInstanceLibrary, DataTypeLibrary, Source,
+    Agent, Runtime, DataInstanceLibrary, DataTypeLibrary, Source,
     TargetBuilder, TransformInstanceLibrary,
 )
 
@@ -94,7 +94,7 @@ FROM_INCUMBENT: dict[str, Path] = {
     "functional_annotation::kofam_ko_list": INCUMBENT / "references/kofam/ko_list",
     "functional_annotation::uniref50_dmnd": INCUMBENT / "references/uniref50/uniref50.dmnd",
     "functional_annotation::evidence_source": INCUMBENT / "fabfos_2026/evidence_source.txt",
-    "fosmids::reference_inserts": INCUMBENT / "fabfos_2026/putative_inserts_132_ge29kb.fna",
+    "fabfos::reference_inserts": INCUMBENT / "fabfos_2026/putative_inserts_132_ge29kb.fna",
 }
 
 
@@ -127,11 +127,11 @@ def build_inputs(staging: Path) -> tuple[DataInstanceLibrary, list[str], list[st
     for ns in ("sequences", "fosmids", "functional_annotation", "ecspr"):
         inputs.AddTypeLibrary(namespace=ns, lib=DataTypeLibrary.Load(LIB / f"data_types/{ns}.yml"))
 
-    # The sample root. Nothing produces fosmids::recovery_experiment -- 24
+    # The sample root. Nothing produces fabfos::experiment -- 24
     # transforms require it as their grouping key, so it is staged, and it is
     # what AsSamples() roots on.
     exp = inputs.AddValue("recovery_experiment.txt", "fabfos_ecspr_canonical",
-                          "fosmids::recovery_experiment")
+                          "fabfos::experiment")
 
     via_library, via_incumbent = [], []
     seen: dict[Path, str] = {}
@@ -160,7 +160,7 @@ def build_inputs(staging: Path) -> tuple[DataInstanceLibrary, list[str], list[st
     # unparented instance, and the symptom is an unsatisfiable plan rather than
     # a type error -- compile_evidence fails this way on evidence_source.
     PER_EXPERIMENT = {
-        "fosmids::reference_inserts",
+        "fabfos::reference_inserts",
         "functional_annotation::evidence_source",
     }
     for type_name, path in FROM_INCUMBENT.items():
@@ -211,7 +211,7 @@ def main() -> int:
     resources = [DataInstanceLibrary.Load(LIB / f"resources/{n}") for n in ("containers", "envs", "lib")]
     transforms = [TransformInstanceLibrary.Load(LIB / f"transforms/{d}") for d in DOMAINS]
 
-    agent = Agent(home=Source.FromLocal(staging / "agent_home"), runtime=ContainerRuntime.APPTAINER)
+    agent = Agent(home=Source.FromLocal(staging / "agent_home"), runtime=Runtime.APPTAINER)
 
     print("=== planning ===")
     targets = TargetBuilder()
@@ -224,7 +224,7 @@ def main() -> int:
     targets.Add("ecspr::ground_probe_report")
     targets.Add("ecspr::ground_significance")
     task = agent.GenerateWorkflow(
-        samples=list(inputs.AsSamples("fosmids::recovery_experiment")),
+        samples=list(inputs.AsSamples("fabfos::experiment")),
         resources=resources + [inputs],
         transforms=transforms,
         targets=targets,

@@ -41,7 +41,7 @@ def protocol(context: ExecutionContext):
     ilaser = context.Output(laser)
     ikeio  = context.Output(keio)
 
-    context.ExecWithContainer(image=image, cmd=f"""
+    _cmd = f"""
         git clone --depth 1 {LASER_URL}.git {ilaser.container}
         rev=$(git -C {ilaser.container} rev-parse HEAD)
         echo "$rev" > {ilaser.container}/.PINNED_REV
@@ -50,7 +50,10 @@ def protocol(context: ExecutionContext):
         mkdir -p {ikeio.container}
         wget -q "{KEIO_URL}" -O {ikeio.container}/keio_baba2006_supplementary.zip
         ( cd {ikeio.container} && unzip -o -q keio_baba2006_supplementary.zip )
-    """)
+    """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
 
     ok = (ilaser.local / ".PINNED_REV").exists() and any(ikeio.local.glob("*.xls"))
     return ExecutionResult(

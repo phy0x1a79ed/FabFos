@@ -29,7 +29,7 @@ import pytest
 
 from metasmith.python_api import (
     Agent,
-    ContainerRuntime,
+    Runtime,
     Source,
     DataInstanceLibrary,
     TransformInstanceLibrary,
@@ -80,7 +80,7 @@ def _plan_assembly(work: Path):
     targets.Add("sequences::megahit_assembly")
     targets.Add("sequences::spades_assembly")
 
-    agent = Agent(home=Source.FromLocal(work / "agent_home"), runtime=ContainerRuntime.APPTAINER)
+    agent = Agent(home=Source.FromLocal(work / "agent_home"), runtime=Runtime.APPTAINER)
     task = agent.GenerateWorkflow(
         samples=list(inputs.AsSamples("sequences::read_metadata")),
         resources=[containers, inputs],

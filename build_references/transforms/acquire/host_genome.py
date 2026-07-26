@@ -39,13 +39,13 @@ def protocol(context: ExecutionContext):
     with open(dep_path.local) as f:
         accession = f.readline().strip()
 
-    context.ExecWithContainer(
-        image=image,
-        cmd=f"""\
+    _cmd = f"""\
             datasets download genome accession {accession} \
                 --include gff3,protein,genome,gbff
-        """,
-    )
+        """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
     context.LocalShell("unzip -o ncbi_dataset.zip")
 
     output_manifest = {}

@@ -70,8 +70,9 @@ def protocol(context: ExecutionContext):
                            out_vocab=iv.container, out_pairs=ipr.container,
                            out_direction=idr.container)
     context.LocalShell("cat > _bake_metabolism.py << 'PYEOF'\n" + driver + "\nPYEOF\n")
-    context.ExecWithContainer(
-        image=image, cmd=f"PYTHONPATH={libdir} python3 _bake_metabolism.py")
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=f"PYTHONPATH={libdir} python3 _bake_metabolism.py") \
+        .ifVirtualEnvDo(env=image, cmd=f"PYTHONPATH={libdir} python3 _bake_metabolism.py")
 
     return ExecutionResult(
         manifest=[{out_pairs: ipr.local, out_vocab: iv.local, out_dir: idr.local}],

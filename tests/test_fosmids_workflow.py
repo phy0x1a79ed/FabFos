@@ -3,21 +3,24 @@
 Plans the whole intended chain from raw pooled-clone reads through to ORFs:
 
     reads (per pool) -> host filter -> assembly (megahit + spades)
-      -> cluster contigs -> pool coverage -> chimera split -> coverage trim
+      -> junction split (per pool) -> cluster contigs (all pools)
       -> putative inserts -> ORF prediction
 
 and asserts the resolved plan contains every stage. Two read pools are supplied
-so the single-job aggregation (`group_by=recovery_experiment`) is exercised:
-clustering / coverage must see *both* pools in one job.
+so both aggregations are exercised: `junction_split` runs per pool
+(`group_by=meta`), while `cluster_contigs` groups on the experiment
+(`group_by=exp`) and must see *both* pools' pieces in one job.
 
 Two lineage mechanisms are what make this resolve without editing any existing
 transform:
 
-* **host-filter coercion** -- `cluster_contigs` pins its consumed `assembly` to a
+* **host-filter coercion** -- `junction_split` pins its consumed `assembly` to a
   `host_filtered_short_reads` ancestor, so the planner is forced to insert
   `background_filter` upstream of the assemblers (which accept host-filtered
-  reads because that type extends `clean_short_reads`).
-* **ORF reuse** -- `fosmids::putative_inserts` carries the `origin: assembler`
+  reads because that type extends `clean_short_reads`). This pin lives in
+  whichever transform consumes the assemblies first; that used to be
+  `cluster_contigs`, and moving it is what keeps host filtering in the plan.
+* **ORF reuse** -- `fabfos::putative_inserts` carries the `origin: assembler`
   property, making it a property-superset of `sequences::assembly`, so the
   existing `prodigal` calls ORFs on the final inserts unchanged. The `orfs`
   target is pinned to the inserts so prodigal runs on them, not the raw assembly.
@@ -38,7 +41,7 @@ import pytest
 
 from metasmith.python_api import (
     Agent,
-    ContainerRuntime,
+    Runtime,
     Source,
     DataInstanceLibrary,
     TransformInstanceLibrary,
@@ -56,13 +59,11 @@ N_POOLS = 2
 EXPECTED_TRANSFORMS = {
     "seqkit_reads",      # read QC (feeds bbduk)
     "bbduk",             # read cleaning
-    "background_filter", # host removal (coerced in by cluster_contigs' lineage)
+    "background_filter", # host removal (coerced in by junction_split's lineage)
     "megahit",           # assembler 1
     "spades",            # assembler 2
+    "junction_split",    # vector-backbone junctions -> cut at them
     "cluster_contigs",   # cross-assembler dedup
-    "pool_coverage",     # per-pool read mapping -> merged depth profile
-    "chimera_split",     # coverage-confirmed chimera splitting
-    "coverage_trim",     # depth trim -> final putative inserts
     "prodigal",          # ORF prediction on the final inserts
 }
 
@@ -70,14 +71,14 @@ EXPECTED_TRANSFORMS = {
 def _plan_fosmids(work: Path):
     """Resolve the full recovery pipeline for two read pools. Planning only."""
     inputs = DataInstanceLibrary(work / "inputs.xgdb")
-    for tl in ("sequences.yml", "fosmids.yml"):
+    for tl in ("sequences.yml", "fabfos.yml"):
         inputs.AddTypeLibrary(MLIB / "data_types" / tl)
 
     # one recovery_experiment groups the whole run; each pool's read_metadata
     # (and thus its reads/assembly) descends from it, so the cross-pool
     # clustering/coverage jobs (group_by=experiment) see all pools at once.
     exp = inputs.AddValue(
-        "recovery_experiment.txt", "fabfos_demo", "fosmids::recovery_experiment"
+        "recovery_experiment.txt", "fabfos_demo", "fabfos::experiment"
     )
     for i in range(N_POOLS):
         meta = inputs.AddValue(
@@ -94,6 +95,13 @@ def _plan_fosmids(work: Path):
     host = work / "host.fna"
     host.touch()
     inputs.AddItem(host, "sequences::background_genome")
+
+    # per-run reference: the pCC1 backbone junction_split blasts the contigs
+    # against. Pinned to the experiment so a plan cannot silently reach for a
+    # different run's vector -- the same reason the host pin hangs off `exp`.
+    vector = work / "pCC1.fna"
+    vector.touch()
+    inputs.AddItem(vector, "fabfos::vector_backbone", parents={exp})
     inputs.Save()
 
     resources = [
@@ -103,19 +111,19 @@ def _plan_fosmids(work: Path):
     ]
     transforms = [
         TransformInstanceLibrary.Load(MLIB / "transforms" / d)
-        for d in ("assembly", "fosmids", "metagenomics")
+        for d in ("assembly", "fabfos", "metagenomics")
     ]
 
     # targets: final inserts + report, and ORFs pinned to the inserts so
     # prodigal runs on them (not the raw assembly).
     targets = TargetBuilder()
-    ins = targets.Add("fosmids::putative_inserts")
-    targets.Add("fosmids::putative_insert_report")
+    ins = targets.Add("fabfos::putative_inserts")
+    targets.Add("fabfos::putative_insert_report")
     targets.Add("sequences::orfs", parents={ins})
 
-    agent = Agent(home=Source.FromLocal(work / "agent_home"), runtime=ContainerRuntime.APPTAINER)
+    agent = Agent(home=Source.FromLocal(work / "agent_home"), runtime=Runtime.APPTAINER)
     task = agent.GenerateWorkflow(
-        samples=list(inputs.AsSamples("fosmids::recovery_experiment")),
+        samples=list(inputs.AsSamples("fabfos::experiment")),
         resources=resources,
         transforms=transforms,
         targets=targets,

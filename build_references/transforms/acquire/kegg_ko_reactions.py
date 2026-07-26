@@ -127,7 +127,9 @@ def protocol(context: ExecutionContext):
     driver = DRIVER.format(url=KEGG_LINK_URL, min_pairs=MIN_PAIRS,
                            ko_list=iko.container, out=iout.container)
     context.LocalShell("cat > _kegg_ko_reactions.py << 'PYEOF'\n" + driver + "\nPYEOF\n")
-    context.ExecWithContainer(image=image, cmd="python3 _kegg_ko_reactions.py")
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd="python3 _kegg_ko_reactions.py") \
+        .ifVirtualEnvDo(env=image, cmd="python3 _kegg_ko_reactions.py")
     return ExecutionResult(
         manifest=[{out: iout.local}],
         success=iout.local.exists() and iout.local.stat().st_size > 0,

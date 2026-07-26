@@ -133,7 +133,9 @@ def protocol(context: ExecutionContext):
         out=iout.container,
     )
     context.LocalShell("cat > _condition_gpr.py << 'PYEOF'\n" + driver + "\nPYEOF\n")
-    context.ExecWithContainer(image=image, cmd="python3 _condition_gpr.py")
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd="python3 _condition_gpr.py") \
+        .ifVirtualEnvDo(env=image, cmd="python3 _condition_gpr.py")
     return ExecutionResult(
         manifest=[{out: iout.local}],
         success=iout.local.exists() and iout.local.stat().st_size > 0,

@@ -25,11 +25,14 @@ def protocol(context: ExecutionContext):
     # The tarball unpacks to a `profiles/` directory; --strip-components=1 puts the .hmm
     # files directly under the product, because kofamscan is handed a profile DIRECTORY
     # and a nested extra level makes it find nothing while raising nothing.
-    context.ExecWithContainer(image=image, cmd=f"""
+    _cmd = f"""
         mkdir -p {iprof.container}
         tar -xzf {iarchive.container} -C {iprof.container} --strip-components=1
         cp {ikolist.container} {iko.container}
-    """)
+    """
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=_cmd) \
+        .ifVirtualEnvDo(env=image, cmd=_cmd)
 
     n_hmm = len(list(iprof.local.glob("*.hmm"))) if iprof.local.is_dir() else 0
     Log.Info(f"unpacked {n_hmm:,} HMM profiles")

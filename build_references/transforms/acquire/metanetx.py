@@ -29,7 +29,9 @@ def protocol(context: ExecutionContext):
     fetch = "\n".join(
         f"wget -q --show-progress {BASE_URL}/{name} -O {o.container}"
         for name, o in zip(FILES, outs))
-    context.ExecWithContainer(image=image, cmd=fetch)
+    context.ExecWithEnv() \
+        .ifContainerDo(env=image, cmd=fetch) \
+        .ifVirtualEnvDo(env=image, cmd=fetch)
     return ExecutionResult(
         manifest=[{chem_prop: outs[0].local, chem_xref: outs[1].local,
                    reac_prop: outs[2].local, reac_xref: outs[3].local}],

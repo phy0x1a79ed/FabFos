@@ -4,7 +4,7 @@ From a single ORF FASTA the intended pipeline runs all seven functional-annotati
 tools and folds their outputs into a gene-attributed **GPR table** two ways:
 
     orfs -> {kofamscan, clean, deepec, ezpred, diamond_uniref50, proteinbert, esm_c}
-         -> gpr_4lane  (kofam + CLEAN + uniref50 + ProteinBERT) -> gpr_table_4lane
+         -> gpr_4lane  (kofam + CLEAN + uniref50 + ProteinBERT) -> gpr_table
          -> gpr_7lane  (all seven lanes)                        -> gpr_table_7lane
 
 This test asks the metasmith planner to resolve a workflow that produces *both*
@@ -14,10 +14,10 @@ GPR tables and asserts:
 2. every transform the stage is expected to use is present — the seven run tools
    plus the two mappers.
 
-Both mapper targets are added on purpose: ``gpr_table_4lane`` and
-``gpr_table_7lane`` are distinct subtypes of a shared ``annotation::gpr_table``
-parent, so unless *both* are demanded the planner would resolve only one producer
-and drop a mapper from the DAG.
+Both mapper targets are added on purpose. The chosen-4 lane set IS the canonical
+``annotation::gpr_table`` -- ``gpr_4lane`` produces that type directly -- while
+``gpr_table_7lane`` extends it. Demanding only one would resolve a single producer
+and drop the other mapper from the DAG.
 
 Planning is type-driven: nothing is staged, containerised, or executed, so an
 empty ORF FASTA and empty type-only stand-ins for every staged ``ref::*`` (the
@@ -41,7 +41,7 @@ import pytest
 
 from metasmith.python_api import (
     Agent,
-    ContainerRuntime,
+    Runtime,
     Source,
     DataInstanceLibrary,
     TransformInstanceLibrary,
@@ -52,8 +52,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 MLIB = REPO_ROOT / "src" / "metasmith_libraries"
 ARTIFACTS = Path(__file__).resolve().parent / "artifacts"
 
-# The seven run tools + the two GPR mappers. Each name is the stem of a transform
-# file under transforms/functionalAnnotation/.
+# The seven run tools + the two GPR mappers. The run tools are stems under
+# transforms/functionalAnnotation/; the two mappers live in transforms/fabfos/.
 EXPECTED_TRANSFORMS = {
     "kofamscan",         # KO (HMM bitscore)
     "clean",             # CLEAN contrastive EC
@@ -62,7 +62,7 @@ EXPECTED_TRANSFORMS = {
     "diamond_uniref50",  # UniRef50 homology + analytic BSR
     "proteinbert",       # ProteinBERT embeddings
     "esm_c",             # ESM-C embeddings
-    "gpr_4lane",         # chosen-4 mapper -> gpr_table_4lane
+    "gpr_4lane",         # chosen-4 mapper -> gpr_table (canonical)
     "gpr_7lane",         # full-7 mapper   -> gpr_table_7lane
 }
 
@@ -113,14 +113,15 @@ def _plan_gpr(work: Path):
     ]
     transforms = [
         TransformInstanceLibrary.Load(MLIB / "transforms" / "functionalAnnotation"),
+        TransformInstanceLibrary.Load(MLIB / "transforms" / "fabfos"),
     ]
 
     # both GPR tables must be demanded so both mappers survive planning
     targets = TargetBuilder()
-    targets.Add("annotation::gpr_table_4lane")
+    targets.Add("annotation::gpr_table")
     targets.Add("annotation::gpr_table_7lane")
 
-    agent = Agent(home=Source.FromLocal(work / "agent_home"), runtime=ContainerRuntime.APPTAINER)
+    agent = Agent(home=Source.FromLocal(work / "agent_home"), runtime=Runtime.APPTAINER)
     task = agent.GenerateWorkflow(
         samples=list(inputs.AsSamples("sequences::orfs")),
         resources=resources,

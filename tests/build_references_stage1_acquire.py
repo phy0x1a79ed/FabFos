@@ -22,8 +22,10 @@ WHAT IT PRODUCES -- 11 transforms, and they are three different kinds of thing:
     host_gem            2 curated models from BiGG; EPI300 borrows DH10B's
     literature          the LASER checkout (git, pinned by rev) + the Keio supplement zip
 
-  A CRAWL (rate-limited, hours, and the only step here that is resumable by design)
-    kegg_ko_reactions   ~28k KO records at 0.4 s apart -> ko_to_kegg_r.tsv, ~3 h
+    kegg_ko_reactions   the whole KO -> reaction map in ONE call to KEGG REST's bulk
+                        link endpoint -> ko_to_kegg_r.tsv, ~2 s. This replaced a
+                        per-KO crawl; see the transform for why, and for the
+                        measurement that says the two agree on 99.6% of KOs
 
   DECLARATIONS AND REFUSALS (no network at all)
     host_accessions     the three hosts, as a fact in the library rather than an argument

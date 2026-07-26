@@ -13,6 +13,8 @@ manifest:
     type: transforms::transform
   literature.py:
     type: transforms::transform
+  literature_extractions.py:
+    type: transforms::transform
   metacyc_licensed.py:
     type: transforms::transform
   metanetx.py:

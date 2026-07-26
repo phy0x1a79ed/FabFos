@@ -31,10 +31,13 @@ WHAT IT PRODUCES -- 11 transforms, and they are three different kinds of thing:
     host_accessions     the three hosts, as a fact in the library rather than an argument
     metacyc_licensed    verifies the licensed drop-in and splits out its two members;
                         NEVER fetches -- that is the point of it being the one given
-    literature (again)  eydallin and het_screen are HAND EXTRACTIONS from paper
-                        supplements, so there is nothing to download; the transform
-                        refuses by name when the table is absent rather than shipping a
-                        cohort that is quietly smaller
+    literature_extractions
+                        eydallin and het_screen are HAND EXTRACTIONS from paper
+                        supplements, so there is nothing to download. This transform
+                        CANNOT succeed: it is reachable only when the tables are absent
+                        from data/raw/literature/, and refusing by name is the whole of
+                        its behaviour. Building without them ships a conditions table
+                        that looks complete and is missing two arms.
 
 On a machine that already has the bulk pinned by DVC, most of the above is skipped: every
 chunk already under `data/raw/` is staged as an input, so the planner has no reason to
@@ -87,7 +90,7 @@ TARGETS = [
 
 EXPECTED = {
     "metanetx", "rhea", "kofam", "uniref50", "kegg_ko_reactions",
-    "equilibrator_cache", "literature", "metacyc_licensed",
+    "equilibrator_cache", "literature", "literature_extractions", "metacyc_licensed",
     "host_accessions", "host_genome", "host_gem",
 }
 

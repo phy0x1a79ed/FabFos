@@ -106,7 +106,7 @@ EXPECTED = {
     "host_accessions", "host_genome", "host_gem", "metanetx", "rhea", "kofam",
     "uniref50",
     "kegg_ko_reactions", "metacyc_licensed", "equilibrator_cache",
-    "literature",
+    "literature", "literature_extractions",
     # compile
     "kofam_ref", "uniref50_dmnd", "mnxr_lookup",
     "aam_ensemble", "direction_ensemble", "bake_metabolism",

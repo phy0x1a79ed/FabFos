@@ -63,7 +63,7 @@ TARGETS = [dtype for _id, dtype in _TARGETS]
 # network and licence, not about which directory a transform happens to sit in.
 ACQUIRE = {
     "metanetx", "rhea", "kofam", "uniref50", "kegg_ko_reactions",
-    "equilibrator_cache", "literature", "metacyc_licensed",
+    "equilibrator_cache", "literature", "literature_extractions", "metacyc_licensed",
     "host_genome", "host_gem",
 }
 

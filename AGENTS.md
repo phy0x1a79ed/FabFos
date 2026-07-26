@@ -61,13 +61,37 @@ by *when it runs*, not by what it does:
 type graph: a type a run-side transform consumes (`ref::mnxr_lookup`) must live in the
 submodule's `data_types/ref.yml`, and `LoadTypeLibraries` raises on a duplicate
 namespace, so a second `ref.yml` in `build_references/` is not possible. Build-only
-namespaces (`raw::`, `interm::`, `bench::`) live in `build_references/data_types/`.
+namespaces (`raw::`, `interm::`, `bench::`, `buildlib::`) live in
+`build_references/data_types/`.
 
-`examples/build_references_dag.py` resolves the whole reference build and renders it
-to `tests/artifacts/`. It is the gate on the build library: it fails if any expected
-transform drops out of the plan. **The graph must have exactly one given** — the
-licensed MetaCyc drop-in. A second given means something fetchable is being handed in
-instead of produced.
+The same split applies to **code**, which is why there are two resource namespaces:
+
+| namespace | where | holds | ships |
+|---|---|---|---|
+| `lib::` | `src/metasmith_libraries/resources/lib/` | modules a **run** imports (`fabfos_evidence`, the ECSPr engine) | yes |
+| `buildlib::` | `build_references/resources/buildlib/` | modules only a reference **compile** imports (the AAM and direction ensembles, the bake encoding, the benchmark cohort readers) | no |
+
+A transform requires one the same way `functionalAnnotation/gpr_4lane.py` requires
+`lib::fabfos_evidence.py`, and reaches it with a `sys.path.insert` in its driver.
+
+## Running the reference build
+
+- `examples/build_references_dag.py` — the **gate**. Plan-only, so it runs on a machine
+  holding none of the 41 GB. It fails if any expected transform drops out of the plan,
+  and **the graph must have exactly one given** — the licensed MetaCyc drop-in. A second
+  given means something fetchable is being handed in instead of produced.
+- `examples/build_references_run.py` — the **driver**. `--local-raw` stages `data/raw/`
+  chunks so their fetches are skipped, `--run` executes, `--publish` lands artifacts at
+  the paths `data/` declares. The one-given assertion belongs to the gate, not here:
+  `--local-raw` legitimately adds many givens.
+- `build_references/check_references.py` — the **checks** over a finished run's results.
+  Its NOTE/FAILURE split is load-bearing: a coverage gap you can see is not a failure.
+
+The build runs under the **MAMBA** runtime, not a container one. Three of the envs it
+needs — `build-refs-{rdkit,equilibrator,cobra}`, specced in `envs/` — are conda
+environments with no published image, so the runtime that can run all of them is the one
+that resolves an env declaration's `conda:` key. That is why `src/metasmith` is pinned to
+a `feat/fabfos` carrying the mamba executor.
 
 ## Data tiers
 

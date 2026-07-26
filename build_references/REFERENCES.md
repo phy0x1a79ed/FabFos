@@ -5,12 +5,16 @@ transform instance library**, not a directory of scripts:
 
 ```
 build_references/
-  data_types/     raw:: interm:: bench::        (build-only namespaces)
+  data_types/     raw:: interm:: bench:: buildlib::   (build-only namespaces)
+  resources/
+    buildlib/     the ported method -- the two ensembles, the bake encoding, the
+                  benchmark cohort readers. Build side only; never in the wheel.
   transforms/
     acquire/      11 -- one per upstream source; nothing here is derived
     compile/       7 -- raw -> the direct refs
     benchmark/     4 -- the evaluation set
   build.sh        compiles _metadata/ for this library AND the shipped one
+  check_references.py   the checks over a finished run's results
 ```
 
 New types a **run-side** transform consumes (`ref::mnxr_lookup`) live in
@@ -18,11 +22,18 @@ New types a **run-side** transform consumes (`ref::mnxr_lookup`) live in
 namespace off the YAML filename stem and raises on a duplicate, so a second `ref.yml`
 is not possible. `build.sh` passes both type directories.
 
-**None of the protocols are implemented.** Every one raises `NotImplementedError`.
-The deliverable is the resolved DAG: `examples/build_references_dag.py` plans every
-compiled reference and renders `tests/artifacts/build_references_dag.svg` — 27 steps,
-every expected transform present. What that proves is that the *contracts* compose;
-what it does not prove is that any of them work.
+**All 22 protocols are implemented.** `examples/build_references_dag.py` remains the
+gate — it plans every compiled reference and renders
+`tests/artifacts/build_references_dag.svg` (27 steps, every expected transform present),
+and what it proves is that the *contracts* compose. `examples/build_references_run.py`
+is the other half: it resolves the same graph against real inputs and executes it.
+
+The method behind each table is **ported**, not re-derived — the ensembles, the bake and
+the benchmark belief scheme live in `resources/buildlib/` (`buildlib::`, build side only).
+Two artifacts are deliberately short of their deployed form and say so where they are
+built: B3/B4 read the *extracted* cohort tables rather than re-extracting from the
+papers, and `conditions.tsv` leaves the curated target columns empty rather than
+inferring them. Both are the open decisions recorded at the end of this file.
 
 **The graph has exactly ONE given**, and it is the MetaCyc drop-in — given only
 because it is licensed and cannot be fetched. Everything else is produced, including

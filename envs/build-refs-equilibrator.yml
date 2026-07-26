@@ -1,0 +1,43 @@
+# build-refs-equilibrator -- the direction ensemble's environment.
+#
+# Named by src/metasmith_libraries/resources/env/equilibrator.env
+# (`conda: build-refs-equilibrator`) and used by
+# build_references/transforms/compile/direction_ensemble.py.
+#
+# Both predictive members live here, which is the point: they are CORRELATED (both
+# fitted on TECRDB), so the ensemble discounts their agreement, and that discount is
+# only meaningful if they were computed against each other rather than in two
+# separate runs a version apart.
+#
+#   equilibrator-api  component-contribution over the compound cache
+#   dGbyG             the GNN predictor -- installed from source, weights included.
+#                     REFERENCES.md is explicit that these weights are VENDORED CODE
+#                     and not a `data/` chunk, which is why they arrive through pip
+#                     here rather than through an acquire transform.
+#
+# rdkit is a hard requirement of dGbyG's featuriser and is also what the wildcard
+# abstention check reads: dGbyG returns a confident number for an R-group `*`,
+# because rdkit hands `*` a perfectly valid feature vector.
+#
+# The eQuilibrator compound cache is NOT installed here -- it is `raw::equilibrator_cache`,
+# acquired by acquire/equilibrator_cache.py and passed in, so a build is not silently
+# dependent on the package's first-use fetch.
+name: build-refs-equilibrator
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - rdkit=2026.03.*
+  - pandas=2.3.*
+  - pyarrow>=24
+  - scipy=1.17.*
+  - sqlalchemy
+  - requests
+  - pip
+  - pip:
+      - equilibrator-api==0.7.0
+      - equilibrator-cache==0.7.1
+      - component-contribution==0.7.0
+      - torch==2.8.0
+      - torch-geometric
+      - git+https://github.com/f-wc/dGbyG.git

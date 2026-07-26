@@ -1,0 +1,34 @@
+manifest:
+  aam_combine.py:
+    type: buildlib::aam_combine.py
+  aam_metacyc_member.py:
+    type: buildlib::aam_metacyc_member.py
+  aam_neural_members.py:
+    type: buildlib::aam_neural_members.py
+  bake_metabolism.py:
+    type: buildlib::bake_metabolism.py
+  bench_cohorts.py:
+    type: buildlib::bench_cohorts.py
+  bench_evidence_weights.py:
+    type: buildlib::bench_evidence_weights.py
+  dir_calibrate.py:
+    type: buildlib::dir_calibrate.py
+  dir_canon.py:
+    type: buildlib::dir_canon.py
+  dir_combine.py:
+    type: buildlib::dir_combine.py
+  dir_curated.py:
+    type: buildlib::dir_curated.py
+  dir_metacyc_flatfile.py:
+    type: buildlib::dir_metacyc_flatfile.py
+  dir_refdata.py:
+    type: buildlib::dir_refdata.py
+  dir_thermo_dgbyg.py:
+    type: buildlib::dir_thermo_dgbyg.py
+  dir_thermo_eq.py:
+    type: buildlib::dir_thermo_eq.py
+  ecspr_atom_pairs.py:
+    type: buildlib::ecspr_atom_pairs.py
+  refs_encoding.py:
+    type: buildlib::refs_encoding.py
+schema: v1

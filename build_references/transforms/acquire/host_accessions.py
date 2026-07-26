@@ -34,12 +34,21 @@ HOSTS = {
 
 
 def protocol(context: ExecutionContext):
-    raise NotImplementedError(
-        "contract sketch only -- acquire/host_accessions.py declares what it "
-        "produces so the planner can resolve the DAG. The implementation is one "
-        "context.Output(acc, i=i) per entry in HOSTS; see "
-        "logistics/scatterNcbiAccession.py for the form."
-    )
+    # One output per host -- the scatter. Everything downstream (host_genome, host_gem,
+    # the four annotation lanes, both GPR tables) fans out from here, so the host set is
+    # a fact in this file and nowhere else.
+    outputs = []
+    for i, (host, accession) in enumerate(sorted(HOSTS.items())):
+        outf = context.Output(acc, i=i)
+        # The accession alone, one line, because that is what the shipped
+        # logistics/getNcbiAssembly.py reads. The host NAME is deliberately not written
+        # here: it would make this file a two-column format that only these transforms
+        # understand, and the host name is recoverable from the accession downstream.
+        with open(outf.local, "w") as f:
+            f.write(accession + "\n")
+        Log.Info(f"host {host} -> {accession}")
+        outputs.append({acc: outf.local})
+    return ExecutionResult(manifest=outputs, success=len(outputs) == len(HOSTS))
 
 
 TransformInstance(

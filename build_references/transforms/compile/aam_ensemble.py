@@ -26,12 +26,61 @@ reac_prop  = model.AddRequirement(lib.GetType("raw::metanetx_reac_prop"))
 chem_prop  = model.AddRequirement(lib.GetType("raw::metanetx_chem_prop"))
 reac_xref  = model.AddRequirement(lib.GetType("raw::metanetx_reac_xref"))
 curated    = model.AddRequirement(lib.GetType("raw::metacyc_atom_mappings_smiles"))
+# The method, vendored build-side. ~1,300 lines between the extractor, the two neural
+# members' runner, the curated member's loader and the combiner -- none of which belongs
+# in a driver string, and none of which should ship in the wheel (nothing here runs
+# during a fosmid pipeline).
+extractor  = model.AddRequirement(lib.GetType("buildlib::ecspr_atom_pairs.py"))
+neural     = model.AddRequirement(lib.GetType("buildlib::aam_neural_members.py"))
+curated_m  = model.AddRequirement(lib.GetType("buildlib::aam_metacyc_member.py"))
+combiner   = model.AddRequirement(lib.GetType("buildlib::aam_combine.py"))
 pairs      = model.AddProduct(lib.GetType("interm::aam_pairs"))
 
+
 def protocol(context: ExecutionContext):
-    raise NotImplementedError(
-        "contract sketch only -- compile/aam_ensemble.py declares what it consumes and "
-        "produces so the planner can resolve the DAG; the build is not written yet."
+    irp   = context.Input(reac_prop)
+    icp   = context.Input(chem_prop)
+    irx   = context.Input(reac_xref)
+    icur  = context.Input(curated)
+    ilib  = context.Input(combiner)
+    iout  = context.Output(pairs)
+    libdir = ilib.container.parent
+
+    # The two neural members, each over the whole reaction universe. This is the single
+    # biggest compute in the reference build. Both caches are written into the work
+    # directory and are RESUMABLE off their own TSV, so a killed run costs the reaction it
+    # was on rather than the hours before it.
+    #
+    # Both members see the SAME reaction SMILES, built once by aam_neural_members from
+    # reac_prop + chem_prop. That matters because they are the CORRELATED pair whose
+    # agreement the combiner discounts: measuring disagreement between two mappers is only
+    # meaningful if it is not partly disagreement between two SMILES builders.
+    for member in ("rxnmapper", "localmapper"):
+        context.ExecWithContainer(image=image, cmd=f"""
+            PYTHONPATH={libdir} python3 {libdir}/aam_neural_members.py \
+                --member {member} \
+                --reac-prop {irp.container} \
+                --chem-prop {icp.container} \
+                --out _aam_{member}.tsv
+        """)
+
+    # Fuse. MetaCyc joins as the third, INDEPENDENT member -- it is a curated database
+    # rather than a transformer, so a MetaCyc-inclusive consensus fuses undiscounted and
+    # MetaCyc breaks ties the two neural members cannot break between themselves.
+    context.ExecWithContainer(image=image, cmd=f"""
+        PYTHONPATH={libdir} python3 {libdir}/aam_combine.py \
+            --rxnmapper _aam_rxnmapper.tsv \
+            --localmapper _aam_localmapper.tsv \
+            --metacyc {icur.container} \
+            --reac-xref {irx.container} \
+            --reac-prop {irp.container} \
+            --chem-prop {icp.container} \
+            --out {iout.container}
+    """)
+
+    return ExecutionResult(
+        manifest=[{pairs: iout.local}],
+        success=iout.local.exists() and iout.local.stat().st_size > 0,
     )
 
 TransformInstance(

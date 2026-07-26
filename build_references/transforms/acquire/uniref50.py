@@ -16,9 +16,16 @@ fasta = model.AddProduct(lib.GetType("raw::uniref50_fasta"))
 UNIREF50_URL = "https://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/uniref50.fasta.gz"
 
 def protocol(context: ExecutionContext):
-    raise NotImplementedError(
-        "contract sketch only -- acquire/uniref50.py declares what it consumes and "
-        "produces so the planner can resolve the DAG; the fetch is not written yet."
+    ifasta = context.Output(fasta)
+    # -c so an interrupted 12 GB transfer resumes rather than restarting, and the file
+    # lands gzipped: `diamond makedb` reads .gz directly and the label pool streams it,
+    # so decompressing would add 60 GB to the acquisition tier for nothing.
+    context.ExecWithContainer(image=image, cmd=f"""
+        wget -q -c {UNIREF50_URL} -O {ifasta.container}
+    """)
+    return ExecutionResult(
+        manifest=[{fasta: ifasta.local}],
+        success=ifasta.local.exists() and ifasta.local.stat().st_size > 0,
     )
 
 TransformInstance(

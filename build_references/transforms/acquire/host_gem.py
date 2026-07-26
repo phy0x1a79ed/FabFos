@@ -18,12 +18,45 @@ image = model.AddRequirement(lib.GetType("env::python_for_data_science.env"))
 acc   = model.AddRequirement(lib.GetType("ncbi::assembly_accession"))
 gem   = model.AddProduct(lib.GetType("raw::host_gem"))
 
-BIGG_URL = "http://bigg.ucsd.edu/static/models/{model}.json"
+BIGG_URL = "http://bigg.ucsd.edu/static/models/{bigg_model}.json"
+
+# accession -> the BiGG model that host's GPR is asserted by. Keyed on the accession
+# rather than on a host name because the accession is what arrives here; the host name
+# never crosses this boundary.
+#
+# EPI300 maps to DH10B's model, which is a measured claim rather than a convenience:
+# check_epi300_identity re-measures the delta and its edit list came back EMPTY. That is
+# what makes the two hosts' GEM tables legitimately identical instead of accidentally so,
+# and it is also why any GEM-side comparison of the two strains is null by construction.
+GEM_FOR_ACCESSION = {
+    "GCF_000005845.2": "iML1515",          # E. coli K-12 MG1655
+    "GCF_000019425.1": "iECDH10B_1368",    # E. coli DH10B
+    "GCF_051228345.1": "iECDH10B_1368",    # E. coli EPI300 -- borrows DH10B's, see above
+}
+
 
 def protocol(context: ExecutionContext):
-    raise NotImplementedError(
-        "contract sketch only -- acquire/host_gem.py declares what it consumes and "
-        "produces so the planner can resolve the DAG; the fetch is not written yet."
+    with open(context.Input(acc).local) as f:
+        accession = f.readline().strip()
+    bigg_model = GEM_FOR_ACCESSION.get(accession)
+    if bigg_model is None:
+        # Not a fetch failure: it means a host was added to acquire/host_accessions.py
+        # without deciding which curated model asserts its GPR. Falling back to any model
+        # would attribute one strain's biochemistry to another.
+        raise SystemExit(
+            f"no curated GEM declared for accession {accession}. Add it to "
+            f"GEM_FOR_ACCESSION here -- and if the host has no published model, record "
+            f"which host's model it borrows and the measurement that licenses that, the "
+            f"way EPI300 borrows DH10B's.")
+
+    igem = context.Output(gem)
+    Log.Info(f"accession {accession} -> BiGG model {bigg_model}")
+    context.ExecWithContainer(image=image, cmd=f"""
+        wget -q {BIGG_URL.format(bigg_model=bigg_model)} -O {igem.container}
+    """)
+    return ExecutionResult(
+        manifest=[{gem: igem.local}],
+        success=igem.local.exists() and igem.local.stat().st_size > 0,
     )
 
 TransformInstance(

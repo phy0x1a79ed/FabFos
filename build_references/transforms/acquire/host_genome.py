@@ -14,6 +14,10 @@ The proteome half (sequences::orfs) is what the de-novo GPR lanes consume, so a
 host's evidence comes out of the shipped annotation pipeline rather than from a
 frozen annotation intermediate.
 """
+import glob
+import shutil
+from pathlib import Path
+
 from metasmith.python_api import *
 
 lib   = TransformInstanceLibrary.ResolveParentLibrary(__file__)
@@ -28,11 +32,48 @@ gbk   = model.AddProduct(lib.GetType("sequences::gbk"))
 
 
 def protocol(context: ExecutionContext):
-    raise NotImplementedError(
-        "contract sketch only -- acquire/host_genome.py declares what it consumes "
-        "and produces so the planner can resolve the DAG; the fetch is not written "
-        "yet. See logistics/getNcbiAssembly.py in the shipped library for the "
-        "`datasets download genome accession` form this will take."
+    # Same body as the shipped logistics/getNcbiAssembly.py. The duplication is the
+    # point and is argued in the module docstring: loading that directory would give the
+    # planner a second producer for ref::kofamscan_* and ref::uniref50_diamond_db.
+    dep_path = context.Input(acc)
+    with open(dep_path.local) as f:
+        accession = f.readline().strip()
+
+    context.ExecWithContainer(
+        image=image,
+        cmd=f"""\
+            datasets download genome accession {accession} \
+                --include gff3,protein,genome,gbff
+        """,
+    )
+    context.LocalShell("unzip -o ncbi_dataset.zip")
+
+    output_manifest = {}
+
+    def fix_out(dep, p: Path):
+        op = context.Output(dep)
+        shutil.move(p, op.local)
+        output_manifest[dep] = op.local
+
+    for f in glob.glob("ncbi_dataset/*/*/*"):
+        p = Path(f)
+        Log.Info(f"scanning file [{p}]")
+        match p.name:
+            case "genomic.gff":
+                fix_out(gff, p)
+            case "genomic.gbff":
+                fix_out(gbk, p)
+            case "protein.faa":
+                fix_out(faa, p)
+        # `cds_from_genomic.fna` also ends in genomic.fna and is NOT the assembly; taking
+        # it would make the background reference a CDS set and every background filter
+        # would silently stop matching intergenic sequence.
+        if not p.name.startswith("cds") and p.name.endswith("genomic.fna"):
+            fix_out(fna, p)
+
+    return ExecutionResult(
+        manifest=[output_manifest],
+        success=len(output_manifest) == len(model.produces[0]),
     )
 
 

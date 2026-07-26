@@ -24,14 +24,59 @@ model = Transform()
 image      = model.AddRequirement(lib.GetType("env::python_for_data_science.env"))
 pairs      = model.AddRequirement(lib.GetType("interm::aam_pairs"))
 annotation = model.AddRequirement(lib.GetType("interm::direction_annotation"))
+encoding   = model.AddRequirement(lib.GetType("buildlib::refs_encoding.py"))
+baker      = model.AddRequirement(lib.GetType("buildlib::bake_metabolism.py"))
 out_pairs  = model.AddProduct(lib.GetType("ref::atom_pairs"))
 out_vocab  = model.AddProduct(lib.GetType("ref::metabolism_vocab"))
 out_dir    = model.AddProduct(lib.GetType("ref::direction_ratios"))
 
+# Bake and then verify, in one invocation, against the SAME in-memory paths. The selftest
+# is not optional and is not a separate transform: its whole job is to prove this step
+# changed nothing, and a bake that is written now and checked later is a bake that can
+# ship unchecked.
+DRIVER = r'''
+import sys
+from pathlib import Path
+
+from bake_metabolism import bake, selftest
+
+SRC_PAIRS = Path("{src_pairs}")
+SRC_DIR   = Path("{src_direction}")
+OUT_VOCAB = Path("{out_vocab}")
+OUT_PAIRS = Path("{out_pairs}")
+OUT_DIR   = Path("{out_direction}")
+
+bake(SRC_PAIRS, SRC_DIR, OUT_VOCAB, OUT_PAIRS, OUT_DIR)
+print()
+rc = selftest(SRC_PAIRS, SRC_DIR, OUT_VOCAB, OUT_PAIRS, OUT_DIR)
+if rc != 0:
+    # A failed round trip means the encoding lost or merged something. The merge case
+    # RAISES the network's conductance, so it reads as an improvement downstream -- which
+    # is precisely why this exits non-zero instead of warning.
+    raise SystemExit(rc)
+'''
+
+
 def protocol(context: ExecutionContext):
-    raise NotImplementedError(
-        "contract sketch only -- compile/bake_metabolism.py declares what it consumes and "
-        "produces so the planner can resolve the DAG; the build is not written yet."
+    ip   = context.Input(pairs)
+    ia   = context.Input(annotation)
+    ilib = context.Input(baker)
+    iv   = context.Output(out_vocab)
+    ipr  = context.Output(out_pairs)
+    idr  = context.Output(out_dir)
+    libdir = ilib.container.parent
+
+    driver = DRIVER.format(src_pairs=ip.container, src_direction=ia.container,
+                           out_vocab=iv.container, out_pairs=ipr.container,
+                           out_direction=idr.container)
+    context.LocalShell("cat > _bake_metabolism.py << 'PYEOF'\n" + driver + "\nPYEOF\n")
+    context.ExecWithContainer(
+        image=image, cmd=f"PYTHONPATH={libdir} python3 _bake_metabolism.py")
+
+    return ExecutionResult(
+        manifest=[{out_pairs: ipr.local, out_vocab: iv.local, out_dir: idr.local}],
+        success=all(p.exists() and p.stat().st_size > 0
+                    for p in (ipr.local, iv.local, idr.local)),
     )
 
 TransformInstance(

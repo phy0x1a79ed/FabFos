@@ -60,12 +60,19 @@ from pathlib import Path
 
 from metasmith.python_api import (
     Agent,
-    ContainerRuntime,
     Source,
     DataInstanceLibrary,
     TransformInstanceLibrary,
     TargetBuilder,
 )
+
+# The runtime enum was renamed ContainerRuntime -> Runtime when the mamba executor
+# landed (a container runtime is no longer the only kind). Accept either, so this runs
+# against the pinned submodule engine and against an older installed one.
+try:
+    from metasmith.python_api import Runtime
+except ImportError:                                            # pragma: no cover
+    from metasmith.python_api import ContainerRuntime as Runtime
 
 REPO = Path(__file__).resolve().parent.parent
 MLIB = REPO / "src" / "metasmith_libraries"
@@ -116,7 +123,7 @@ def plan(work: Path):
     for tl in ("ncbi.yml", "sequences.yml", "annotation.yml", "ref.yml",
                "lib.yml"):
         inputs.AddTypeLibrary(MLIB / "data_types" / tl)
-    for tl in ("raw.yml", "interm.yml", "bench.yml"):
+    for tl in ("raw.yml", "interm.yml", "bench.yml", "buildlib.yml"):
         inputs.AddTypeLibrary(BREF / "data_types" / tl)
 
     # THE ONE GIVEN: the licensed MetaCyc drop-in. Type-only stand-in, since
@@ -130,6 +137,11 @@ def plan(work: Path):
     resources = [
         DataInstanceLibrary.Load(MLIB / "resources" / "env"),
         DataInstanceLibrary.Load(MLIB / "resources" / "lib"),
+        # buildlib:: -- the ported method modules (the AAM and direction ensembles, the
+        # bake encoding, the benchmark cohort readers). Build side only, so it is loaded
+        # here and never bundled into the wheel. A resource library, like env and lib, so
+        # it does not add a given.
+        DataInstanceLibrary.Load(BREF / "resources" / "buildlib"),
         inputs,
     ]
     # functionalAnnotation only, from the shipped library. Its logistics/ sibling
@@ -147,7 +159,7 @@ def plan(work: Path):
         targets.Add(dtype)
 
     agent = Agent(home=Source.FromLocal(work / "agent_home"),
-                  runtime=ContainerRuntime.APPTAINER)
+                  runtime=Runtime.APPTAINER)
     return agent.GenerateWorkflow(
         samples=list(inputs.AsSamples("raw::metacyc_flatfiles")),
         resources=resources,
@@ -181,7 +193,7 @@ def main() -> int:
 
         ARTIFACTS.mkdir(parents=True, exist_ok=True)
         svg = ARTIFACTS / "build_references_dag.svg"
-        task.plan.RenderDAG(svg, blacklist_namespaces={"lib", "env"})
+        task.plan.RenderDAG(svg, blacklist_namespaces={"lib", "env", "buildlib"})
         print(f"\nDAG -> {svg}")
         return 1 if missing else 0
 

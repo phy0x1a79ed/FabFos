@@ -17,9 +17,21 @@ PROFILES_URL = "ftp://ftp.genome.jp/pub/db/kofam/profiles.tar.gz"
 KO_LIST_URL  = "ftp://ftp.genome.jp/pub/db/kofam/ko_list.gz"
 
 def protocol(context: ExecutionContext):
-    raise NotImplementedError(
-        "contract sketch only -- acquire/kofam.py declares what it consumes and "
-        "produces so the planner can resolve the DAG; the fetch is not written yet."
+    iprofiles = context.Output(profiles)
+    iko_list = context.Output(ko_list)
+    # The archive is moved, not unpacked: compile/kofam_ref.py untars it. Keeping the
+    # acquisition a byte-for-byte copy of upstream is what lets the unpack be re-run
+    # without re-fetching 400 MB, and is why this is not the shipped
+    # logistics/downloadKofamDB.py (which fuses the two steps).
+    context.ExecWithContainer(image=image, cmd=f"""
+        wget -q {PROFILES_URL} -O profiles.tar.gz
+        wget -q {KO_LIST_URL} -O ko_list.gz
+        gunzip -c ko_list.gz > {iko_list.container}
+        mv profiles.tar.gz {iprofiles.container}
+    """)
+    return ExecutionResult(
+        manifest=[{profiles: iprofiles.local, ko_list: iko_list.local}],
+        success=iprofiles.local.exists() and iko_list.local.exists(),
     )
 
 TransformInstance(

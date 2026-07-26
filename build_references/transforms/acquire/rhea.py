@@ -16,10 +16,20 @@ trembl  = model.AddProduct(lib.GetType("raw::rhea2uniprot_trembl"))
 
 BASE_URL = "https://ftp.expasy.org/databases/rhea/tsv"
 
+
 def protocol(context: ExecutionContext):
-    raise NotImplementedError(
-        "contract sketch only -- acquire/rhea.py declares what it consumes and "
-        "produces so the planner can resolve the DAG; the fetch is not written yet."
+    isw = context.Output(swiss)
+    itr = context.Output(trembl)
+    # The TrEMBL half stays GZIPPED. It is the bulk of the 35.7M bridge rows and the
+    # consumer reads it compressed; decompressing here would put ~1 GB of TSV in the
+    # acquisition tier to save one pandas argument.
+    context.ExecWithContainer(image=image, cmd=f"""
+        wget -q {BASE_URL}/rhea2uniprot.tsv -O {isw.container}
+        wget -q {BASE_URL}/rhea2uniprot_trembl.tsv.gz -O {itr.container}
+    """)
+    return ExecutionResult(
+        manifest=[{swiss: isw.local, trembl: itr.local}],
+        success=isw.local.exists() and itr.local.exists(),
     )
 
 TransformInstance(

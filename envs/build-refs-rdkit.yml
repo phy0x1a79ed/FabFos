@@ -1,0 +1,37 @@
+# build-refs-rdkit -- the AAM ensemble's environment.
+#
+# Named by src/metasmith_libraries/resources/env/rdkit.env (`conda: build-refs-rdkit`)
+# and used by build_references/transforms/compile/aam_ensemble.py.
+#
+# Holds all three members' dependencies, because the ensemble is one transform:
+#   rxnmapper    the BERT attention mapper          (transformers + torch)
+#   localmapper  the graph-neural mapper            (torch + dgl-free 0.1.x line)
+#   metacyc      the curated member                 (rdkit only -- it parses the
+#                                                    shipped mapped reaction SMILES)
+# and rdkit underneath all of them, because the shared identity every member is
+# expressed in -- (metabolite, canonical atom rank) -- is an rdkit canonical rank.
+#
+# Modelled on the machine-local `scadc-aam` env that produced the deployed
+# atom_pairs, deliberately: two mappers on different rdkit versions can canonicalise
+# the same metabolite to different atom ranks, and then the members stop naming the
+# same physical atom the same node without anything raising.
+#
+# CPU torch. The mappers run over ~57.5k reactions; that is a long job either way and
+# a CUDA pin here would make the env unbuildable on a machine without a GPU.
+name: build-refs-rdkit
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - rdkit=2026.03.*
+  - numpy<2
+  - pandas=2.3.*
+  - pyarrow>=24
+  - scipy=1.17.*
+  - requests
+  - pip
+  - pip:
+      - torch==2.2.1
+      - transformers==4.49.0
+      - rxnmapper==0.4.3
+      - localmapper==0.1.5

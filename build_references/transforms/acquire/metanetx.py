@@ -18,10 +18,22 @@ reac_xref  = model.AddProduct(lib.GetType("raw::metanetx_reac_xref"))
 
 BASE_URL = "https://www.metanetx.org/ftp/4.5"
 
+# The four files, in the order the products are declared. Named as a table so the fetch
+# loop cannot pair a file with the wrong product -- which would be undetectable, because
+# all four are MetaNetX TSVs with the same comment header.
+FILES = ("chem_prop.tsv", "chem_xref.tsv", "reac_prop.tsv", "reac_xref.tsv")
+
+
 def protocol(context: ExecutionContext):
-    raise NotImplementedError(
-        "contract sketch only -- acquire/metanetx.py declares what it consumes and "
-        "produces so the planner can resolve the DAG; the fetch is not written yet."
+    outs = [context.Output(d) for d in (chem_prop, chem_xref, reac_prop, reac_xref)]
+    fetch = "\n".join(
+        f"wget -q --show-progress {BASE_URL}/{name} -O {o.container}"
+        for name, o in zip(FILES, outs))
+    context.ExecWithContainer(image=image, cmd=fetch)
+    return ExecutionResult(
+        manifest=[{chem_prop: outs[0].local, chem_xref: outs[1].local,
+                   reac_prop: outs[2].local, reac_xref: outs[3].local}],
+        success=all(o.local.exists() and o.local.stat().st_size > 0 for o in outs),
     )
 
 TransformInstance(

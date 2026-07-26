@@ -17,9 +17,25 @@ profiles   = model.AddProduct(lib.GetType("ref::kofamscan_profiles"))
 ko_list    = model.AddProduct(lib.GetType("ref::kofamscan_ko_list"))
 
 def protocol(context: ExecutionContext):
-    raise NotImplementedError(
-        "contract sketch only -- compile/kofam_ref.py declares what it consumes and "
-        "produces so the planner can resolve the DAG; the build is not written yet."
+    iarchive = context.Input(archive)
+    ikolist  = context.Input(raw_kolist)
+    iprof    = context.Output(profiles)
+    iko      = context.Output(ko_list)
+
+    # The tarball unpacks to a `profiles/` directory; --strip-components=1 puts the .hmm
+    # files directly under the product, because kofamscan is handed a profile DIRECTORY
+    # and a nested extra level makes it find nothing while raising nothing.
+    context.ExecWithContainer(image=image, cmd=f"""
+        mkdir -p {iprof.container}
+        tar -xzf {iarchive.container} -C {iprof.container} --strip-components=1
+        cp {ikolist.container} {iko.container}
+    """)
+
+    n_hmm = len(list(iprof.local.glob("*.hmm"))) if iprof.local.is_dir() else 0
+    Log.Info(f"unpacked {n_hmm:,} HMM profiles")
+    return ExecutionResult(
+        manifest=[{profiles: iprof.local, ko_list: iko.local}],
+        success=n_hmm > 0 and iko.local.exists() and iko.local.stat().st_size > 0,
     )
 
 TransformInstance(

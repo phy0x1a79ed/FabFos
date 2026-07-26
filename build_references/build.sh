@@ -7,11 +7,17 @@
 #
 #   src/metasmith_libraries/data_types/   env:: lib:: ncbi:: sequences:: annotation::
 #                                         ref:: fosmids::   -- shared, run-side too
-#   build_references/data_types/          raw:: interm:: bench::
+#   build_references/data_types/          raw:: interm:: bench:: buildlib::
 #                                                            -- build-only
 #
 # A new type that a RUN-side transform will consume (ref::mnxr_lookup, say) belongs
 # in the shipped library, not here.
+#
+# The same split applies to CODE, which is why there are two uniques loops below.
+# `lib::` (submodule) ships in the wheel because a fosmid run executes it; `buildlib::`
+# does not, because nothing in it runs outside a reference compile. Shipping the
+# reaction-universe mappers and the thermodynamics ensemble to someone who installed
+# FabFos to assemble fosmids is the thing that split is there to prevent.
 #
 # The shipped library's own transform dirs are rebuilt too: they carry their own
 # pruned copy of the type graph under transforms/*/_metadata/types/, so a change to
@@ -32,6 +38,7 @@ args=(build all
       --types "$HERE/data_types")
 
 for d in "$MLIB"/resources/*/;   do args+=(--uniques    "${d%/}"); done
+for d in "$HERE"/resources/*/;   do args+=(--uniques    "${d%/}"); done
 for d in "$MLIB"/transforms/*/;  do args+=(--transforms "${d%/}"); done
 for d in "$HERE"/transforms/*/;  do args+=(--transforms "${d%/}"); done
 

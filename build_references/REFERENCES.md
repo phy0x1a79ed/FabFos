@@ -25,8 +25,12 @@ is not possible. `build.sh` passes both type directories.
 **All 22 protocols are implemented.** `examples/build_references_dag.py` remains the
 gate — it plans every compiled reference and renders
 `tests/artifacts/build_references_dag.svg` (27 steps, every expected transform present),
-and what it proves is that the *contracts* compose. `examples/build_references_run.py`
-is the other half: it resolves the same graph against real inputs and executes it.
+and what it proves is that the *contracts* compose. Executing the same graph is split in
+two at the tier boundary: `tests/build_references_stage1_acquire.py` fills `raw/` (6 steps
+on a machine that already holds the DVC-pinned bulk, 11 with `--refetch`) and
+`tests/build_references_stage2_curate.py` compiles `reference/` and `benchmark/` from it
+(17 steps). Stage 2 loads `acquire/` as well and asserts none of it is scheduled, so
+"stage 1 did not deliver" is a named failure rather than an unresolvable plan.
 
 The method behind each table is **ported**, not re-derived — the ensembles, the bake and
 the benchmark belief scheme live in `resources/buildlib/` (`buildlib::`, build side only).

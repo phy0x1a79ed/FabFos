@@ -40,6 +40,40 @@ transforms are deferred, and planning never reads the bytes. Renders
 > see the change — `./dev.sh -b` only bundles. See the submodule's build step
 > (`python -m metasmith build all --types … --uniques … --transforms …`).
 
+## `build_references_stage{1,2}_*.py` — not tests
+
+These two are **drivers**, not compile-checks, and they are the exception to
+everything above: they can execute, they read real data, and they write to
+`data/`. They live here because they are the other half of
+`examples/build_references_dag.py` and share its target list, and because
+plan-only is their default — run either with no flags and it prints the plan,
+renders a DAG to `artifacts/` and stops, exactly like the tests around it.
+
+The reference build splits at the tier boundary:
+
+| | | |
+|---|---|---|
+| `build_references_stage1_acquire.py` | fills `data/raw/` | network-bound; 11 acquisitions, 6 on a machine already holding the DVC-pinned bulk |
+| `build_references_stage2_curate.py`  | fills `data/reference/`, `data/benchmark/` | compute-bound; 17 steps, no network |
+
+Stage 2 also loads `acquire/` and then asserts none of it is scheduled. That
+looks backwards — the usual way to enforce a split is to withhold the other
+half's transforms — and it is the point: withholding them turns an unmet input
+into an unresolvable plan whose error names a *type*, leaving you to guess which
+fetch should have covered it. Loading them names the acquisition instead.
+
+`--standins` on stage 2 fills anything stage 1 has not produced with empty files,
+so its curation DAG renders before stage 1 has ever run. Planning never reads
+bytes; running would, so that flag refuses to combine with `--run`.
+
+Both need the pinned engine — `src/metasmith` on `feat/fabfos`, which carries the
+mamba executor. They put it ahead of whatever is installed in the env and fail
+with an explanation if `Runtime.MAMBA` is missing, because three of this build's
+envs are conda-only and metasmith picks `conda:` vs `container:` off one global
+runtime.
+
+Run directories go under `data/scratch/`, which is gitignored and safe to delete.
+
 ## Running
 
 Needs an environment with the `metasmith` package **and** graphviz's `dot` on

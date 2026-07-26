@@ -30,6 +30,14 @@
 #   curated/    hand-authored judgement, no producer. Small TEXT, git-tracked,
 #               never a chunk -- so it appears nowhere below.
 
+# -- scratch/ -----------------------------------------------------------------
+# NOT a chunk and never `dvc add`ed -- the exception to "one line per add target"
+# above. It is where the two build stages put their run directories: the staged
+# input library, the agent home, per-step work dirs and results. Derived,
+# transient, safe to delete. Listed here so a run does not fill `git status` with
+# tens of gigabytes that nothing is ever meant to track.
+/scratch
+
 # -- raw/ ---------------------------------------------------------------------
 /raw/hosts/e_coli_dh10b
 /raw/hosts/e_coli_epi300

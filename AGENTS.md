@@ -80,12 +80,28 @@ A transform requires one the same way `functionalAnnotation/gpr_4lane.py` requir
   holding none of the 41 GB. It fails if any expected transform drops out of the plan,
   and **the graph must have exactly one given** — the licensed MetaCyc drop-in. A second
   given means something fetchable is being handed in instead of produced.
-- `examples/build_references_run.py` — the **driver**. `--local-raw` stages `data/raw/`
-  chunks so their fetches are skipped, `--run` executes, `--publish` lands artifacts at
-  the paths `data/` declares. The one-given assertion belongs to the gate, not here:
-  `--local-raw` legitimately adds many givens.
+- `tests/build_references_stage1_acquire.py` — **stage 1**, the network half. Fills
+  `data/raw/` and touches nothing else. Anything already on disk is staged as an input so
+  its fetch is never scheduled; `--refetch` turns that off and is the only thing that ever
+  exercises the fetch path on a machine that already holds the data.
+- `tests/build_references_stage2_curate.py` — **stage 2**, the compute half. Reads
+  `data/raw/`, writes `data/reference/` and `data/benchmark/`. It loads `acquire/` too and
+  then asserts none of it is scheduled — that is what proves the split held, and it names
+  the acquisition that did not happen rather than a type that could not be resolved.
+  `--standins` renders the pure curation DAG before stage 1 has ever run.
 - `build_references/check_references.py` — the **checks** over a finished run's results.
   Its NOTE/FAILURE split is load-bearing: a coverage gap you can see is not a failure.
+
+Both stages take `--run` (execute; without it they plan, render a DAG and stop) and
+`--publish` (land results at the paths `data/` declares — never automatic, because it
+rewrites DVC directory hashes). Their run directories live under `data/scratch/`, the one
+tier with no permanence guarantee. The one-given assertion belongs to the gate, not to
+either stage: staging `data/raw/` legitimately adds many givens.
+
+The split is at the tier boundary because the two halves fail differently and are re-run
+on different schedules. An acquisition fails on a dead mirror, a rate limit or a licence
+and costs bandwidth to retry; a curation step fails on a bug and costs a day of CPU.
+Fusing them puts a 15 GB download in front of every method fix.
 
 The build runs under the **MAMBA** runtime, not a container one. Three of the envs it
 needs — `build-refs-{rdkit,equilibrator,cobra}`, specced in `envs/` — are conda
